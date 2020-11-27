@@ -13,6 +13,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy')
     grunt.loadNpmTasks('grunt-file-append')
     grunt.loadNpmTasks("grunt-jsbeautifier")
+    grunt.loadNpmTasks('grunt-contrib-watch')
 
 
     var currentdate = new Date();	
@@ -86,11 +87,18 @@ module.exports = function(grunt) {
             }
         },
 
+        // 代码变更监听任务
+        watch: {
+            files: "src/*.*",
+            tasks: [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps']
+        }
+
 
   
       })
   
-      grunt.registerTask('default',  ['clean', 'copy:screeps', 'file_append:versioning', 'screeps']);
+      grunt.registerTask('default',  [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps']);
+      grunt.registerTask('watch',  ["watch"]);
   
       grunt.registerTask('test',     ['jsbeautifier:verify']);
       grunt.registerTask('pretty',   ['jsbeautifier:modify']);

@@ -1,14 +1,15 @@
 // import modules
 require('prototype.spawn')();
-require('version')
-var stateScanner = require('stateScanner');
+require('version');
+let watcher = require('watch-client');
+let stateScanner = require('stateScanner');
 const helper = require('./helper');
 const lib = require('./lib');
 const tower = require('./tower');
 const init = require('./init');
-module.exports.loop = function () {
+module.exports.loop = function() {
     // update code check
-    if(!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
+    if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
         Memory.SCRIPT_VERSION = SCRIPT_VERSION
         console.log('New code uploaded')
     }
@@ -35,7 +36,10 @@ module.exports.loop = function () {
     init.alter();
 
     init.alterOnce();
-    
-    if (Game.time%helper.logRate == 0) 
+
+    // watch values
+    watcher();
+
+    if (Game.time % helper.logRate == 0)
         console.log('--------------------------------------------------------');
 };

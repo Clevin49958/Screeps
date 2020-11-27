@@ -29,7 +29,7 @@ module.exports = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            
+
             // if in target room
             if (creep.room.name == creep.memory.target) {
                 // creep.say('c loot')

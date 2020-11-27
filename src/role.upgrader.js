@@ -1,11 +1,13 @@
-const { UPGRADER } = require("./helper");
+const {
+    UPGRADER
+} = require("./helper");
 const helper = require("./helper");
 
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        creep.say(UPGRADER.slice(0,1))
-        if (creep.memory.target && creep.room.name !=creep.memory.target){
+        creep.say(UPGRADER.slice(0, 1))
+        if (creep.memory.target && creep.room.name != creep.memory.target) {
             helper.moveTargetRoom(creep);
             return;
         }
@@ -30,12 +32,13 @@ module.exports = {
                 // if not in range, move towards the controller
                 creep.moveTo(creep.room.controller);
             }
-            
-            if (!creep.room.controller.my){
-                const target = creep.pos.findClosestByRange(FIND_STRUCTURES,
-                    {filter: s=>s.structureType ==  STRUCTURE_SPAWN || s.structureType == STRUCTURE_EXTENSION});
-                if(target) {
-                    if(creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+
+            if (!creep.room.controller.my) {
+                const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: s => s.structureType == STRUCTURE_SPAWN || s.structureType == STRUCTURE_EXTENSION
+                });
+                if (target) {
+                    if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target);
                     }
                 }
@@ -52,12 +55,14 @@ module.exports = {
             //     }
             //     return;
             // } 
-            if (creep.memory.target && creep.room.name !=creep.memory.target){
+            if (creep.memory.target && creep.room.name != creep.memory.target) {
                 helper.moveTargetRoom(creep);
                 return;
             }
             if (helper.withdrawEnergy(creep)) return;
-            if (creep.memory.target != creep.memory.home) {helper.harvest(creep)};
+            if (creep.memory.target != creep.memory.home) {
+                helper.harvest(creep)
+            };
         }
     }
 };

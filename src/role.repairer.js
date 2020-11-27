@@ -1,11 +1,13 @@
-const { REPAIRER } = require('./helper');
+const {
+    REPAIRER
+} = require('./helper');
 const helper = require('./helper');
 const roleWallRepairer = require('./role.wallRepairer');
 
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        creep.say(REPAIRER.slice(0,1))
+        creep.say(REPAIRER.slice(0, 1))
         // if creep is trying to repair something but has no energy left
         if (creep.memory.working == true && creep.carry.energy == 0) {
             // switch state
@@ -26,7 +28,7 @@ module.exports = {
                 // the second argument for findClosestByPath is an object which takes
                 // a property called filter which can be a function
                 // we use the arrow operator to define it
-                filter: (s) => s.hits < s.hitsMax*0.95 && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART
+                filter: (s) => s.hits < s.hitsMax * 0.95 && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART
             });
 
             // if we find one
@@ -47,13 +49,13 @@ module.exports = {
         else {
             // find closest source
             // find closest source
-            if (creep.memory.target && creep.memory.target != creep.room.name){
+            if (creep.memory.target && creep.memory.target != creep.room.name) {
                 helper.moveTargetRoom(creep);
             }
             if (helper.harvestLoot(creep)) return;
             if (helper.withdrawEnergy(creep)) return;
             // helper.harvest(creep);
-            
+
         }
     }
 };

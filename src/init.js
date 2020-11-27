@@ -1,16 +1,19 @@
-const { ATK_RANGE, WALL_REPAIRER } = require("./helper");
+const {
+    ATK_RANGE,
+    WALL_REPAIRER
+} = require("./helper");
 
 module.exports = {
-    minCreeps: ()=>{
+    minCreeps: () => {
         for (let spawnName in Game.spawns) {
             var spawn = Game.spawns[spawnName];
-            if(!spawn.memory.init){
+            if (!spawn.memory.init) {
                 spawn.memory.init = {};
-            }                
+            }
 
             // if (true){
-            if (!spawn.memory.init.minCreeps){
-                
+            if (!spawn.memory.init.minCreeps) {
+
                 // current room config
                 spawn.memory[spawn.room.name] = {
                     // harvester:0,
@@ -24,7 +27,7 @@ module.exports = {
                 };
 
                 // remote harv room config
-                for (let id in Memory.myRooms[spawn.room.name]){
+                for (let id in Memory.myRooms[spawn.room.name]) {
                     let roomName = Memory.myRooms[spawn.room.name][id];
                     spawn.memory[roomName] = {
                         // harvester:0,
@@ -37,12 +40,13 @@ module.exports = {
                         wallRepairer: 0
                     };
                 }
-                spawn.memory.init.minCreeps =true;
+                spawn.memory.init.minCreeps = true;
             }
         }
     },
-    alter: ()=>{
 
+
+    alter: () => {
         // for (let name in Game.creeps){
         //     var creep = Game.creeps[name];
         //     if (creep.memory.role == ATK_RANGE || creep.memory.role==WALL_REPAIRER){
@@ -52,9 +56,9 @@ module.exports = {
         //     }
         // }
     },
-    alterOnce: ()=>{
+    alterOnce: () => {
         // Memory.init.exec = 0;s
-        if(Memory.exec){
+        if (Memory.exec) {
             // Memory.myRooms.W32N11 = ['W31N11','W32N11','W32N12'];
             // Memory.myRooms.W31N11 = [];
 
