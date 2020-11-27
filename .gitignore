@@ -1,0 +1,5 @@
+/.screeps.json
+/node_modules
+/dist
+/screeps-multimeter.json
+/*.zip
