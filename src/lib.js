@@ -97,26 +97,26 @@ module.exports = {
                 // }
             }
 
+            creepTrack.total = _.reduce(Memory.myRooms[room], (acc, r) => acc + creepTrack[r].total, 0)
+            creepDemand.total = _.reduce(Memory.myRooms[room], (acc, r) => acc + creepDemand[r].total, 0)
+
             if (Game.time % helper.logRate == 0) {
-                var totalGot = 0,
-                    totalNeed = 0;
                 // room based stats
                 console.log(`${spawn.name}: `);
                 Object.keys(Memory.myRooms[room]).forEach(targetRoomID => {
                     targetRoom = Memory.myRooms[room][targetRoomID];
-                    totalGot += creepTrack[targetRoom].total;
-                    totalNeed += creepDemand[targetRoom].total
                     console.log(`'\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`);
                 });
 
                 // role based stats
                 console.log(`Roles: `);
                 [HARV_REMOTE, helper.CARRY, UPGRADER, BUILDER, REPAIRER, WALL_REPAIRER].forEach(role => {
-                    console.log(`'\t${role}: ${_.reduce(creepTrack, 
-                        (acc, targetRoom) => acc+ (typeof targetRoom == 'object'? targetRoom[role]:0), 0)}/` +
+                    var num = _.reduce(creepTrack, 
+                        (acc, targetRoom) => acc+ (typeof targetRoom == 'object'? targetRoom[role]:0), 0)
+                    console.log(`'\t${role}: ${num}/` +
                         `${_.reduce(Memory.myRooms[room], (acc, targetRoom) =>acc+creepDemand[targetRoom][role], 0)}`);
                 });
-                console.log(`Total: ${totalGot}/${totalNeed}`);
+                console.log(`Total: ${creepTrack.total}/${creepDemand.total}`);
             }
 
             // spawn defenders: rangedAtk

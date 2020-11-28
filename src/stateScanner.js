@@ -1,6 +1,7 @@
 const {
     UPGRADER,
-    roleNames
+    roleNames,
+    logRate
 } = require("./helper")
 const helper = require("./helper")
 
@@ -11,7 +12,7 @@ const helper = require("./helper")
 module.exports.stateScanner = function() {
     // 每 20 tick 运行一次
 
-    if (Game.time % 20) return
+    if (Game.time % logRate) return
 
     if (Game.cpu.bucket>9900) {
         Game.cpu.generatePixel();
@@ -43,20 +44,18 @@ module.exports.stateScanner = function() {
 
     storages.forEach(storage => {
         let threshold = 700000;
-        let spawn = storage.pos.findClosestByRange(FIND_MY_SPAWNS)
         if (storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold + 50000) {
             Game.notify(`Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`)
         }
-        if (!spawn.memory[spawn.room.name]) spawn.memory[spawn.room.name] = {};
-        spawn.memory[spawn.room.name][UPGRADER] = storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold ? 4 : 2;
+        Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold ? 4 : 2;
     });
 
-    if (Memory.stats.bucket < 8000) {
+    if (Memory.stats.bucket < 4000) {
         Game.notify("Bucket is low");
     }
 
     if (Game.time % helper.logRate == 0) {
-        console.log(Memory.watch.values);
+        console.log(Memory.watch.values.status);
     }
     
     // CPU 的当前使用量
