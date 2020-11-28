@@ -49,7 +49,7 @@ module.exports.stateScanner = function() {
     storages.forEach(storage => {
         let threshold = 700000;
         let spawn = storage.pos.findClosestByRange(FIND_MY_SPAWNS)
-        if (storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold) {
+        if (storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold + 50000) {
             Game.notify(`Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`)
         }
         if (!spawn.memory[spawn.room.name]) spawn.memory[spawn.room.name] = {};

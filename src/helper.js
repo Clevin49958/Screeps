@@ -89,7 +89,8 @@ module.exports = {
         if (structure) {
             this.payStructure(creep, structure);
             if (structure.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD) {
-                Memory.states.rich[structure.pos.x] = true;
+                // Memory.states.rich[structure.pos.x] = true;
+                Memory.states.rich[structure.id] = true;
             }
         }
         return structure;
@@ -145,7 +146,8 @@ module.exports = {
                 // move towards the source
                 creep.moveTo(source);
             } else if (source.store.getFreeCapacity(RESOURCE_ENERGY) > POOR_THRESHOLD) {
-                Memory.states.rich[source.pos.x] = false;
+                // Memory.states.rich[source.pos.x] = false;
+                Memory.states.rich[source.id] = false;
             }
         }
         return source;
@@ -155,11 +157,11 @@ module.exports = {
         var source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (s) =>
                 s.structureType == STRUCTURE_CONTAINER &&
-                (Memory.states.rich[s.pos.x] || s.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD)
+                (Memory.states.rich[s.id] || s.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD)
         })
         if (source) {
             // console.log(creep,source.pos.x,Memory.states.rich[source.pos.x],source.store.getFreeCapacity(RESOURCE_ENERGY)<RICH_THRESHOLD)
-            Memory.states.rich[source.pos.x] = true;
+            Memory.states.rich[source.id] = true;
             this.withdrawContainer(creep);
         } else {
             if (creep.pos.findInRange(FIND_STRUCTURES, 0, {

@@ -61,14 +61,15 @@ module.exports = function() {
          */
         function(energy, target, home = this.room.name, sourceIndex = 0) {
             // create a balanced body as big as possible with the given energy
-            var numberOfParts = Math.floor((energy - 150) / 100);
+            var numberOfParts = Math.floor((energy - (target == home ? 100:200)) / 100);
             numberOfParts = numberOfParts > 6 ? 6 : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(WORK);
             }
-            // body.push(CARRY);
-            body.push(MOVE);
+            if (target != home) {
+                body.push(CARRY,MOVE);
+            }
             body.push(MOVE);
             body.push(MOVE);
 

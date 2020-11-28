@@ -59,7 +59,7 @@ module.exports = {
             if (false) {
                 // res = spawn.spawnClaimerCreep(target = 'W33N11');
                 spawn.spawnAtkRangeCreep(300, target = 'W33N11', home = 'W32N11')
-                return;
+                continue;
             }
 
             // if colony is dying
@@ -73,7 +73,7 @@ module.exports = {
                     Game.notify(`Something went wrong. only ${totalHarvs}` +
                         ` harvesters & ${_.sum(Game.creeps,(c)=>1)} left` +
                         `Room: ${room} ${JSON.stringify(creepTrack[targetRoom])}`);
-                    return;
+                    continue;
                 }
             } else spawn.memory.tickNoHarv = 0;
 
@@ -83,7 +83,7 @@ module.exports = {
                 // console.log('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
                 if (hostiles.length > 0 && hostiles.length > _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room)) {
                     spawn.spawnAtkRangeCreep(energy, target = targetRoom, home = room);
-                    return;
+                    continue;
                 }
             }
 
@@ -145,7 +145,7 @@ module.exports = {
                     if (res == 0) {
                         console.log(`        Spawned new ${CARRY} ${targetRoom} ${room}`);
                     }
-                    return true;
+                    continue;
                 }
 
                 // spawn harvRemote
@@ -161,7 +161,7 @@ module.exports = {
                         if (res == 0) {
                             console.log(`        Spawned new ${HARV_REMOTE} ${targetRoom} ${room}`);
                         }
-                        return true;
+                        continue;
                     }
                 }
 
@@ -183,7 +183,7 @@ module.exports = {
                             console.log(`Spawned new ${r} ${targetRoom} ${room}`);
                         }
                         if (Game.time % helper.logRate == 0) console.log(`    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${spawn.memory[targetRoom][r]}`);
-                        return;
+                        continue;
                     }
                 }
             };
