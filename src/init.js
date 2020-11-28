@@ -45,6 +45,12 @@ module.exports = {
         }
     },
 
+    addControlledRoom: (targetRoom, room) =>{
+        Memory.myRooms[room].push(targetRoom);
+        let sources = 2;
+        // Memory.creepTrack[Game.rooms[room].]
+
+    },
 
     alter: () => {
         // for (let name in Game.creeps){
@@ -62,7 +68,7 @@ module.exports = {
             // Memory.myRooms.W32N11 = ['W31N11','W32N11','W32N12'];
             // Memory.myRooms.W31N11 = [];
 
-            Memory.sources.W32N12 = 2;
+            // var
 
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory

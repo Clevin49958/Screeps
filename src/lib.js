@@ -36,8 +36,8 @@ module.exports = {
             var spawn = Game.spawns[name];
             var room = spawn.room.name;
             var energy = spawn.room.energyCapacityAvailable;
-            if (!Memory.stats.creepTrack[spawn.name]) Memory.stats.creepTrack[spawn.name] = {};
-            var creepTrack = Memory.stats.creepTrack[spawn.name];
+            if (!Memory.stats.creepTrack[room]) Memory.stats.creepTrack[room] = {};
+            var creepTrack = Memory.stats.creepTrack[room];
             var res = undefined;
 
             // update wall repairer
@@ -47,7 +47,7 @@ module.exports = {
             var totalHarvs;
             totalHarvs = _.sum(Game.creeps,
                 c => c.memory.role == helper.HARVESTER || c.memory.role == helper.HARV_REMOTE &&
-                c.memory.target == room && c.ticksToLive > 75 && c.memory.home == room
+                c.ticksToLive > 75 && c.memory.home == room
             );
 
             // emergency off control
@@ -57,13 +57,14 @@ module.exports = {
 
             // prioritised one off ones 
             if (false) {
-                // res = spawn.spawnClaimerCreep(target = 'W33N11');
-                spawn.spawnAtkRangeCreep(300, target = 'W33N11', home = 'W32N11')
+                if (spawn.name=="Spawn32")
+                spawn.spawnClaimerCreep(target = 'W34N12');
+                // spawn.spawnAtkRangeCreep(300, target = 'W33N11', home = 'W32N11')
                 continue;
             }
 
             // if colony is dying
-            if (totalHarvs < spawn.memory[room][HARV_REMOTE]) {
+            if (totalHarvs < 2) {
                 spawn.memory.tickNoHarv++;
 
                 if (spawn.memory.tickNoHarv > 300) {
@@ -77,16 +78,6 @@ module.exports = {
                 }
             } else spawn.memory.tickNoHarv = 0;
 
-            // spawn defenders: rangedAtk
-            for (let targetRoom of Memory.myRooms[room]) {
-                var hostiles = Game.rooms[targetRoom].find(FIND_HOSTILE_CREEPS);
-                // console.log('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
-                if (hostiles.length > 0 && hostiles.length > _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room)) {
-                    spawn.spawnAtkRangeCreep(energy, target = targetRoom, home = room);
-                    continue;
-                }
-            }
-
             // collect some stats of creeps
             for (let targetRoom of Memory.myRooms[room]) {
                 if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
@@ -96,10 +87,10 @@ module.exports = {
                     (role) => creepTrack[targetRoom][role] = _.sum(Game.creeps, (c) => c.memory.role == role &&
                         c.memory.target == targetRoom && c.memory.home == room && (c.ticksToLive > 300 || (room == targetRoom && c.ticksToLive > 100))
                     ));
-                creepTrack[targetRoom].total = 0;
-                creepTrack[targetRoom].total = Object.values(creepTrack[targetRoom]).reduce((acc, num) => acc + num);
-                spawn.memory[targetRoom].total = 0;
-                spawn.memory[targetRoom].total = Object.values(spawn.memory[targetRoom]).reduce((acc, num) => acc + num);
+                creepTrack[targetRoom].total = Object.keys(creepTrack[targetRoom]).reduce((acc, role) => acc + (role == 'total' ? 0 : creepTrack[targetRoom][role]),0);
+                spawn.memory[targetRoom].total = Object.keys(spawn.memory[targetRoom]).reduce((acc, role) => acc + (role == 'total' ? 0 : spawn.memory[targetRoom][role]), 0);
+
+                // detail logs per room
                 // if (Game.time % helper.logRate ==0) {
                 //     console.log(`Spawn: ${spawn.name} Room: ${targetRoom} ${JSON.stringify(creepTrack[targetRoom])}`);
                 // }
@@ -131,6 +122,16 @@ module.exports = {
                 creepTrack.total = totalGot;
                 spawn.memory.total = totalNeed;
                 console.log(`Total: ${totalGot}/${totalNeed}`);
+            }
+
+            // spawn defenders: rangedAtk
+            for (let targetRoom of Memory.myRooms[room]) {
+                var hostiles = Game.rooms[targetRoom].find(FIND_HOSTILE_CREEPS);
+                // console.log('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
+                if (hostiles.length > 0 && hostiles.length > _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room)) {
+                    spawn.spawnAtkRangeCreep(energy, target = targetRoom, home = room);
+                    continue;
+                }
             }
 
             // spawn creeps

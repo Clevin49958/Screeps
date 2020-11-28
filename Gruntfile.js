@@ -89,8 +89,8 @@ module.exports = function(grunt) {
 
         // 代码变更监听任务
         watch: {
-            files: "src/*.*",
-            tasks: [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps']
+            files: "src/*.js",
+            tasks: [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps'],
         }
 
 

@@ -4,5 +4,5 @@
 /screeps-multimeter.json
 /.screeps-multimeter.history
 /*.zip
-/temp.js
-/backup.js
+/src/temp.js
+/src/backup.js

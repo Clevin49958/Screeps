@@ -1,6 +1,7 @@
 const {
     HARV_REMOTE,
     CARRY,
+    CLAIMER,
     ATK_RANGE
 } = require("./helper");
 const helper = require("./helper");

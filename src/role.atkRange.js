@@ -3,7 +3,7 @@ const helper = require('./helper');
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        if (!creep.memory.working) {
+        if (!creep.memory.working && Game.rooms[creep.memory.target].find(FIND_HOSTILE_CREEPS).length == 0) {
             // recycle spawn;
             var spawn = Game.getObjectById(Memory.mySpawns[creep.memory.home]);
             if (creep.pos.isNearTo(spawn)) {
@@ -28,6 +28,8 @@ module.exports = {
             if (creep.pos.isNearTo(spawn)) {
                 spawn.recycleCreep(creep);
             } else creep.moveTo(spawn);
+            
+            return;
         }
 
         if (creep.pos.inRangeTo(enermy, 3)) {

@@ -74,12 +74,12 @@ module.exports = {
                                 s.hits < 900000)
                         });
                         var target = undefined;
-                        var percentage = 0.95;
+                        var minHits = 1000000;
                         for (let name in walls) {
                             var wall = walls[name];
-                            if (wall.hits / wall.hitsMax < percentage) {
+                            if (wall.hits < minHits) {
                                 target = wall;
-                                percentage = wall.hits / wall.hitsMax;
+                                percentage = wall.hits;
                             }
                         }
                         if (target) {

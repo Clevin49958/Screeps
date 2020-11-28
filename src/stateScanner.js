@@ -34,12 +34,6 @@ module.exports.stateScanner = function() {
 
     if (!Memory.stats.roles) Memory.stats.roles = {};
     roleNames.forEach(r => Memory.stats.roles[r] = _.sum(Game.creeps, (c) => c.memory.role == r));
-    Memory.stats.Harvesters = _.sum(Game.creeps, (c) => c.memory.role == helper.HARVESTER || c.memory.role == helper.HARV_REMOTE);
-    Memory.stats.Carry = _.sum(Game.creeps, (c) => c.memory.role == helper.CARRY);
-    Memory.stats.Upgraders = _.sum(Game.creeps, (c) => c.memory.role == helper.UPGRADER);
-    Memory.stats.Builders = _.sum(Game.creeps, (c) => c.memory.role == helper.BUILDER);
-    Memory.stats.Repairers = _.sum(Game.creeps, (c) => c.memory.role == helper.WALL_REPAIRER);
-
     // storage
     var storages = Game.rooms[helper.home].find(FIND_STRUCTURES, {
         filter: (s) => s.structureType == STRUCTURE_STORAGE
