@@ -15,17 +15,19 @@ function findWall(creep) {
         var wall = walls[name];
         if (wall.hits < minHits) {
             target = wall;
-            percentage = wall.hits;
+            minHits = wall.hits;
         }
     }
-    if (target) creep.memory.wall = target.id;
+    if (target) {
+        creep.memory.wall = target.id;
+    }
 }
 
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(WALL_REPAIRER.slice(0, 1));
-        if (creep.memory.working == true && creep.memory.role != WALL_REPAIRER && (!creep.memory.WR || Game.time - creep.memory.WR > 30)) {
+        if (creep.memory.working == true && (!creep.memory.WR || Game.time - creep.memory.WR > 30)){
             findWall(creep);
             creep.memory.WR = Game.time;
         }

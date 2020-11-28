@@ -1,6 +1,6 @@
 const RICH_THRESHOLD = 300;
 const POOR_THRESHOLD = 1000;
-const LOG_RATE = 2;
+const LOG_RATE = 5;
 
 
 const HARVESTER = 'harvester';

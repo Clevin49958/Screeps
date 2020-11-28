@@ -14,8 +14,6 @@ module.exports.loop = function() {
         console.log('New code uploaded')
     }
 
-    stateScanner.stateScanner();
-
     // Remove dead screeps in memory
     for (let name in Memory.creeps) {
         // and checking if the creep is still alive
@@ -25,20 +23,22 @@ module.exports.loop = function() {
         }
     }
 
-    tower.defendMyRoom();
-
-    lib.runCreeps();
-
-    lib.generateCreeps();
-
     init.minCreeps();
 
     init.alter();
 
     init.alterOnce();
 
+    tower.defendMyRoom();
+
+    lib.runCreeps();
+
+    lib.generateCreeps();
+
     // watch values
     watcher();
+
+    stateScanner.stateScanner();
 
     if (Game.time % helper.logRate == 0)
         console.log('--------------------------------------------------------');

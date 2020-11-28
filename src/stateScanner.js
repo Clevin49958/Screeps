@@ -13,6 +13,9 @@ module.exports.stateScanner = function() {
 
     if (Game.time % 20) return
 
+    if (Game.cpu.bucket>9900) {
+        Game.cpu.generatePixel();
+    }
     if (!Memory.stats) Memory.stats = {}
 
     // 统计 GCL / GPL 的升级百分比和等级
@@ -20,8 +23,6 @@ module.exports.stateScanner = function() {
     Memory.stats.gclLevel = Game.gcl.level + Memory.stats.gcl / 100;
     Memory.stats.gpl = (Game.gpl.progress / Game.gpl.progressTotal) * 100
     Memory.stats.gplLevel = Game.gpl.level + Memory.stats.gpl / 100;
-    // CPU 的当前使用量
-    Memory.stats.cpu = Game.cpu.getUsed()
     // bucket 当前剩余量
     Memory.stats.bucket = Game.cpu.bucket
     // creep sum
@@ -55,6 +56,9 @@ module.exports.stateScanner = function() {
     }
 
     if (Game.time % helper.logRate == 0) {
-        console.log(`${Game.time}   Creeps: W32N11: ${Memory.stats.creepTrack.Spawn1.total}/${Memory.spawns.Spawn1.total}, W33N12: ${Memory.stats.creepTrack.Spawn32.total}/${Memory.spawns.Spawn32.total};   Storage: ${Memory.stats.Storages.map(s=>(s/1000).toFixed(0) + 'k')}   RCL: ${Memory.stats.rclevel.map(l => l.toFixed(3))}  GCL: ${Memory.stats.gclLevel.toFixed(3)}  GPL: ${Memory.stats.gplLevel.toFixed(3)}`);
+        console.log(Memory.watch.values);
     }
+    
+    // CPU 的当前使用量
+    Memory.stats.cpu = Game.cpu.getUsed();
 }

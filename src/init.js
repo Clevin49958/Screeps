@@ -3,6 +3,22 @@ const {
     WALL_REPAIRER
 } = require("./helper");
 
+function addControlledRoom(targetRoom, room){
+    Memory.myRooms[room].push(targetRoom);
+    Memory.sources[targetRoom] = 2;
+    let sources = Memory.sources[targetRoom];
+    Memory.creepDemand[room][targetRoom] = {
+        harvester:0,
+        harvRemote: sources,
+        carry: sources,
+        upgrader: 0,
+        builder: 1,
+        repairer: 0,
+        wallRepairer: 1,
+        claimer: 1
+    }
+}
+
 module.exports = {
     minCreeps: () => {
         for (let spawnName in Game.spawns) {
@@ -47,8 +63,18 @@ module.exports = {
 
     addControlledRoom: (targetRoom, room) =>{
         Memory.myRooms[room].push(targetRoom);
-        let sources = 2;
-        // Memory.creepTrack[Game.rooms[room].]
+        Memory.sources[targetRoom] = 2;
+        let sources = Memory.sources[targetRoom];
+        Memory.creepDemand[room][targetRoom] = {
+            harvester:0,
+            harvRemote: sources,
+            carry: sources,
+            upgrader: 0,
+            builder: 1,
+            repairer: 0,
+            wallRepairer: 1,
+            claimer: 1
+        }
 
     },
 
@@ -64,18 +90,15 @@ module.exports = {
     },
     alterOnce: () => {
         // Memory.init.exec = 0;s
-        if (Memory.exec) {
-            // Memory.myRooms.W32N11 = ['W31N11','W32N11','W32N12'];
-            // Memory.myRooms.W31N11 = [];
-
-            // var
+        if (Memory.exec === true) {
+            addControlledRoom('W34N12','W33N12');
 
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }
             // Memory.myRooms.W31N11 = ['W31N11'];
 
-            Memory.exec = false;
+            Memory.exec = Game.time;
         }
     }
 }

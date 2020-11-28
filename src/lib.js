@@ -38,10 +38,11 @@ module.exports = {
             var energy = spawn.room.energyCapacityAvailable;
             if (!Memory.stats.creepTrack[room]) Memory.stats.creepTrack[room] = {};
             var creepTrack = Memory.stats.creepTrack[room];
+            var creepDemand = Memory.creepDemand[room];
             var res = undefined;
 
             // update wall repairer
-            spawn.memory[room][WALL_REPAIRER] = Game.rooms[room].find(FIND_HOSTILE_CREEPS).length;
+            creepDemand[room][WALL_REPAIRER] = Game.rooms[room].find(FIND_HOSTILE_CREEPS).length;
 
             // count total harv creeps
             var totalHarvs;
@@ -51,7 +52,7 @@ module.exports = {
             );
 
             // emergency off control
-            if (totalHarvs >= spawn.memory[room][HARV_REMOTE]) {
+            if (totalHarvs >= creepDemand[room][HARV_REMOTE]) {
                 Memory.states.restart = false;
             }
 
@@ -65,9 +66,9 @@ module.exports = {
 
             // if colony is dying
             if (totalHarvs < 2) {
-                spawn.memory.tickNoHarv++;
+                creepDemand.tickNoHarv++;
 
-                if (spawn.memory.tickNoHarv > 300) {
+                if (creepDemand.tickNoHarv > 300) {
                     // spawn one with what is available
                     res = spawn.createBalCreep(
                         spawn.room.energyAvailable, helper.HARVESTER);
@@ -76,7 +77,7 @@ module.exports = {
                         `Room: ${room} ${JSON.stringify(creepTrack[targetRoom])}`);
                     continue;
                 }
-            } else spawn.memory.tickNoHarv = 0;
+            } else creepDemand.tickNoHarv = 0;
 
             // collect some stats of creeps
             for (let targetRoom of Memory.myRooms[room]) {
@@ -88,7 +89,7 @@ module.exports = {
                         c.memory.target == targetRoom && c.memory.home == room && (c.ticksToLive > 300 || (room == targetRoom && c.ticksToLive > 100))
                     ));
                 creepTrack[targetRoom].total = Object.keys(creepTrack[targetRoom]).reduce((acc, role) => acc + (role == 'total' ? 0 : creepTrack[targetRoom][role]),0);
-                spawn.memory[targetRoom].total = Object.keys(spawn.memory[targetRoom]).reduce((acc, role) => acc + (role == 'total' ? 0 : spawn.memory[targetRoom][role]), 0);
+                creepDemand[targetRoom].total = Object.keys(creepDemand[targetRoom]).reduce((acc, role) => acc + (role == 'total' ? 0 : creepDemand[targetRoom][role]), 0);
 
                 // detail logs per room
                 // if (Game.time % helper.logRate ==0) {
@@ -104,11 +105,9 @@ module.exports = {
                 console.log(`${spawn.name}: `);
                 Object.keys(Memory.myRooms[room]).forEach(targetRoomID => {
                     targetRoom = Memory.myRooms[room][targetRoomID];
-                    tempGot = Object.values(creepTrack[targetRoom]).reduce((acc, num) => acc + num);
-                    tempNeed = Object.values(spawn.memory[targetRoom]).reduce((acc, num) => acc + num);
                     totalGot += creepTrack[targetRoom].total;
-                    totalNeed += spawn.memory[targetRoom].total;
-                    console.log(`'\t${targetRoom}: ${tempGot}/${tempNeed}`);
+                    totalNeed += creepDemand[targetRoom].total
+                    console.log(`'\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`);
                 });
 
                 // role based stats
@@ -116,11 +115,8 @@ module.exports = {
                 [HARV_REMOTE, helper.CARRY, UPGRADER, BUILDER, REPAIRER, WALL_REPAIRER].forEach(role => {
                     console.log(`'\t${role}: ${_.reduce(creepTrack, 
                         (acc, targetRoom) => acc+ (typeof targetRoom == 'object'? targetRoom[role]:0), 0)}/` +
-                        `${_.reduce(Memory.myRooms[room], (acc, targetRoom) =>acc+spawn.memory[targetRoom][role], 0)}`);
+                        `${_.reduce(Memory.myRooms[room], (acc, targetRoom) =>acc+creepDemand[targetRoom][role], 0)}`);
                 });
-
-                creepTrack.total = totalGot;
-                spawn.memory.total = totalNeed;
                 console.log(`Total: ${totalGot}/${totalNeed}`);
             }
 
@@ -137,10 +133,10 @@ module.exports = {
             // spawn creeps
             for (let targetRoom of Memory.myRooms[room]) {
                 // spawn carry
-                if (creepTrack[targetRoom][helper.CARRY] < spawn.memory[targetRoom][helper.CARRY]) {
+                if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY]) {
                     if (Game.time % helper.logRate == 0)
                         console.log(`    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
-                            `${spawn.memory[targetRoom][helper.CARRY]}`);
+                            `${creepDemand[targetRoom][helper.CARRY]}`);
 
                     var res = spawn.spawnCarryCreep(energy, targetRoom, home = room, sourceIndex = 0);
                     if (res == 0) {
@@ -174,16 +170,16 @@ module.exports = {
                 // spawn workers
                 for (let r of [UPGRADER, REPAIRER, BUILDER, WALL_REPAIRER]) {
 
-                    // console.log(`In ${targetRoom} ${creepTrack[targetRoom][r]<spawn.memory[room][r]?'need ':'got  '}`
-                    //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${spawn.memory[targetRoom][r]}`);
+                    // console.log(`In ${targetRoom} ${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
+                    //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${creepDemand[targetRoom][r]}`);
 
-                    if (creepTrack[targetRoom][r] < spawn.memory[targetRoom][r]) {
+                    if (creepTrack[targetRoom][r] < creepDemand[targetRoom][r]) {
                         // spawn
                         res = spawn.createBalCreep(energy, r, targetRoom, room);
                         if (res == 0) {
                             console.log(`Spawned new ${r} ${targetRoom} ${room}`);
                         }
-                        if (Game.time % helper.logRate == 0) console.log(`    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${spawn.memory[targetRoom][r]}`);
+                        if (Game.time % helper.logRate == 0) console.log(`    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${creepDemand[targetRoom][r]}`);
                         continue;
                     }
                 }
