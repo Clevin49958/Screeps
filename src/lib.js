@@ -100,7 +100,6 @@ module.exports = {
             if (Game.time % helper.logRate == 0) {
                 var totalGot = 0,
                     totalNeed = 0;
-                var tempGot, tempNeed;
                 // room based stats
                 console.log(`${spawn.name}: `);
                 Object.keys(Memory.myRooms[room]).forEach(targetRoomID => {

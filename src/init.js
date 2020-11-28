@@ -75,7 +75,7 @@ module.exports = {
             wallRepairer: 1,
             claimer: 1
         }
-
+        Memory.creepDemand[room].total += 3;
     },
 
     alter: () => {
