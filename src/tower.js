@@ -1,3 +1,4 @@
+const { BUILDER } = require("./helper");
 const helper = require("./helper");
 
 module.exports = {
@@ -42,6 +43,9 @@ module.exports = {
             if (hostiles.length === 0) {
                 Memory.states.defending = false;
     
+                if (towers.length == 0) return;
+                Memory.creepDemand[room.name][room.name][BUILDER] = room.find(FIND_CONSTRUCTION_SITES).length > 0 ? 1 : 0;
+
                 //....first heal any damaged creeps
                 for (let name in Game.creeps) {
                     // get the creep object

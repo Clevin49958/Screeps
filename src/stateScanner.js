@@ -57,7 +57,7 @@ module.exports.stateScanner = function() {
         Memory.creepDemand[storage.room.name][storage.room.name][
                 UPGRADER
             ] = storage.store.getUsedCapacity(RESOURCE_ENERGY) >
-            threshold ? 4 : 2;
+            threshold ? 2 : 1;
     });
 
     if (Memory.stats.bucket < 4000) {

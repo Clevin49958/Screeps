@@ -91,6 +91,7 @@ module.exports = function(grunt) {
         watch: {
             files: "src/*.js",
             tasks: [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps'],
+            options: { interval: 5007 }
         }
 
 

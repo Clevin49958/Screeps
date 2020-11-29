@@ -5,7 +5,7 @@ const helper = require('./helper');
 const roleUpgrader = require('./role.upgrader');
 
 function findWall(creep) {
-    var walls = creep.room.find(FIND_STRUCTURES, {
+    var walls = Game.rooms[creep.memory.target].find(FIND_STRUCTURES, {
         filter: (s) => ((s.structureType == STRUCTURE_WALL || s
                 .structureType == STRUCTURE_RAMPART) &&
             s.hits < 900000)
@@ -28,6 +28,7 @@ module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(WALL_REPAIRER.slice(0, 1));
+
         if (creep.memory.working == true && (!creep.memory.WR || Game
                 .time - creep.memory.WR > 30)) {
             findWall(creep);
@@ -47,16 +48,14 @@ module.exports = {
             creep.memory.working = true;
             findWall(creep);
         }
+
+        var wall = Game.getObjectById(creep.memory.wall);
+
         // if creep is supposed to repair something
         if (creep.memory.working == true) {
-            // find all walls in the room
-            // console.log(creep.memory.walls.map(Game.getObjectById))
 
             // if we find a wall that has to be repaired
-            if (creep.memory.wall != undefined) {
-                var wall = Game.getObjectById(creep.memory.wall)
-                // creep.say(`${creep.memory.wall.pos.x} ${creep.memory.wall.pos.y}`)
-                // try to repair it, if not in range
+            if (wall) {
                 if (creep.repair(wall) == ERR_NOT_IN_RANGE) {
                     // move towards it
                     creep.myMoveTo(wall);
@@ -70,11 +69,6 @@ module.exports = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            if (creep.memory.target && creep.memory.target != creep.room
-                .name) {
-                helper.moveTargetRoom(creep);
-                return;
-            }
             if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
                 if (helper.withdrawContainer(creep)) return;
             }

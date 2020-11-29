@@ -3,6 +3,12 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
+        if (!creep.memory.source){
+            creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
+                .sourceIndex].id;
+        }
+        // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))
+        var source = Game.getObjectById(creep.memory.source);
         // if arrived
         if (creep.memory.arrived == true) {
             if (creep.store.getCapacity(RESOURCE_ENERGY) > 0 && creep
@@ -24,67 +30,37 @@ module.exports = {
                     //     .store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
                     //     creep.pickup(loot);
                     // }
-                    
-                    if (!creep.memory.source) {
-                        creep.memory.source = creep.room.find(FIND_SOURCES)[creep.memory
-                        .sourceIndex].id;
-                    }
-                    creep.harvest(Game.getObjectById(creep.memory.source));
+                    creep.harvest(source);
                 } else {
                     container = creep.pos.findClosestByRange(
                         FIND_CONSTRUCTION_SITES);
                     creep.build(container);
                 }
             } else {
-                if (!creep.memory.source) {
-                    creep.memory.source = creep.room.find(FIND_SOURCES)[creep.memory
-                    .sourceIndex].id;
-                }
-                creep.harvest(Game.getObjectById(creep.memory.source));
+                creep.harvest(source);
             }
-        } else if (creep.room.name == creep.memory.target) {
-            // in the room, not arrived
-            var source = creep.room.find(FIND_SOURCES)[creep.memory
-                .sourceIndex];
-            if (creep.pos.isNearTo(source)) {
+        } else if (creep.pos.isNearTo(source)) {
 
-                var container = creep.pos.findInRange(FIND_STRUCTURES,
-                    2, {
-                        filter: (s) => s.structureType ==
-                            STRUCTURE_CONTAINER
-                    });
-                if (container.length == 0) {
-                    container = creep.pos.findInRange(
-                        FIND_CONSTRUCTION_SITES, 2);
-                }
-                if (container.length == 0) {
-                    return;
-                }
-                if (creep.pos.isEqualTo(container[0])) {
-                    creep.memory.arrived = true;
-                    creep.harvest(source);
-                } else {
-                    creep.myMoveTo(container[0]);
-                }
+            var container = creep.pos.findInRange(FIND_STRUCTURES,
+                2, {
+                    filter: (s) => s.structureType ==
+                        STRUCTURE_CONTAINER
+                });
+            if (container.length == 0) {
+                container = creep.pos.findInRange(
+                    FIND_CONSTRUCTION_SITES, 2);
+            }
+            if (container.length == 0) {
+                return;
+            }
+            if (creep.pos.isEqualTo(container[0])) {
+                creep.memory.arrived = true;
+                creep.harvest(source);
             } else {
-                const target = creep.pos.findInRange(FIND_STRUCTURES,
-                    100, {
-                        filter: (s) => s.structureType ==
-                            STRUCTURE_WALL && s.pos.y == 17 && s.pos
-                            .x == 2
-                    });
-                if (creep.memory.target == 'W31N11' && target.length >
-                    0) {
-                    if (creep.dismantle(target[0]) ==
-                        ERR_NOT_IN_RANGE) {
-                        creep.myMoveTo(target[0]);
-                    }
-                } else {
-                    creep.myMoveTo(source);
-                }
+                creep.myMoveTo(container[0]);
             }
         } else {
-            helper.moveTargetRoom(creep);
+            creep.myMoveTo(source);
         }
     }
 };

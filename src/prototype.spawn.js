@@ -104,6 +104,8 @@ module.exports = function() {
         function(energy, target, home = this.room.name, sourceIndex = 0) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor(energy / 150);
+            numberOfParts = numberOfParts > 10 ? 10 :
+                numberOfParts;
             numberOfParts = (numberOfParts > 5 && target == home) ? 5 :
                 numberOfParts;
             var body = [];

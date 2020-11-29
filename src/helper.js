@@ -17,7 +17,7 @@ Creep.prototype.myMoveTo = function(destination) {
     if (this.memory.home != this.memory.target){
         this.travelTo(destination);
     } else {
-        this.say(this.moveTo(destination, {reusePath: 50}))
+        this.moveTo(destination, {reusePath: 50});
     }
 };
 

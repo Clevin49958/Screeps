@@ -3,11 +3,6 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        
-        if (!creep.memory.home) {
-            helper.recycle(creep);
-            return;
-        }
 
         if (creep.room.name == creep.memory.target) {
             if (creep.room.controller) {

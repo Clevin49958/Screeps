@@ -15,18 +15,18 @@ function roomCreepConfig(room) {
         claimer: 1
     }
 }
-function addControlledRoom(targetRoom, room, demands = null) {
+function addControlledRoom(controlled, room, demands = null) {
     if (!demands) {
-        demands = roomCreepConfig(targetRoom);
+        demands = roomCreepConfig(controlled);
     }
-    Memory.myRooms[room].push(targetRoom);
-    Memory.creepDemand[room][targetRoom] = demands;
+    Memory.myRooms[room].push(controlled);
+    Memory.creepDemand[room][controlled] = demands;
 }
 
-function removeControlledRoom(targetRoom, room) {
+function removeControlledRoom(controlled, room) {
     Memory.myRooms[room].splice(Memory.myRooms[room].findIndex(r => r == room), 1);
-    var demands = Memory.creepDemand[room][targetRoom];
-    Memory.creepDemand[room][targetRoom] = undefined;
+    var demands = Memory.creepDemand[room][controlled];
+    Memory.creepDemand[room][controlled] = undefined;
     return demands;
 }
 
@@ -98,8 +98,8 @@ module.exports = {
     alterOnce: () => {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
-            addOwnerRoom('W34N12')
 
+            transferControlledRoom('W34N13','W33N12','W34N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }

@@ -52,24 +52,13 @@ module.exports = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            // // find closest dropped
-            // var source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
-            // if (source){
-            //     if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
-            //         // move towards the source
-            //         creep.myMoveTo(source);
-            //     }
-            //     return;
-            // } 
             if (creep.memory.target && creep.room.name != creep.memory
                 .target) {
                 helper.moveTargetRoom(creep);
                 return;
             }
+            if (helper.harvestLoot(creep)) return;
             if (helper.withdrawEnergy(creep)) return;
-            if (creep.memory.target != creep.memory.home) {
-                helper.harvest(creep)
-            };
         }
     }
 };

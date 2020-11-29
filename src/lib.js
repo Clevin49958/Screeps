@@ -93,7 +93,7 @@ module.exports = {
                     c.memory.role == role &&
                     c.memory.target == targetRoom && 
                     c.memory.home == room && 
-                    (c.ticksToLive > 300 || (room == targetRoom && c.ticksToLive > 100))
+                    (c.ticksToLive > 150 || (room == targetRoom && c.ticksToLive > 100))
                 );
             }
             
@@ -246,7 +246,7 @@ module.exports = {
             var creep = Game.creeps[name];
 
             // who r u?
-            creep.say(creep.memory.role.slice(0,1));
+            // creep.say(creep.memory.role.slice(0,1));
 
             for (let role of roleNames) {
                 if (creep.memory.role == role) {

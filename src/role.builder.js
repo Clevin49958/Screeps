@@ -6,18 +6,24 @@ require('./helper');
 const helper = require('./helper');
 const roleRepairer = require('./role.repairer');
 
+function findQuest(creep){
+    if (creep.memory.target && creep.memory.target != creep.room.name) {
+        helper.moveTargetRoom(creep);
+    } else {
+        let c = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        creep.memory.quest = c ? c.id : null;
+    }
+}
+
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(BUILDER.slice(0, 1));
-        if (creep.memory.target && creep.memory.target != creep.room
-            .name) {
-            helper.moveTargetRoom(creep);
-            return;
-        }
+        
+        if (!creep.memory.quest) findQuest(creep);
 
         // if creep is trying to complete a constructionSite but has no energy left
-        if (creep.memory.working == true && creep.carry.energy == 0) {
+        if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
             // switch state
             creep.memory.working = false;
         }
@@ -26,33 +32,19 @@ module.exports = {
             creep.carryCapacity) {
             // switch state
             creep.memory.working = true;
+            findQuest(creep);
         }
 
         // if creep is supposed to complete a constructionSite
         if (creep.memory.working == true) {
-            // find closest constructionSite
-            var constructionSite = creep.pos.findClosestByPath(
-                FIND_CONSTRUCTION_SITES);
-            // if one is found
-            if (constructionSite != undefined) {
-                // try to build, if the constructionSite is not in range
-                if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                    // move towards the constructionSite
-                    creep.myMoveTo(constructionSite);
-                }
+            
+            var quest = Game.getObjectById(creep.memory.quest);
+
+            if (quest){
+                creep.build(quest);
             } else {
-                var hostileStructure = creep.pos.findClosestByPath(
-                    FIND_HOSTILE_STRUCTURES);
-                if (creep.dismantle(hostileStructure) ==
-                    ERR_NOT_IN_RANGE) {
-                    // move towards the hostile structure
-                    creep.myMoveTo(hostileStructure);
-                } else {
-                    // go upgrading the controller
-                    roleRepairer.run(creep);
-                }
+                roleRepairer.run(creep);
             }
-            // if no constructionSite is found
 
         }
         // if creep is supposed to harvest energy from source
