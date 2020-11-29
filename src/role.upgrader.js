@@ -7,7 +7,8 @@ module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(UPGRADER.slice(0, 1))
-        if (creep.memory.target && creep.room.name != creep.memory.target) {
+        if (creep.memory.target && creep.room.name != creep.memory
+            .target) {
             helper.moveTargetRoom(creep);
             return;
         }
@@ -17,7 +18,8 @@ module.exports = {
             creep.memory.working = false;
         }
         // if creep is harvesting energy but is full
-        else if (creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
+        else if (creep.memory.working == false && creep.carry.energy ==
+            creep.carryCapacity) {
             // switch state
             creep.memory.working = true;
         }
@@ -28,18 +30,22 @@ module.exports = {
             // if (creep.transfer(creep.room.controller, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 
             // try to upgrade the controller
-            if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+            if (creep.upgradeController(creep.room.controller) ==
+                ERR_NOT_IN_RANGE) {
                 // if not in range, move towards the controller
-                creep.moveTo(creep.room.controller);
+                creep.myMoveTo(creep.room.controller);
             }
 
             if (!creep.room.controller.my) {
-                const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: s => s.structureType == STRUCTURE_SPAWN || s.structureType == STRUCTURE_EXTENSION
-                });
+                const target = creep.pos.findClosestByRange(
+                    FIND_STRUCTURES, {
+                        filter: s => s.structureType ==
+                            STRUCTURE_SPAWN || s.structureType ==
+                            STRUCTURE_EXTENSION
+                    });
                 if (target) {
                     if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target);
+                        creep.myMoveTo(target);
                     }
                 }
             }
@@ -51,11 +57,12 @@ module.exports = {
             // if (source){
             //     if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
             //         // move towards the source
-            //         creep.moveTo(source);
+            //         creep.myMoveTo(source);
             //     }
             //     return;
             // } 
-            if (creep.memory.target && creep.room.name != creep.memory.target) {
+            if (creep.memory.target && creep.room.name != creep.memory
+                .target) {
                 helper.moveTargetRoom(creep);
                 return;
             }

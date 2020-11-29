@@ -3,20 +3,45 @@ const {
     WALL_REPAIRER
 } = require("./helper");
 
-function addControlledRoom(targetRoom, room){
-    Memory.myRooms[room].push(targetRoom);
-    Memory.sources[targetRoom] = 2;
-    let sources = Memory.sources[targetRoom];
-    Memory.creepDemand[room][targetRoom] = {
-        harvester:0,
-        harvRemote: sources,
-        carry: sources,
+function roomCreepConfig(room) {
+    return {
+        harvester: 0,
+        harvRemote: Memory.sources[room],
+        carry: Memory.sources[room],
         upgrader: 0,
         builder: 1,
-        repairer: 0,
-        wallRepairer: 1,
+        repairer: 1,
+        wallRepairer: 0,
         claimer: 1
     }
+}
+function addControlledRoom(targetRoom, room, demands = null) {
+    if (!demands) {
+        demands = roomCreepConfig(targetRoom);
+    }
+    Memory.myRooms[room].push(targetRoom);
+    Memory.creepDemand[room][targetRoom] = demands;
+}
+
+function removeControlledRoom(targetRoom, room) {
+    Memory.myRooms[room].splice(Memory.myRooms[room].findIndex(r => r == room), 1);
+    var demands = Memory.creepDemand[room][targetRoom];
+    Memory.creepDemand[room][targetRoom] = undefined;
+    return demands;
+}
+
+function transferControlledRoom(room, oldOwner, newOwner) {
+    addControlledRoom(room, newOwner, demands = removeControlledRoom(room,
+        oldOwner))
+}
+
+function addOwnerRoom(room){
+    Memory.myRooms[room] = [room];
+    var creepTrack = Memory.stats.creepTrack;
+    creepTrack[room] = {}
+    creepTrack[room][room] = roomCreepConfig(room);
+    var creepDemand = Memory.creepDemand;
+    creepDemand[room] = {[room]: roomCreepConfig(room)}
 }
 
 module.exports = {
@@ -34,8 +59,10 @@ module.exports = {
                 spawn.memory[spawn.room.name] = {
                     // harvester:0,
                     // carry:0,
-                    harvRemote: Memory.sources[Game.spawns[spawnName].room.name],
-                    carry: Memory.sources[Game.spawns[spawnName].room.name],
+                    harvRemote: Memory.sources[Game.spawns[
+                        spawnName].room.name],
+                    carry: Memory.sources[Game.spawns[spawnName]
+                        .room.name],
                     upgrader: 1,
                     builder: 1,
                     repairer: 0,
@@ -61,44 +88,24 @@ module.exports = {
         }
     },
 
-    addControlledRoom: (targetRoom, room) =>{
-        Memory.myRooms[room].push(targetRoom);
-        Memory.sources[targetRoom] = 2;
-        let sources = Memory.sources[targetRoom];
-        Memory.creepDemand[room][targetRoom] = {
-            harvester:0,
-            harvRemote: sources,
-            carry: sources,
-            upgrader: 0,
-            builder: 1,
-            repairer: 0,
-            wallRepairer: 1,
-            claimer: 1
-        }
-        Memory.creepDemand[room].total += 3;
-    },
-
     alter: () => {
-        // for (let name in Game.creeps){
-        //     var creep = Game.creeps[name];
-        //     if (creep.memory.role == ATK_RANGE || creep.memory.role==WALL_REPAIRER){
-        //         if (creep.pos.isNearTo(Game.spawns.Spawn1)){
-        //             Game.spawns.Spawn1.recycleCreep(creep);
-        //         } else creep.moveTo(Game.spawns.Spawn1)
-        //     }
-        // }
+        if (Game.spawns.s3 && Memory.creepDemand.W33N12.W34N12) {
+            removeControlledRoom('W34N12','W33N12');
+            Memory.mySpawns['W34n12'] = Game.spawns.s3.id;
+            Game.notify('Spawn Construction is Completed');
+        }
     },
     alterOnce: () => {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
-            addControlledRoom('W34N12','W33N12');
+            addOwnerRoom('W34N12')
 
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }
             // Memory.myRooms.W31N11 = ['W31N11'];
 
-            Memory.exec = Game.time;
+            Memory.exec = 'ran';
         }
     }
 }

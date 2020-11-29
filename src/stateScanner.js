@@ -14,7 +14,7 @@ module.exports.stateScanner = function() {
 
     if (Game.time % logRate) return
 
-    if (Game.cpu.bucket>9900) {
+    if (Game.cpu.bucket > 9900) {
         Game.cpu.generatePixel();
     }
     if (!Memory.stats) Memory.stats = {}
@@ -30,24 +30,34 @@ module.exports.stateScanner = function() {
     Memory.stats.creeps = _.sum(Memory.creeps, (c) => true);
     // Room control level
     for (let [index, room] of Object.keys(Memory.myRooms).entries()) {
-        Memory.stats.rcl[index] = (Game.rooms[room].controller.progress) / (Game.rooms[room].controller.progressTotal) * 100;
-        Memory.stats.rclevel[index] = Game.rooms[room].controller.level + Memory.stats.rcl[index] / 100;
+        Memory.stats.rcl[index] = (Game.rooms[room].controller.progress) / (
+            Game.rooms[room].controller.progressTotal) * 100;
+        Memory.stats.rclevel[index] = Game.rooms[room].controller.level +
+            Memory.stats.rcl[index] / 100;
     }
 
     if (!Memory.stats.roles) Memory.stats.roles = {};
-    roleNames.forEach(r => Memory.stats.roles[r] = _.sum(Game.creeps, (c) => c.memory.role == r));
+    roleNames.forEach(r => Memory.stats.roles[r] = _.sum(Game.creeps, (c) =>
+        c.memory.role == r));
     // storage
     var storages = Game.rooms[helper.home].find(FIND_STRUCTURES, {
         filter: (s) => s.structureType == STRUCTURE_STORAGE
     });
-    Memory.stats.Storages = storages.map(s => s.store.getUsedCapacity(RESOURCE_ENERGY));
+    Memory.stats.Storages = storages.map(s => s.store.getUsedCapacity(
+        RESOURCE_ENERGY));
 
     storages.forEach(storage => {
         let threshold = 700000;
-        if (storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold + 50000) {
-            Game.notify(`Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`)
+        if (storage.store.getUsedCapacity(RESOURCE_ENERGY) >
+            threshold + 50000) {
+            Game.notify(
+                `Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`
+                )
         }
-        Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = storage.store.getUsedCapacity(RESOURCE_ENERGY) > threshold ? 4 : 2;
+        Memory.creepDemand[storage.room.name][storage.room.name][
+                UPGRADER
+            ] = storage.store.getUsedCapacity(RESOURCE_ENERGY) >
+            threshold ? 4 : 2;
     });
 
     if (Memory.stats.bucket < 4000) {
@@ -57,7 +67,7 @@ module.exports.stateScanner = function() {
     if (Game.time % helper.logRate == 0) {
         console.log(Memory.watch.values.status);
     }
-    
+
     // CPU 的当前使用量
     Memory.stats.cpu = Game.cpu.getUsed();
 }

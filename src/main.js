@@ -1,5 +1,6 @@
 // import modules
 require('prototype.spawn')();
+var Traveler = require('Traveler');
 require('version');
 let watcher = require('watch-client');
 let stateScanner = require('stateScanner');
@@ -33,7 +34,9 @@ module.exports.loop = function() {
 
     lib.runCreeps();
 
-    lib.generateCreeps();
+    for (let name in Game.spawns) {
+        lib.generateCreeps(name);
+    }
 
     // watch values
     watcher();
@@ -41,5 +44,6 @@ module.exports.loop = function() {
     stateScanner.stateScanner();
 
     if (Game.time % helper.logRate == 0)
-        console.log('--------------------------------------------------------');
+        console.log(
+            '--------------------------------------------------------');
 };

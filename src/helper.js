@@ -13,6 +13,14 @@ const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
 
+Creep.prototype.myMoveTo = function(destination) {
+    if (this.memory.home != this.memory.target){
+        this.travelTo(destination);
+    } else {
+        this.say(this.moveTo(destination, {reusePath: 50}))
+    }
+};
+
 module.exports = {
     HARVESTER: HARVESTER,
     UPGRADER: UPGRADER,
@@ -37,27 +45,31 @@ module.exports = {
         });
         // try to harvest energy, if the source is not in range
         if (creep.pos.findInRange(FIND_STRUCTURES, 0, {
-                filter: (s) => s.structureType == STRUCTURE_CONTAINER
+                filter: (s) => s.structureType ==
+                    STRUCTURE_CONTAINER
             }).length > 0) {
-            creep.move(Math.floor(Math.random() * 2 + 2));
+            this.moveRand(creep);
             return;
         }
         if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
             // move towards the source
-            creep.moveTo(source);
+            creep.myMoveTo(source);
         }
     },
 
     payStructure: function(creep, structure) {
-        if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        if (creep.transfer(structure, RESOURCE_ENERGY) ==
+            ERR_NOT_IN_RANGE) {
             // move towards it
-            creep.moveTo(structure);
+            creep.myMoveTo(structure);
         }
     },
 
     payTower: function(creep) {
-        var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-            filter: (s) => s.structureType == STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 100
+        var structure = creep.pos.findClosestByPath(
+        FIND_MY_STRUCTURES, {
+            filter: (s) => s.structureType == STRUCTURE_TOWER &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) > 100
         });
         if (structure) this.payStructure(creep, structure);
         return structure;
@@ -65,13 +77,17 @@ module.exports = {
 
     paySpawn: function(creep) {
         // find closest spawn or extension which is not full
-        var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        var structure = creep.pos.findClosestByPath(
+        FIND_MY_STRUCTURES, {
             // the second argument for findClosestByPath is an object which takes
             // a property called filter which can be a function
             // we use the arrow operator to define it
-            filter: (s) => ((s.structureType == STRUCTURE_SPAWN ||
-                    s.structureType == STRUCTURE_EXTENSION) &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+            filter: (s) => ((s.structureType ==
+                    STRUCTURE_SPAWN ||
+                    s.structureType == STRUCTURE_EXTENSION
+                    ) &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                )
         });
 
         if (structure) this.payStructure(creep, structure);
@@ -83,12 +99,15 @@ module.exports = {
             // the second argument for findClosestByPath is an object which takes
             // a property called filter which can be a function
             // we use the arrow operator to define it
-            filter: (s) => (s.structureType == STRUCTURE_CONTAINER &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) > 100)
+            filter: (s) => (s.structureType ==
+                STRUCTURE_CONTAINER &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) >
+                100)
         });
         if (structure) {
             this.payStructure(creep, structure);
-            if (structure.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD) {
+            if (structure.store.getFreeCapacity(RESOURCE_ENERGY) <
+                RICH_THRESHOLD) {
                 // Memory.states.rich[structure.pos.x] = true;
                 Memory.states.rich[structure.id] = true;
             }
@@ -111,8 +130,10 @@ module.exports = {
             // the second argument for findClosestByPath is an object which takes
             // a property called filter which can be a function
             // we use the arrow operator to define it
-            filter: (s) => (s.structureType == STRUCTURE_STORAGE &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) > 100)
+            filter: (s) => (s.structureType ==
+                STRUCTURE_STORAGE &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) >
+                100)
         });
         if (structure) {
             this.payStructure(creep, structure);
@@ -123,12 +144,14 @@ module.exports = {
     withdrawStorage: function(creep) {
         var source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (s) =>
-                s.structureType == STRUCTURE_STORAGE && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+                s.structureType == STRUCTURE_STORAGE && s.store
+                .getUsedCapacity(RESOURCE_ENERGY) > 0
         });
         if (source) {
-            if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            if (creep.withdraw(source, RESOURCE_ENERGY) ==
+                ERR_NOT_IN_RANGE) {
                 // move towards the source
-                creep.moveTo(source);
+                creep.myMoveTo(source);
             }
         }
         return source;
@@ -138,14 +161,18 @@ module.exports = {
         var source = null;
         if (!source) {
             source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getUsedCapacity(RESOURCE_ENERGY) > 200
+                filter: (s) => s.structureType ==
+                    STRUCTURE_CONTAINER && s.store
+                    .getUsedCapacity(RESOURCE_ENERGY) > 200
             });
         }
         if (source) {
-            if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            if (creep.withdraw(source, RESOURCE_ENERGY) ==
+                ERR_NOT_IN_RANGE) {
                 // move towards the source
-                creep.moveTo(source);
-            } else if (source.store.getFreeCapacity(RESOURCE_ENERGY) > POOR_THRESHOLD) {
+                creep.myMoveTo(source);
+            } else if (source.store.getFreeCapacity(RESOURCE_ENERGY) >
+                POOR_THRESHOLD) {
                 // Memory.states.rich[source.pos.x] = false;
                 Memory.states.rich[source.id] = false;
             }
@@ -157,7 +184,9 @@ module.exports = {
         var source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (s) =>
                 s.structureType == STRUCTURE_CONTAINER &&
-                (Memory.states.rich[s.id] || s.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD)
+                (Memory.states.rich[s.id] || s.store
+                    .getFreeCapacity(RESOURCE_ENERGY) <
+                    RICH_THRESHOLD)
         })
         if (source) {
             // console.log(creep,source.pos.x,Memory.states.rich[source.pos.x],source.store.getFreeCapacity(RESOURCE_ENERGY)<RICH_THRESHOLD)
@@ -165,9 +194,10 @@ module.exports = {
             this.withdrawContainer(creep);
         } else {
             if (creep.pos.findInRange(FIND_STRUCTURES, 0, {
-                    filter: (s) => s.structureType == STRUCTURE_CONTAINER
+                    filter: (s) => s.structureType ==
+                        STRUCTURE_CONTAINER
                 }).length > 0) {
-                creep.move(Math.floor(Math.random() * 2 + 2));
+                this.moveRand(creep);
                 return false;
             }
         }
@@ -187,14 +217,15 @@ module.exports = {
     },
 
     moveTargetRoom: function(creep) {
-        if (creep.memory.target && creep.memory.target != creep.room.name) {
-            creep.moveTo(new RoomPosition(5, 5, creep.memory.target));
+        if (creep.memory.target && creep.memory.target != creep.room
+            .name) {
+            creep.myMoveTo(new RoomPosition(5, 5, creep.memory.target));
         }
     },
 
     moveHome: function(creep) {
         if (creep.memory.home && creep.memory.home != creep.room.name) {
-            creep.moveTo(new RoomPosition(5, 5, creep.memory.home))
+            creep.myMoveTo(new RoomPosition(5, 5, creep.memory.home))
         }
     },
 
@@ -203,14 +234,26 @@ module.exports = {
     },
 
     harvestLoot: function(creep) {
-        var source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+        var source = creep.pos.findClosestByPath(
+        FIND_DROPPED_RESOURCES);
         if (source) {
             // creep.say(JSON.stringify(source.pos))
             if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
                 // move towards the source
-                creep.moveTo(source);
+                creep.myMoveTo(source);
             }
         }
         return source;
+    },
+
+    recycle: function(creep) {
+        // recycle spawn;
+        var spawn;
+        if (creep.memory.home) {
+            spawn = Game.getObjectById(Memory.mySpawns[creep.memory.home]);
+        } else spawn = Game.spawns.Spawn1;
+        if (creep.pos.isNearTo(spawn)) {
+            Game.spawns.Spawn1.recycleCreep(creep);
+        } else creep.myMoveTo(spawn);
     }
 }

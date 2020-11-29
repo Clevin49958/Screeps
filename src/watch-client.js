@@ -20,7 +20,8 @@ module.exports = function() {
             if (typeof result !== "undefined") console.log(result);
         } else {
             Memory.watch.values[name] =
-                typeof result !== "undefined" ? result.toString() : result;
+                typeof result !== "undefined" ? result.toString() :
+                result;
         }
     });
 };

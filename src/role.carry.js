@@ -11,7 +11,8 @@ module.exports = {
             creep.memory.working = false;
         }
         // if creep is harvesting energy but is full
-        else if (creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
+        else if (creep.memory.working == false && creep.carry.energy ==
+            creep.carryCapacity) {
             // switch state
             creep.memory.working = true;
         }

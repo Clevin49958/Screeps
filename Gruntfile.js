@@ -98,7 +98,7 @@ module.exports = function(grunt) {
       })
   
       grunt.registerTask('up',  [ 'clean', 'copy:screeps', 'file_append:versioning', 'screeps']);
-      grunt.registerTask('default',  ["watch"]);
+      grunt.registerTask('default',  ["up", "watch"]);
   
       grunt.registerTask('test',     ['jsbeautifier:verify']);
       grunt.registerTask('pretty',   ['jsbeautifier:modify']);

@@ -14,7 +14,8 @@ module.exports = {
             creep.memory.working = false;
         }
         // if creep is harvesting energy but is full
-        else if (creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
+        else if (creep.memory.working == false && creep.carry.energy ==
+            creep.carryCapacity) {
             // switch state
             creep.memory.working = true;
         }
@@ -24,11 +25,14 @@ module.exports = {
             // find closest structure with less than max hits
             // Exclude walls because they have way too many max hits and would keep
             // our repairers busy forever. We have to find a solution for that later.
-            var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            var structure = creep.pos.findClosestByPath(
+            FIND_STRUCTURES, {
                 // the second argument for findClosestByPath is an object which takes
                 // a property called filter which can be a function
                 // we use the arrow operator to define it
-                filter: (s) => s.hits < s.hitsMax * 0.95 && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART
+                filter: (s) => s.hits < s.hitsMax - 800 && s
+                    .structureType != STRUCTURE_WALL && s
+                    .structureType != STRUCTURE_RAMPART
             });
 
             // if we find one
@@ -36,7 +40,7 @@ module.exports = {
                 // try to repair it, if it is out of range
                 if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
                     // move towards it
-                    creep.moveTo(structure);
+                    creep.myMoveTo(structure);
                 }
             }
             // if we can't fine one
@@ -49,7 +53,8 @@ module.exports = {
         else {
             // find closest source
             // find closest source
-            if (creep.memory.target && creep.memory.target != creep.room.name) {
+            if (creep.memory.target && creep.memory.target != creep.room
+                .name) {
                 helper.moveTargetRoom(creep);
             }
             if (helper.harvestLoot(creep)) return;
