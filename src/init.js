@@ -92,7 +92,17 @@ module.exports = {
         }
     },
 
-    alter: () => {},
+    alter: () => {
+        var r = Game.rooms.W34N12;
+        if (r.controller.level == 4 && r.find(FIND_MY_STRUCTURES, {
+            filter: { structureType: STRUCTURE_STORAGE }}).length == 0) {
+            try {
+                r.createConstructionSite(25,33,STRUCTURE_STORAGE);
+            } catch (error) {
+                
+            }
+        }
+    },
     alterOnce: () => {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
