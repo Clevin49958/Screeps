@@ -10,7 +10,7 @@ function findQuest(creep){
     if (creep.memory.target && creep.memory.target != creep.room.name) {
         helper.moveTargetRoom(creep);
     } else {
-        let c = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        let c = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
         creep.memory.quest = c ? c.id : null;
     }
 }
@@ -19,7 +19,6 @@ module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(BUILDER.slice(0, 1));
-        
         if (!creep.memory.quest) findQuest(creep);
 
         // if creep is trying to complete a constructionSite but has no energy left
@@ -41,7 +40,9 @@ module.exports = {
             var quest = Game.getObjectById(creep.memory.quest);
 
             if (quest){
-                creep.build(quest);
+                if (creep.build(quest) == ERR_NOT_IN_RANGE){
+                    creep.myMoveTo(quest)
+                };
             } else {
                 roleRepairer.run(creep);
             }

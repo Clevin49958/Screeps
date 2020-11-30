@@ -20,6 +20,11 @@ module.exports = {
             creep.memory.working = true;
         }
 
+        if (creep.memory.target && creep.memory.target != creep.room
+            .name) {
+            helper.moveTargetRoom(creep);
+            return;
+        }
         // if creep is supposed to repair something
         if (creep.memory.working == true) {
             // find closest structure with less than max hits
@@ -53,10 +58,6 @@ module.exports = {
         else {
             // find closest source
             // find closest source
-            if (creep.memory.target && creep.memory.target != creep.room
-                .name) {
-                helper.moveTargetRoom(creep);
-            }
             if (helper.harvestLoot(creep)) return;
             if (helper.withdrawEnergy(creep)) return;
             // helper.harvest(creep);
