@@ -7,7 +7,7 @@ function roomCreepConfig(room) {
     return {
         harvester: 0,
         harvRemote: Memory.sources[room],
-        carry: Memory.sources[room],
+        carry: 1,
         upgrader: 0,
         builder: 1,
         repairer: 1,
@@ -99,7 +99,7 @@ module.exports = {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
 
-            transferControlledRoom('W34N13','W33N12','W34N12')
+            addControlledRoom('W34N12','W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }

@@ -46,9 +46,15 @@ module.exports = function() {
      * 
      * @param {string} target target room ID
      */
-    StructureSpawn.prototype.spawnClaimerCreep = function(target, home =
+    StructureSpawn.prototype.spawnClaimerCreep = function(energy, target, home =
         this.room.name) {
-        return this.spawnCreep([CLAIM, MOVE, MOVE],
+        var body;
+        if (energy >= 1300 && Game.rooms[target].controller.reservation.ticksToEnd < 500){
+            body = [CLAIM, CLAIM, MOVE, MOVE];
+        } else if (Game.rooms[target].controller.reservation.ticksToEnd < 3000){
+            body = [CLAIM, MOVE, MOVE];
+        } else return;
+        return this.spawnCreep(body,
             `${getName(CLAIMER,target,home)}`, {
                 memory: {
                     role: helper.CLAIMER,

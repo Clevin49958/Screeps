@@ -93,7 +93,7 @@ module.exports = {
                     c.memory.role == role &&
                     c.memory.target == targetRoom && 
                     c.memory.home == room && 
-                    (c.ticksToLive > 150 || (room == targetRoom && c.ticksToLive > 100))
+                    (c.ticksToLive > 220 || (room == targetRoom && c.ticksToLive > 100))
                 );
             }
             
@@ -219,7 +219,7 @@ module.exports = {
                     ]) {
                     // spawn
                     if (r == CLAIMER) {
-                        res = spawn.spawnClaimerCreep(targetRoom, room);
+                        res = spawn.spawnClaimerCreep(energy, targetRoom, room);
                     } else {
                         res = spawn.createBalCreep(energy, r,
                             targetRoom, room);

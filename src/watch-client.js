@@ -24,4 +24,6 @@ module.exports = function() {
                 result;
         }
     });
+    
+    Memory.stats.summary = Memory.watch.values;
 };

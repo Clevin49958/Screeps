@@ -6,25 +6,20 @@ module.exports = {
 
         if (creep.room.name == creep.memory.target) {
             if (creep.room.controller) {
-                if (!creep.room.controller.my && creep.room.controller
-                    .owner) {
-                    if (creep.attackController(creep.room.controller) ==
-                        ERR_NOT_IN_RANGE) {
-                        creep.myMoveTo(creep.room.controller);
+                var controller = creep.room.controller;
+                if (creep.pos.isNearTo(creep.room.controller)){
+                    if (!creep.room.controller.my && creep.room.controller
+                        .owner) {
+                        creep.attackController(creep.room.controller)
+                    } else {
+                        if (creep.claimController(creep.room.controller) == ERR_GCL_NOT_ENOUGH){
+                            creep.reserveController(creep.room.controller);
+                        }
                     }
                 } else {
-                    if (creep.room.controller.isActive()) {
-                        if (creep.claimController(creep.room
-                            .controller) == ERR_NOT_IN_RANGE) {
-                            creep.myMoveTo(creep.room.controller);
-                        }
-                    } else {
-                        if (creep.reserveController(creep.room
-                                .controller) == ERR_NOT_IN_RANGE) {
-                            creep.myMoveTo(creep.room.controller);
-                        }
-                    }
+                    creep.myMoveTo(creep.room.controller);
                 }
+                
             }
         } else {
             helper.moveTargetRoom(creep);

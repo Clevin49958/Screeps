@@ -40,25 +40,30 @@ module.exports.stateScanner = function() {
     roleNames.forEach(r => Memory.stats.roles[r] = _.sum(Game.creeps, (c) =>
         c.memory.role == r));
     // storage
-    var storages = Game.rooms[helper.home].find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType == STRUCTURE_STORAGE
-    });
-    Memory.stats.Storages = storages.map(s => s.store.getUsedCapacity(
-        RESOURCE_ENERGY));
-
-    storages.forEach(storage => {
-        let threshold = 700000;
-        if (storage.store.getUsedCapacity(RESOURCE_ENERGY) >
-            threshold + 50000) {
-            Game.notify(
-                `Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`
-                )
+    var storages = {};
+    for (let room in Memory.myRooms){
+        var storage = Game.rooms[room].find(FIND_STRUCTURES, {
+            filter: (s) => s.structureType == STRUCTURE_STORAGE
+        });
+        if (storage.length > 0){
+            storage = storage[0];
+            storages[room] = storage;
+            Memory.stats.Storages[room] = storage.store.getUsedCapacity(
+                RESOURCE_ENERGY);
+            let threshold = 700000;
+            if (storage.store.getUsedCapacity(RESOURCE_ENERGY) >
+                threshold + 50000) {
+                Game.notify(
+                    `Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`
+                    )
+            }
+            Memory.creepDemand[storage.room.name][storage.room.name][
+                    UPGRADER
+                ] = storage.store.getUsedCapacity(RESOURCE_ENERGY) >
+                threshold ? 2 : 1;
         }
-        Memory.creepDemand[storage.room.name][storage.room.name][
-                UPGRADER
-            ] = storage.store.getUsedCapacity(RESOURCE_ENERGY) >
-            threshold ? 2 : 1;
-    });
+
+    }
 
     if (Memory.stats.bucket < 4000) {
         Game.notify("Bucket is low");
