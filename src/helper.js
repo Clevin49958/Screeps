@@ -1,6 +1,6 @@
 const RICH_THRESHOLD = 300;
 const POOR_THRESHOLD = 1000;
-const LOG_RATE = 2;
+const LOG_RATE = 5;
 
 
 const HARVESTER = 'harvester';
@@ -13,9 +13,9 @@ const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
 
-Creep.prototype.myMoveTo = function(destination) {
+Creep.prototype.myMoveTo = function(destination, options = {}) {
     if (this.memory.home != this.memory.target){
-        this.travelTo(destination);
+        this.travelTo(destination, options);
     } else {
         this.moveTo(destination, {reusePath: 50});
     }
@@ -220,6 +220,9 @@ module.exports = {
         if (creep.memory.target && creep.memory.target != creep.room
             .name) {
             creep.myMoveTo(new RoomPosition(5, 5, creep.memory.target));
+            return true;
+        } else {
+            return false;
         }
     },
 
@@ -235,14 +238,26 @@ module.exports = {
 
     harvestLoot: function(creep) {
         var source = creep.pos.findClosestByPath(
-        FIND_DROPPED_RESOURCES);
+        FIND_DROPPED_RESOURCES, {filter: r => r.amount > 200});
         if (source) {
             // creep.say(JSON.stringify(source.pos))
             if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
                 // move towards the source
                 creep.myMoveTo(source);
             }
+        } else {
+            source = creep.pos.findClosestByPath(FIND_TOMBSTONES);
+            if (!source) {
+                source = creep.pos.findClosestByPath(FIND_RUINS);
+            }
+            if (source) {
+                if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
+                    // move towards the source
+                    creep.myMoveTo(source);
+                }
+            }
         }
+        creep.say(source ? [source.pos.x,source.pos.y] : source)
         return source;
     },
 
