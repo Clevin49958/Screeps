@@ -6,7 +6,7 @@ require('./helper');
 const helper = require('./helper');
 const roleRepairer = require('./role.repairer');
 
-function findQuest(creep){
+function findQuest(creep) {
     if (creep.memory.target && creep.memory.target != creep.room.name) {
         helper.moveTargetRoom(creep);
     } else {
@@ -36,11 +36,11 @@ module.exports = {
 
         // if creep is supposed to complete a constructionSite
         if (creep.memory.working == true) {
-            
+
             var quest = Game.getObjectById(creep.memory.quest);
 
-            if (quest){
-                if (creep.build(quest) == ERR_NOT_IN_RANGE){
+            if (quest) {
+                if (creep.build(quest) == ERR_NOT_IN_RANGE) {
                     creep.myMoveTo(quest)
                 };
             } else {

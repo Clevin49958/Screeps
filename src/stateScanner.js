@@ -41,11 +41,11 @@ module.exports.stateScanner = function() {
         c.memory.role == r));
     // storage
     var storages = {};
-    for (let room in Memory.myRooms){
+    for (let room in Memory.myRooms) {
         var storage = Game.rooms[room].find(FIND_STRUCTURES, {
             filter: (s) => s.structureType == STRUCTURE_STORAGE
         });
-        if (storage.length > 0){
+        if (storage.length > 0) {
             storage = storage[0];
             storages[room] = storage;
             Memory.stats.Storages[room] = storage.store.getUsedCapacity(
@@ -55,7 +55,7 @@ module.exports.stateScanner = function() {
                 threshold + 50000) {
                 Game.notify(
                     `Storage is at ${storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000}%`
-                    )
+                )
             }
             Memory.creepDemand[storage.room.name][storage.room.name][
                     UPGRADER

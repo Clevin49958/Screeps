@@ -3,7 +3,7 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        if (!creep.memory.source){
+        if (!creep.memory.source) {
             creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
                 .sourceIndex].id;
         }

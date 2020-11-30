@@ -51,7 +51,7 @@ module.exports = {
         var totalHarvs;
         totalHarvs = _.sum(Game.creeps,
             c => (c.memory.role == helper.HARVESTER || c.memory
-            .role == helper.HARV_REMOTE) &&
+                .role == helper.HARV_REMOTE) &&
             c.ticksToLive > 75 && c.memory.home == room
         );
 
@@ -93,12 +93,12 @@ module.exports = {
                 ]) {
                 creepTrack[targetRoom][role] = _.sum(Game.creeps, (c) =>
                     c.memory.role == role &&
-                    c.memory.target == targetRoom && 
-                    c.memory.home == room && 
+                    c.memory.target == targetRoom &&
+                    c.memory.home == room &&
                     (c.ticksToLive > 220 || (room == targetRoom && c.ticksToLive > 100))
                 );
             }
-            
+
             creepTrack[targetRoom].total = Object.keys(creepTrack[
                 targetRoom]).reduce((acc, role) => acc + (role ==
                 'total' ? 0 : creepTrack[targetRoom][role]), 0);
@@ -120,23 +120,25 @@ module.exports = {
             console.log(`${spawn.name}: `);
             Object.keys(Memory.myRooms[room]).forEach(targetRoomID => {
                 targetRoom = Memory.myRooms[room][targetRoomID];
-                if (creepTrack[targetRoom].total < creepDemand[targetRoom].total){
+                if (creepTrack[targetRoom].total < creepDemand[targetRoom].total) {
                     console.log(
-                    `'\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`
+                        `'\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`
                     );
                 }
             });
 
             // role based stats
             console.log(`Roles: `);
-            [HARV_REMOTE, helper.CARRY, UPGRADER, 
-                BUILDER, REPAIRER, WALL_REPAIRER, CLAIMER].forEach(role => {
+            [HARV_REMOTE, helper.CARRY, UPGRADER,
+                BUILDER, REPAIRER, WALL_REPAIRER, CLAIMER
+            ].forEach(role => {
                 var num = _.reduce(creepTrack,
                     (acc, targetRoom) => acc + (
                         typeof targetRoom == 'object' ?
                         targetRoom[role] : 0), 0)
-                var sumRole = _.reduce(Memory.myRooms[room], (acc, targetRoom) =>acc+creepDemand[targetRoom][role], 0);
-                if (num < sumRole){
+                var sumRole = _.reduce(Memory.myRooms[room], (acc, targetRoom) => acc + creepDemand[
+                    targetRoom][role], 0);
+                if (num < sumRole) {
                     console.log(`'\t${role}: ${num}/` + `${sumRole}`);
                 }
             });
@@ -166,19 +168,18 @@ module.exports = {
             // error because if there's no creep in room, you can't observe it
         }
 
-        if (Memory.offence[room]){
-            for (var targetRoom in Memory.offence[room]){
-                for (var role in Memory.offence[room][targetRoom].roles){
-                    if (Memory.offence[room][targetRoom].roles[role] > 
+        if (Memory.offence[room]) {
+            for (var targetRoom in Memory.offence[room]) {
+                for (var role in Memory.offence[room][targetRoom].roles) {
+                    if (Memory.offence[room][targetRoom].roles[role] >
                         _.sum(Game.creeps, (c) =>
-                        c.memory.role == role &&
-                        c.memory.target == targetRoom && 
-                        c.memory.home == room && 
-                        c.ticksToLive > 220)){
-                        if (role == ATK_RANGE){
+                            c.memory.role == role &&
+                            c.memory.target == targetRoom &&
+                            c.memory.home == room &&
+                            c.ticksToLive > 220)) {
+                        if (role == ATK_RANGE) {
                             spawn.spawnAtkRangeCreep(energy, targetRoom, home = room);
-                        }
-                        else if (role == ATTACKER){
+                        } else if (role == ATTACKER) {
                             spawn.spawnAttackerCreep(energy, targetRoom, home = room);
                         }
                     }
@@ -200,7 +201,7 @@ module.exports = {
                 if (res == 0) {
                     console.log(
                         `        Spawned new ${CARRY} ${targetRoom} ${room}`
-                        );
+                    );
                 }
                 return;
             }
@@ -209,22 +210,22 @@ module.exports = {
             for (let i = 0; i < Memory.sources[targetRoom]; i++) {
                 // console.log(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) => acc || (c.memory.role == helper.HARV_REMOTE && 
                 // c.memory.target == sourceRoom && c.memory.home == room && c.memory.sourceIndex == i),false))
-                if (!_.reduce(Game.creeps, (acc, c) => acc || 
-                            (c.memory.role == helper.HARV_REMOTE &&
-                            c.memory.target == targetRoom && c.memory.home == room && 
+                if (!_.reduce(Game.creeps, (acc, c) => acc ||
+                        (c.memory.role == helper.HARV_REMOTE &&
+                            c.memory.target == targetRoom && c.memory.home == room &&
                             c.memory.sourceIndex == i),
                         false)) {
 
                     if (Game.time % helper.logRate == 0)
                         console.log(
                             `    Demand: ${targetRoom} ${helper.HARV_REMOTE} sourceIndex: ${i}`
-                            );
+                        );
                     var res = spawn.spawnHarvRemoteCreep(energy,
                         targetRoom, home = room, sourceIndex = i)
                     if (res == 0) {
                         console.log(
                             `        Spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
-                            );
+                        );
                     }
                     return;
                 }
@@ -255,11 +256,11 @@ module.exports = {
                     if (res == 0) {
                         console.log(
                             `Spawned new ${r} ${targetRoom} ${room}`
-                            );
+                        );
                     }
                     if (Game.time % helper.logRate == 0) console.log(
                         `    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${creepDemand[targetRoom][r]}`
-                        );
+                    );
                     return;
                 }
             }

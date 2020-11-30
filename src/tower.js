@@ -1,11 +1,13 @@
-const { BUILDER } = require("./helper");
+const {
+    BUILDER
+} = require("./helper");
 const helper = require("./helper");
 
 module.exports = {
 
     //TOWER CODE
     defendMyRoom: function() {
-        for (let roomId in Memory.myRooms){
+        for (let roomId in Memory.myRooms) {
             // console.log(roomId)
             room = Game.rooms[roomId];
 
@@ -15,7 +17,7 @@ module.exports = {
                 }
             });
             var hostiles = room.find(FIND_HOSTILE_CREEPS);
-    
+
             //if there are hostiles - attakc them    
             if (hostiles.length > 0) {
                 Memory.states.defending[room] = true;
@@ -38,13 +40,14 @@ module.exports = {
                 }
                 console.log("ALERT!!!! WE ARE UNDER ATTACK!!!!! ");
             }
-    
+
             //if there are no hostiles....
             if (hostiles.length === 0) {
                 Memory.states.defending[room] = false;
-    
+
                 if (towers.length == 0) return;
-                Memory.creepDemand[room.name][room.name][BUILDER] = room.find(FIND_CONSTRUCTION_SITES).length > 0 ? 1 : 0;
+                Memory.creepDemand[room.name][room.name][BUILDER] = room.find(FIND_CONSTRUCTION_SITES).length >
+                    0 ? 1 : 0;
 
                 //....first heal any damaged creeps
                 for (let name in Game.creeps) {
@@ -54,24 +57,24 @@ module.exports = {
                         towers.forEach(tower => tower.heal(creep));
                     }
                 }
-    
+
                 for (let tower of towers) {
                     //...repair Buildings! :) But ONLY until 10% the energy of the tower is gone.
                     //Because we don't want to be exposed if something shows up at our door :)
                     if (tower.store.getUsedCapacity(RESOURCE_ENERGY) > ((
                             tower.store.getCapacity(RESOURCE_ENERGY) /
                             10) * 7)) {
-    
+
                         //Find the closest damaged Structure
                         var closestDamagedStructure = tower.pos
                             .findClosestByRange(FIND_STRUCTURES, {
-                                filter: (s) => s.hits < s.hitsMax-800 && s
+                                filter: (s) => s.hits < s.hitsMax - 800 && s
                                     .structureType != STRUCTURE_WALL &&
                                     s.structureType != STRUCTURE_RAMPART
                             });
                         if (closestDamagedStructure) {
                             tower.repair(closestDamagedStructure);
-                        } else if (Game.time % 10 < 8) {
+                        } else if (Game.time % 10 < 4) {
                             var walls = tower.room.find(FIND_STRUCTURES, {
                                 filter: (s) => ((s.structureType ==
                                         STRUCTURE_WALL || s
@@ -94,7 +97,7 @@ module.exports = {
                         }
                     }
                 }
-    
+
             }
         }
     }

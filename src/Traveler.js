@@ -97,7 +97,7 @@ class Traveler {
                 // see note at end of file for more info on this
                 console.log(
                     `TRAVELER: heavy cpu use: ${creep.name}, cpu: ${state.cpu} origin: ${creep.pos}, dest: ${destination}`
-                    );
+                );
             }
             let color = "orange";
             if (ret.incomplete) {
@@ -179,7 +179,7 @@ class Traveler {
      */
     static samePos(pos1, pos2) {
         return this.sameCoord(pos1, pos2) && pos1.roomName === pos2
-        .roomName;
+            .roomName;
     }
     /**
      * draw a circle at position
@@ -253,7 +253,7 @@ class Traveler {
             } else if (!options.allowHostile && Traveler.checkAvoid(
                     roomName) &&
                 roomName !== destRoomName && roomName !== originRoomName
-                ) {
+            ) {
                 return false;
             }
             roomsSearched++;
@@ -279,7 +279,7 @@ class Traveler {
                             continue;
                         }
                         matrix.set(obstacle.pos.x, obstacle.pos.y,
-                        0xff);
+                            0xff);
                     }
                 }
             }
@@ -315,14 +315,14 @@ class Traveler {
                 if (roomDistance <= 2) {
                     console.log(
                         `TRAVELER: path failed without findroute, trying with options.useFindRoute = true`
-                        );
+                    );
                     console.log(
                         `from: ${origin}, destination: ${destination}`);
                     options.useFindRoute = true;
                     ret = this.findTravelPath(origin, destination, options);
                     console.log(
                         `TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`
-                        );
+                    );
                     return ret;
                 }
                 // TODO: handle case where a wall or some other obstacle is blocking the exit assumed by findRoute

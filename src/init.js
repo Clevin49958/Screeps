@@ -15,6 +15,7 @@ function roomCreepConfig(room) {
         claimer: 1
     }
 }
+
 function addControlledRoom(controlled, room, demands = null) {
     if (!demands) {
         demands = roomCreepConfig(controlled);
@@ -36,13 +37,15 @@ function transferControlledRoom(room, oldOwner, newOwner) {
         oldOwner))
 }
 
-function addOwnerRoom(room){
+function addOwnerRoom(room) {
     Memory.myRooms[room] = [room];
     var creepTrack = Memory.stats.creepTrack;
     creepTrack[room] = {}
     creepTrack[room][room] = roomCreepConfig(room);
     var creepDemand = Memory.creepDemand;
-    creepDemand[room] = {[room]: roomCreepConfig(room)}
+    creepDemand[room] = {
+        [room]: roomCreepConfig(room)
+    }
 }
 
 module.exports = {
@@ -89,15 +92,14 @@ module.exports = {
         }
     },
 
-    alter: () => {
-    },
+    alter: () => {},
     alterOnce: () => {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
 
             // Memory.myRooms.W33N12 = ['W33N12']
 
-            addControlledRoom('W34N11','W34N12')
+            addControlledRoom('W34N11', 'W34N12')
             // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory

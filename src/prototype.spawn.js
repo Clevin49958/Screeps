@@ -31,15 +31,15 @@ module.exports = function() {
 
             // create creep with the created body and the given role
             return this.spawnCreep(body,
-            `${getName(roleName,target,home)}`, {
-                memory: {
-                    role: roleName,
-                    working: false,
-                    target: target,
-                    home: home,
-                    sourceIndex: 0
-                }
-            });
+                `${getName(roleName,target,home)}`, {
+                    memory: {
+                        role: roleName,
+                        working: false,
+                        target: target,
+                        home: home,
+                        sourceIndex: 0
+                    }
+                });
         };
 
 
@@ -50,9 +50,11 @@ module.exports = function() {
     StructureSpawn.prototype.spawnClaimerCreep = function(energy, target, home =
         this.room.name) {
         var body;
-        if (energy >= 1300 && (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation.ticksToEnd < 500)){
+        if (energy >= 1300 && (!Game.rooms[target].controller.reservation || Game.rooms[target].controller
+                .reservation.ticksToEnd < 500)) {
             body = [CLAIM, CLAIM, MOVE, MOVE];
-        } else if (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation.ticksToEnd < 3000){
+        } else if (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation
+            .ticksToEnd < 3000) {
             body = [CLAIM, MOVE, MOVE];
         } else return;
         return this.spawnCreep(body,
@@ -111,10 +113,8 @@ module.exports = function() {
         function(energy, target, home = this.room.name, sourceIndex = 0) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor(energy / 150);
-            numberOfParts = numberOfParts > 10 ? 10 :
-                numberOfParts;
-            numberOfParts = (numberOfParts > 5 && target == home) ? 5 :
-                numberOfParts;
+            numberOfParts = numberOfParts > 8 ? 8 : numberOfParts;
+            // numberOfParts = (numberOfParts > 5 && target == home) ? 5 : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(CARRY);
