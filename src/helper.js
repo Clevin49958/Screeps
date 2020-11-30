@@ -12,6 +12,7 @@ const WALL_REPAIRER = 'wallRepairer';
 const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
+const ATTACKER = 'attacker'
 
 Creep.prototype.myMoveTo = function(destination, options = {}) {
     if (this.memory.home != this.memory.target){
@@ -31,8 +32,9 @@ module.exports = {
     CLAIMER: CLAIMER,
     ATK_RANGE: ATK_RANGE,
     CARRY: CARRY,
+    ATTACKER,
     roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-        HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY
+        HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY, ATTACKER
     ],
     home: 'W32N11',
     logRate: LOG_RATE,
@@ -219,7 +221,10 @@ module.exports = {
     moveTargetRoom: function(creep) {
         if (creep.memory.target && creep.memory.target != creep.room
             .name) {
-            creep.myMoveTo(new RoomPosition(5, 5, creep.memory.target));
+            // find exit to target room
+            var exit = creep.room.findExitTo(creep.memory.target);
+            // move to exit
+            creep.moveTo(creep.pos.findClosestByRange(exit));
             return true;
         } else {
             return false;
@@ -238,7 +243,7 @@ module.exports = {
 
     harvestLoot: function(creep) {
         var source = creep.pos.findClosestByPath(
-        FIND_DROPPED_RESOURCES, {filter: r => r.amount > 200});
+        FIND_DROPPED_RESOURCES, {filter: r => r.amount > 100});
         if (source) {
             // creep.say(JSON.stringify(source.pos))
             if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
@@ -251,7 +256,8 @@ module.exports = {
                 source = creep.pos.findClosestByPath(FIND_RUINS);
             }
             if (source) {
-                if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
+                if (creep.withdraw(source, RESOURCE_ENERGY) ==
+                    ERR_NOT_IN_RANGE) {
                     // move towards the source
                     creep.myMoveTo(source);
                 }

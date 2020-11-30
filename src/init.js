@@ -99,7 +99,14 @@ module.exports = {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
 
-            addControlledRoom('W34N12','W33N12')
+            Memory.offence = {
+                'W33N12':{
+                    'W35N12':{
+                        [ATK_RANGE]:1
+                    }
+                }
+            }
+            // addControlledRoom('W34N12','W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }

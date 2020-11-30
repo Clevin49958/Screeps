@@ -8,7 +8,9 @@ const {
     UPGRADER,
     roleNames,
     HARV_REMOTE,
-    CLAIMER
+    CLAIMER,
+    ATK_RANGE,
+    ATTACKER
 } = require('./helper');
 const helper = require('./helper');
 
@@ -141,6 +143,9 @@ module.exports = {
                 `Total: ${creepTrack.total}/${creepDemand.total}`);
         }
 
+        // skip spawning if busy
+        if (spawn.spawning) return;
+
         // spawn defenders: rangedAtk
         for (let targetRoom of Memory.myRooms[room]) {
             var hostiles = Game.rooms[targetRoom].find(
@@ -156,6 +161,25 @@ module.exports = {
             }
         }
 
+        if (Memory.offence[room]){
+            for (var targetRoom in Memory.offence[room]){
+                for (var role in Memory.offence[room][targetRoom].roles){
+                    if (Memory.offence[room][targetRoom].roles[role] > 
+                        _.sum(Game.creeps, (c) =>
+                        c.memory.role == role &&
+                        c.memory.target == targetRoom && 
+                        c.memory.home == room && 
+                        c.ticksToLive > 220)){
+                        if (role == ATK_RANGE){
+                            spawn.spawnAtkRangeCreep(energy, targetRoom, home = room);
+                        }
+                        else if (role == ATTACKER){
+                            spawn.spawnAttackerCreep(energy, targetRoom, home = room);
+                        }
+                    }
+                }
+            }
+        }
         // spawn creeps
         for (let targetRoom of Memory.myRooms[room]) {
             // spawn carry
@@ -203,6 +227,7 @@ module.exports = {
 
         }
 
+
         // spawn workers for each room
 
         for (let targetRoom of Memory.myRooms[room]) {
@@ -214,9 +239,7 @@ module.exports = {
                 // console.log(`In ${targetRoom} ${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
                 //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${creepDemand[targetRoom][r]}`);
 
-                if (creepTrack[targetRoom][r] < creepDemand[targetRoom][
-                        r
-                    ]) {
+                if (creepTrack[targetRoom][r] < creepDemand[targetRoom][r]) {
                     // spawn
                     if (r == CLAIMER) {
                         res = spawn.spawnClaimerCreep(energy, targetRoom, room);

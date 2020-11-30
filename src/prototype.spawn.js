@@ -2,7 +2,8 @@ const {
     HARV_REMOTE,
     CARRY,
     CLAIMER,
-    ATK_RANGE
+    ATK_RANGE,
+    ATTACKER
 } = require("./helper");
 const helper = require("./helper");
 
@@ -49,7 +50,7 @@ module.exports = function() {
     StructureSpawn.prototype.spawnClaimerCreep = function(energy, target, home =
         this.room.name) {
         var body;
-        if (energy >= 1300 && Game.rooms[target].controller.reservation.ticksToEnd < 500){
+        if (energy >= 1300 && (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation.ticksToEnd < 500)){
             body = [CLAIM, CLAIM, MOVE, MOVE];
         } else if (Game.rooms[target].controller.reservation.ticksToEnd < 3000){
             body = [CLAIM, MOVE, MOVE];
@@ -164,6 +165,42 @@ module.exports = function() {
                 `${getName(ATK_RANGE,target,home)}`, {
                     memory: {
                         role: helper.ATK_RANGE,
+                        attack: true,
+                        working: true,
+                        target: target,
+                        home: home
+                    }
+                });
+        };
+
+    StructureSpawn.prototype.spawnAttackerCreep =
+        /**
+         * 
+         * @param {number} energy used to generate
+         * @param {string} target target room id
+         * @param {string} home home room id
+         */
+        function(energy, target, home = this.room.name) {
+            // create a balanced body as big as possible with the given energy
+            var numberOfParts = Math.floor(energy / 140);
+            var body = [];
+            for (let i = 0; i < numberOfParts; i++) {
+                body.push(TOUGH);
+            }
+            for (let i = 0; i < numberOfParts - 1; i++) {
+                body.push(MOVE);
+            }
+            for (let i = 0; i < numberOfParts; i++) {
+                body.push(ATTACK);
+            }
+            body.push(MOVE);
+
+
+            // create creep with the created body and the given role
+            return this.spawnCreep(body,
+                `${getName(ATTACKER,target,home)}`, {
+                    memory: {
+                        role: helper.ATTACKER,
                         attack: true,
                         working: true,
                         target: target,
