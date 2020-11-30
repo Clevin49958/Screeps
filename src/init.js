@@ -7,7 +7,7 @@ function roomCreepConfig(room) {
     return {
         harvester: 0,
         harvRemote: Memory.sources[room],
-        carry: 1,
+        carry: Memory.sources[room],
         upgrader: 0,
         builder: 1,
         repairer: 1,
@@ -21,10 +21,11 @@ function addControlledRoom(controlled, room, demands = null) {
     }
     Memory.myRooms[room].push(controlled);
     Memory.creepDemand[room][controlled] = demands;
+    Memory.stats.creepTrack[room][controlled] = {};
 }
 
 function removeControlledRoom(controlled, room) {
-    Memory.myRooms[room].splice(Memory.myRooms[room].findIndex(r => r == room), 1);
+    Memory.myRooms[room].splice(Memory.myRooms[room].findIndex(r => r == controlled), 1);
     var demands = Memory.creepDemand[room][controlled];
     Memory.creepDemand[room][controlled] = undefined;
     return demands;
@@ -89,24 +90,15 @@ module.exports = {
     },
 
     alter: () => {
-        if (Game.spawns.s3 && Memory.creepDemand.W33N12.W34N12) {
-            removeControlledRoom('W34N12','W33N12');
-            Memory.mySpawns['W34n12'] = Game.spawns.s3.id;
-            Game.notify('Spawn Construction is Completed');
-        }
     },
     alterOnce: () => {
         // Memory.init.exec = 0;s
         if (Memory.exec === true) {
 
-            Memory.offence = {
-                'W33N12':{
-                    'W35N12':{
-                        [ATK_RANGE]:1
-                    }
-                }
-            }
-            // addControlledRoom('W34N12','W33N12')
+            // Memory.myRooms.W33N12 = ['W33N12']
+
+            addControlledRoom('W34N11','W34N12')
+            // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }

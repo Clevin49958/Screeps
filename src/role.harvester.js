@@ -28,7 +28,7 @@ module.exports = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            if (Memory.states.restart) {
+            if (Memory.states.restart[creep.memory.home]) {
                 if (helper.withdrawContainer(creep)) return;
             }
             helper.harvest(creep);

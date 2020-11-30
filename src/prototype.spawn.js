@@ -52,7 +52,7 @@ module.exports = function() {
         var body;
         if (energy >= 1300 && (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation.ticksToEnd < 500)){
             body = [CLAIM, CLAIM, MOVE, MOVE];
-        } else if (Game.rooms[target].controller.reservation.ticksToEnd < 3000){
+        } else if (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation.ticksToEnd < 3000){
             body = [CLAIM, MOVE, MOVE];
         } else return;
         return this.spawnCreep(body,

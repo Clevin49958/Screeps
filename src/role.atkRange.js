@@ -22,7 +22,9 @@ module.exports = {
         if (helper.moveTargetRoom(creep)) return true;
 
         var enermy;
-        if (!Memory.offence[creep.memory.home][creep.memory.target].quest){
+        if (Memory.offence[creep.memory.home] && Memory.offence[creep.memory.home][creep.memory.target] &&  Memory.offence[creep.memory.home][creep.memory.target].quest){
+            enermy = Game.getObjectById(Memory.offence[creep.memory.home][creep.memory.target].quest);
+        } else {
             enermy = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, 
                 {filter: s => s.structureType == STRUCTURE_TOWER, range:3}
             );
@@ -32,9 +34,7 @@ module.exports = {
             if (!enermy) {
                 enermy = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES);
             }
-        } else {
-            enermy = Game.getObjectById(Memory.offence[creep.memory.home][creep.memory.target].quest);
-        }
+        } 
         
         
         if (!enermy) {

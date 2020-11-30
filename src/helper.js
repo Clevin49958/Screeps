@@ -212,7 +212,7 @@ module.exports = {
      */
     withdrawEnergy: function(creep) {
         if (this.withdrawContainer(creep)) return true;
-        if (Memory.states.defending || Memory.states.restart) {
+        if (Memory.states.defending[creep.memory.room] || Memory.states.restart[creep.memory.home]) {
             if (this.withdrawStorage(creep)) return true;
         }
         return false;
@@ -233,7 +233,13 @@ module.exports = {
 
     moveHome: function(creep) {
         if (creep.memory.home && creep.memory.home != creep.room.name) {
-            creep.myMoveTo(new RoomPosition(5, 5, creep.memory.home))
+            // find exit to target room
+            var exit = creep.room.findExitTo(creep.memory.home);
+            // move to exit
+            creep.moveTo(creep.pos.findClosestByRange(exit));
+            return true;
+        } else {
+            return false;
         }
     },
 
@@ -251,9 +257,9 @@ module.exports = {
                 creep.myMoveTo(source);
             }
         } else {
-            source = creep.pos.findClosestByPath(FIND_TOMBSTONES);
+            source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 100});
             if (!source) {
-                source = creep.pos.findClosestByPath(FIND_RUINS);
+                source = creep.pos.findClosestByPath(FIND_RUINS, {filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 50});
             }
             if (source) {
                 if (creep.withdraw(source, RESOURCE_ENERGY) ==
@@ -263,7 +269,6 @@ module.exports = {
                 }
             }
         }
-        creep.say(source ? [source.pos.x,source.pos.y] : source)
         return source;
     },
 

@@ -18,7 +18,7 @@ module.exports = {
     
             //if there are hostiles - attakc them    
             if (hostiles.length > 0) {
-                Memory.states.defending = true;
+                Memory.states.defending[room] = true;
                 var username = hostiles[0].owner.username;
                 Game.notify(
                     `User ${username} spotted in room ${room.name}`);
@@ -41,7 +41,7 @@ module.exports = {
     
             //if there are no hostiles....
             if (hostiles.length === 0) {
-                Memory.states.defending = false;
+                Memory.states.defending[room] = false;
     
                 if (towers.length == 0) return;
                 Memory.creepDemand[room.name][room.name][BUILDER] = room.find(FIND_CONSTRUCTION_SITES).length > 0 ? 1 : 0;

@@ -28,7 +28,7 @@ module.exports = {
             enermy = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {ignoreDestructibleStructures: true});
         }
         if (!enermy) {
-            enermy = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES);
+            enermy = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES /*, {filter: s => s.structureType != STRUCTURE_STORAGE}*/);
         }
         
         if (!enermy) {
@@ -37,7 +37,9 @@ module.exports = {
         }
 
         console.log(`${creep.name} Attacking: target: ${JSON.stringify(enermy.pos)}`)
-        Memory.offence[creep.memory.home][creep.memory.target].quest = enermy.id;
+        if (Memory.offence[creep.memory.home] && Memory.offence[creep.memory.home][creep.memory.target]){
+            Memory.offence[creep.memory.home][creep.memory.target].quest = enermy.id;
+        }
 
         if (creep.pos.isNearTo(enermy)) {
             creep.attack(enermy);

@@ -19,15 +19,9 @@ module.exports = {
 
         // if creep is supposed to transfer energy to a structure
         if (creep.memory.working == true) {
-            // if in home room
-            if (creep.room.name == creep.memory.home) {
-                helper.payAny(creep);
-            }
-            // if not in home room...
-            else {
-                // find exit to home room
-                helper.moveHome(creep);
-            }
+            if (helper.moveHome(creep)) return;
+
+            helper.payAny(creep);
         }
         // if creep is supposed to harvest energy from source
         else {
