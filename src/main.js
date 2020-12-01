@@ -8,6 +8,7 @@ const helper = require('./helper');
 const lib = require('./lib');
 const tower = require('./tower');
 const init = require('./init');
+const link = require('./link');
 module.exports.loop = function() {
     // update code check
     if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
@@ -34,6 +35,9 @@ module.exports.loop = function() {
 
     lib.runCreeps();
 
+    for (let room in Memory.myRooms) {
+        link.ship(room);
+    }
     for (let name in Game.spawns) {
         lib.generateCreeps(name);
     }

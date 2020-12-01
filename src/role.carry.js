@@ -19,8 +19,21 @@ module.exports = {
 
         // if creep is supposed to transfer energy to a structure
         if (creep.memory.working == true) {
-            if (helper.moveHome(creep)) return;
-
+            if (helper.moveHome(creep)) {
+                let standingAt = creep.room.lookAt(LOOK_STRUCTURES, creep.pos);
+                standingAt = _.find(standingAt, s => s.hits < s.hitsMax - 1600);
+                if (standingAt) {
+                    creep.repair(standingAt);
+                }
+                return;
+            }
+            let path = ['mine', 'links', creep.memory.home, 'sender', creep.memory.target];
+            let link = helper.getMemory(path);
+            link = link ? Game.getObjectById(link) : link;
+            // if (creep.name == 'carry-W31N11-W32N11-12') return;
+            if (creep.memory.home == creep.room.name && link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                return helper.payStructure(creep, link);
+            }
             helper.payAny(creep);
         }
         // if creep is supposed to harvest energy from source
@@ -28,7 +41,9 @@ module.exports = {
 
             // if in target room
             if (creep.room.name == creep.memory.target) {
-                // creep.say('c container')
+                // creep.say('c link')
+                if (helper.withdrawLink(creep)) return;
+                // creep.say('c container');
                 if (helper.withdrawContainerIfRich(creep)) return;
                 // creep.say('c loot')
                 if (helper.harvestLoot(creep)) return;
@@ -37,7 +52,6 @@ module.exports = {
                 // if (creep.store.getUsedCapacity(RESOURCE_ENERGY)>creep.store.getCapacity(RESOURCE_ENERGY)*0.5){
                 //     creep.memory.working = true;
                 // } else 
-                helper.moveRand(creep);
             }
             // if not in target room
             else {
@@ -45,4 +59,4 @@ module.exports = {
             }
         }
     }
-};
+}

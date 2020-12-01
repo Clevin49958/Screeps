@@ -1,6 +1,6 @@
 const RICH_THRESHOLD = 300;
 const POOR_THRESHOLD = 1000;
-const LOG_RATE = 5;
+const LOG_RATE = 20;
 
 
 const HARVESTER = 'harvester';
@@ -14,11 +14,22 @@ const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
 const ATTACKER = 'attacker'
 
+function getMemory (path, starter = Memory) {
+    let current = starter;
+    for (const item of path) {
+      if (!current[item]) {
+        return undefined;
+      }
+      current = current[item];
+    }
+    return current;
+}
+
 Creep.prototype.myMoveTo = function(destination, options = {}) {
     if (this.memory.home != this.memory.target) {
-        this.travelTo(destination, options);
+        return this.travelTo(destination, options);
     } else {
-        this.moveTo(destination, {
+        return this.moveTo(destination, {
             reusePath: 50
         });
     }
@@ -161,8 +172,8 @@ module.exports = {
         return source;
     },
 
-    withdrawContainer: function(creep) {
-        var source = null;
+    withdrawContainer: function(creep, source = null) {
+        // var source = null;
         if (!source) {
             source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.structureType ==
@@ -195,7 +206,7 @@ module.exports = {
         if (source) {
             // console.log(creep,source.pos.x,Memory.states.rich[source.pos.x],source.store.getFreeCapacity(RESOURCE_ENERGY)<RICH_THRESHOLD)
             Memory.states.rich[source.id] = true;
-            this.withdrawContainer(creep);
+            this.withdrawContainer(creep, source);
         } else {
             if (creep.pos.findInRange(FIND_STRUCTURES, 0, {
                     filter: (s) => s.structureType ==
@@ -207,6 +218,31 @@ module.exports = {
         }
         return source;
     },
+
+    /**
+     * 
+     * @param {Creep} creep 
+     * @param {StructureLink} link link to withdraw, any receiver link by default
+     * @returns {StructureLink} the link withdrawn from, null otherwise
+     */
+    withdrawLink: function(creep, link = null) {
+        if (!link || link.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+            let links = getMemory(['mine', 'links', creep.memory.home, 'receiver']);
+            link = _.find(_.values(links), link => Game.getObjectById(link).store.getUsedCapacity(RESOURCE_ENERGY) > 0);
+            if (!link) {
+                return false;
+            } else {
+                link = Game.getObjectById(link);
+            }
+        }
+        if (creep.withdraw(link, RESOURCE_ENERGY) ==
+            ERR_NOT_IN_RANGE) {
+            // move towards the source
+            creep.myMoveTo(link);
+        } 
+        return link;
+    },
+
     /**
      * 
      * @param {creep} creep 
@@ -287,7 +323,21 @@ module.exports = {
             spawn = Game.getObjectById(Memory.mySpawns[creep.memory.home]);
         } else spawn = Game.spawns.Spawn1;
         if (creep.pos.isNearTo(spawn)) {
-            Game.spawns.Spawn1.recycleCreep(creep);
+            spawn.recycleCreep(creep);
         } else creep.myMoveTo(spawn);
-    }
+    },
+
+    addMemory: function(path, content, starter = Memory) {
+        let current = starter;
+        for (const item of path) {
+          if (!current[item]) {
+            current[item] = {};
+          }
+          current = current[item];
+        }
+        _.merge(current, newContent);
+        return true;
+    },
+
+    getMemory
 }
