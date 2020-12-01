@@ -14,6 +14,8 @@ const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
 const ATTACKER = 'attacker'
 
+var logger = new Logger(INFO);
+
 function getMemory (path, starter = Memory) {
     let current = starter;
     for (const item of path) {
