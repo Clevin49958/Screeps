@@ -46,10 +46,6 @@ module.exports = {
                 Memory.states.defending[room.name] = false;
 
                 if (towers.length == 0) return;
-                // update builder count
-                numConstructionSites = room.find(FIND_CONSTRUCTION_SITES).length
-                Memory.creepDemand[room.name][room.name][BUILDER] = numConstructionSites > 10 ? 2 : numConstructionSites > 1
-                    0 ? 1 : 0;
 
                 //....first heal any damaged creeps
                 for (let name in Game.creeps) {
@@ -70,33 +66,34 @@ module.exports = {
                         //Find the closest damaged Structure
                         var closestDamagedStructure = tower.pos
                             .findClosestByRange(FIND_STRUCTURES, {
-                                filter: (s) => s.hits < s.hitsMax - 800 && s
+                                filter: (s) => s.hits < s.hitsMax - 1600 && s
                                     .structureType != STRUCTURE_WALL &&
                                     s.structureType != STRUCTURE_RAMPART
                             });
                         if (closestDamagedStructure) {
                             tower.repair(closestDamagedStructure);
-                        } else if (Game.time % 10 < 4) {
-                            var walls = tower.room.find(FIND_STRUCTURES, {
-                                filter: (s) => ((s.structureType ==
-                                        STRUCTURE_WALL || s
-                                        .structureType ==
-                                        STRUCTURE_RAMPART) &&
-                                    s.hits < 900000)
-                            });
-                            var target = undefined;
-                            var minHits = 1000000;
-                            for (let name in walls) {
-                                var wall = walls[name];
-                                if (wall.hits < minHits) {
-                                    target = wall;
-                                    minHits = wall.hits;
-                                }
-                            }
-                            if (target) {
-                                tower.repair(target);
-                            }
                         }
+                        //  else if (Game.time % 10 < 7) {
+                        //     var walls = tower.room.find(FIND_STRUCTURES, {
+                        //         filter: (s) => ((s.structureType ==
+                        //                 STRUCTURE_WALL || s
+                        //                 .structureType ==
+                        //                 STRUCTURE_RAMPART) &&
+                        //             s.hits < 900000)
+                        //     });
+                        //     var target = undefined;
+                        //     var minHits = 1000000;
+                        //     for (let name in walls) {
+                        //         var wall = walls[name];
+                        //         if (wall.hits < minHits) {
+                        //             target = wall;
+                        //             minHits = wall.hits;
+                        //         }
+                        //     }
+                        //     if (target) {
+                        //         tower.repair(target);
+                        //     }
+                        // }
                     }
                 }
 

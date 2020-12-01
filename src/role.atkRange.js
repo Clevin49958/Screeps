@@ -9,7 +9,8 @@ module.exports = {
             for (let name in Game.creeps) {
                 var creeper = Game.creeps[name];
                 if (creeper.memory.target == creep.memory.target && creeper.hits < creeper.hitsMax * 0.7 &&
-                    creeper.memory.target != creeper.memory.home) {
+                    (creeper.memory.target != creeper.memory.home|| creeper.room.find(FIND_MY_STRUCTURES, {filter: s => s.structureType == STRUCTURE_TOWER}).length == 0)) {
+                    console.log(`${creeper.name} suicided. Reason: damaged; Hits: ${creeper.hits} HitsMax: ${creeper.hitsMax}`);
                     Game.notify(
                         `${creeper.name} suicided. Reason: damaged; Hits: ${creeper.hits} HitsMax: ${creeper.hitsMax}`
                     )
@@ -71,7 +72,8 @@ module.exports = {
                 creep.rangedAttack(enermy);
             }
         } else {
-            creep.myMoveTo(enermy);
+            // console.log(
+            creep.myMoveTo(enermy, {ignoreStructures: false, range:3});
         }
     }
 };

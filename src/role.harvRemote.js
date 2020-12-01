@@ -30,7 +30,10 @@ module.exports = {
                     //     .store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
                     //     creep.pickup(loot);
                     // }
-                    creep.harvest(source);
+                    if (source.energy > 0){
+                        creep.harvest(source);
+                    }
+                    
                 } else {
                     container = creep.pos.findClosestByRange(
                         FIND_CONSTRUCTION_SITES);

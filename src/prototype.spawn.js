@@ -12,7 +12,7 @@ function getName(role, target, home) {
 }
 module.exports = function() {
     // create a new function for StructureSpawn
-    StructureSpawn.prototype.createBalCreep =
+    StructureSpawn.prototype.spawnBalCreep =
         function(energy, roleName, target = this.room.name, home = helper
             .home) {
             // create a balanced body as big as possible with the given energy
@@ -50,13 +50,16 @@ module.exports = function() {
     StructureSpawn.prototype.spawnClaimerCreep = function(energy, target, home =
         this.room.name) {
         var body;
-        if (energy >= 1300 && (!Game.rooms[target].controller.reservation || Game.rooms[target].controller
-                .reservation.ticksToEnd < 500)) {
-            body = [CLAIM, CLAIM, MOVE, MOVE];
-        } else if (!Game.rooms[target].controller.reservation || Game.rooms[target].controller.reservation
-            .ticksToEnd < 3000) {
-            body = [CLAIM, MOVE, MOVE];
-        } else return;
+        // create a body with as many [claim, move] as possible
+        var numberOfParts = Math.floor(energy/550);
+        numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
+        var body = [];
+        for (let i = 0; i < numberOfParts; i++) {
+            body.push(CLAIM);
+        }
+        for (let i = 0; i < numberOfParts; i++) {
+            body.push(MOVE);
+        }
         return this.spawnCreep(body,
             `${getName(CLAIMER,target,home)}`, {
                 memory: {
@@ -66,6 +69,35 @@ module.exports = function() {
                 }
             });
     }
+
+    StructureSpawn.prototype.spawnSemiStaionaryCreep = function(energy, roleName, target = this.room.name, home = helper
+        .home) {
+        // create a balanced body as big as possible with the given energy
+        var numberOfParts = Math.floor((energy - 350) / 450);
+        // numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
+        var body = [];
+        for (let i = 0; i < numberOfParts * 4; i++) {
+            body.push(WORK);
+        }
+        for (let i = 0; i < 2; i++) {
+            body.push(CARRY);
+        }
+        for (let i = 0; i < numberOfParts + 1; i++) {
+            body.push(MOVE);
+        }
+
+        // create creep with the created body and the given role
+        return this.spawnCreep(body,
+            `${getName(roleName,target,home)}`, {
+                memory: {
+                    role: roleName,
+                    working: false,
+                    target: target,
+                    home: home,
+                    sourceIndex: 0
+                }
+            });
+    };
 
     StructureSpawn.prototype.spawnHarvRemoteCreep =
         /**
@@ -78,7 +110,7 @@ module.exports = function() {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor((energy - (target == home ? 100 :
                 200)) / 100);
-            numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
+            numberOfParts = numberOfParts > 7 ? 7 : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(WORK);
@@ -112,10 +144,13 @@ module.exports = function() {
          */
         function(energy, target, home = this.room.name, sourceIndex = 0) {
             // create a balanced body as big as possible with the given energy
-            var numberOfParts = Math.floor(energy / 150);
+            var numberOfParts = Math.floor((energy - (target == home ? 0 : 150)) / 150);
             numberOfParts = numberOfParts > 8 ? 8 : numberOfParts;
             // numberOfParts = (numberOfParts > 5 && target == home) ? 5 : numberOfParts;
             var body = [];
+            if (target != home) {
+                body.push(WORK,MOVE);
+            }
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(CARRY);
                 body.push(CARRY);
@@ -123,7 +158,6 @@ module.exports = function() {
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(MOVE)
             }
-
             // create creep with the created body and the given role
             return this.spawnCreep(body,
                 `${getName(helper.CARRY,target,home)}`, {
