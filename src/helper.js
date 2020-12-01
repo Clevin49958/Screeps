@@ -1,8 +1,7 @@
+var Logger = require('Logger')
 const RICH_THRESHOLD = 300;
 const POOR_THRESHOLD = 1000;
 const LOG_RATE = 20;
-
-
 const HARVESTER = 'harvester';
 const UPGRADER = 'upgrader';
 const BUILDER = 'builder';
@@ -13,8 +12,6 @@ const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
 const ATTACKER = 'attacker'
-
-var logger = new Logger(INFO);
 
 function getMemory (path, starter = Memory) {
     let current = starter;

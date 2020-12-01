@@ -13,6 +13,7 @@ const {
     ATTACKER
 } = require('./helper');
 const helper = require('./helper');
+const Logger = require('./Logger');
 
 var roles = {};
 // var creepTrack[targetRoom] = {};
@@ -268,7 +269,7 @@ module.exports = {
                         Game.rooms[targetRoom].controller.reservation.ticksToEnd < 500)) {
                         res = spawn.spawnClaimerCreep(energy, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
-                        res = spawn.spawnSemiStationaryCreep(energy, r, targetRoom, room);
+                        res = spawn.spawnSemiStaionaryCreep(energy, r, targetRoom, room);
                     } else {
                         res = spawn.spawnBalCreep(energy, r, targetRoom, room);
                     }

@@ -7,36 +7,41 @@ const DEBUG = 1000;
 const TRACE = 1;
 const ALL = 0
 
+const LOG_LEVEL = INFO;
 class Logger {
-    
-    logLevel;
 
     constructor(logLevel = 2000){
         this.logLevel = logLevel;
     }
 
-    log(level, levelInfo, ...message) {
-        if (level >= this.logLevel){
-            console.log(`${Game.time} ${levelInfo}  ${_.join(' ', message)}`);
+    static log(level, levelInfo, ...message) {
+        if (level >= LOG_LEVEL){
+            console.log(`${Game.time} ${levelInfo}  ${message.join()}`);
         }
     }
 
-    trace(...message){
-        this.log(TRACE, 'trace', ...message);
+    static getLogger(level){
+        return new Logger(level);
     }
-    debug(...message){
-        this.log(DEBUG, 'debug', ...message);
+
+    static trace(...message){
+        log(TRACE, 'trace', ...message);
     }
-    info(...message){
+    static debug(...message){
+        log(DEBUG, 'debug', ...message);
+    }
+    static info(...message){
         this.log(INFO, 'info ', ...message);
     }
-    warn(...message){
-        this.log(WARNING, 'warn ', ...message);
+    static warn(...message){
+        log(WARNING, 'warn ', ...message);
     }
-    error(...message){
-        this.log(ERROR, 'error', ...message);
+    static error(...message){
+        log(ERROR, 'error', ...message);
     }
-    fatal(...message){
-        this.log(FATAL, 'fatal', ...message);
+    static fatal(...message){
+        log(FATAL, 'fatal', ...message);
     }
 }
+
+module.exports = Logger;
