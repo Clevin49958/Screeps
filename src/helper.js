@@ -1,6 +1,6 @@
 var Logger = require('Logger')
-const RICH_THRESHOLD = 300;
-const POOR_THRESHOLD = 1000;
+const RICH_THRESHOLD = 500;
+const POOR_THRESHOLD = 1200;
 const LOG_RATE = 5;
 const HARVESTER = 'harvester';
 const UPGRADER = 'upgrader';
@@ -334,7 +334,7 @@ module.exports = {
           }
           current = current[item];
         }
-        _.merge(current, newContent);
+        _.merge(current, content);
         return true;
     },
 

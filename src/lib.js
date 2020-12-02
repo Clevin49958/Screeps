@@ -58,6 +58,16 @@ module.exports = {
         if (creepDemand[room][WALL_REPAIRER] == 0) {
             creepDemand[room][WALL_REPAIRER] = 1;
         };
+        // update claimer
+        for (let targetRoomId in Memory.myRooms[room]){
+            let targetRoom = Memory.myRooms[room][targetRoomId];
+            let demand = 0;
+            if (targetRoom != room) {
+                demand = (!helper.getMemory(['rooms', targetRoom, 'controller', 'reservation'], Game) || 
+                Game.rooms[targetRoom].controller.reservation.ticksToEnd < 1000) ? 1 : 0;
+            }
+            helper.addMemory(['creepDemand', room, targetRoom], {'claimer': demand});
+        }
 
         // count total harv creeps
         var totalHarvs;
@@ -136,6 +146,7 @@ module.exports = {
 
         creepTrack.total = _.reduce(Memory.myRooms[room], (acc, r) => acc + creepTrack[r].total, 0);
         creepDemand.total = _.reduce(Memory.myRooms[room], (acc, r) => acc + creepDemand[r].total, 0);
+        helper.addMemory(['stats', 'roomDemand'], {[room]: creepTrack.total / creepDemand.total});
 
         if (Game.time % helper.logRate == 0) {
             // room based stats
@@ -160,8 +171,9 @@ module.exports = {
                 var sumRole = _.reduce(Memory.myRooms[room], (acc, targetRoom) => acc + creepDemand[
                     targetRoom][role], 0);
                 if (num < sumRole) {
-                    Logger.info(`\t${role}: ${num}/` + `${sumRole}`);
+                    Logger.info(`\t${role}: ${num}/${sumRole}`);
                 }
+                helper.addMemory(['stats', 'roleDemand'], {[role]: num / sumRole});
             });
         }
 
@@ -241,7 +253,11 @@ module.exports = {
                     return;
                 }
             }
-            if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY]) {
+            let needExtras = 0;
+            if (Game.rooms[targetRoom]){
+                needExtras = Game.rooms[targetRoom].find(FIND_DROPPED_RESOURCES, {filter: r => r.amount > 500}).length;
+            }
+            if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY] + needExtras) {
                 var res = spawn.spawnCarryCreep(energyMax, targetRoom,
                 home = room, sourceIndex = 0);
                 if (Game.time % helper.logRate == 0) {
@@ -290,8 +306,7 @@ module.exports = {
 
                 if (creepTrack[targetRoom][r] < creepDemand[targetRoom][r]) {
                     // spawn
-                    if (r == CLAIMER && (!helper.getMemory(['rooms', targetRoom, 'controller', 'reservation'], Game) || 
-                        Game.rooms[targetRoom].controller.reservation.ticksToEnd < 500)) {
+                    if (r == CLAIMER) {
                         res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
                         Logger.debug('spawning special upgrader')

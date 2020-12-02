@@ -8,6 +8,7 @@ const TRACE = 1;
 const ALL = 0
 
 const LOG_LEVEL = DEBUG;
+const EMAIL_LEVEL = WARNING;
 class Logger {
 
     constructor(logLevel = 2000){
@@ -15,8 +16,12 @@ class Logger {
     }
 
     static log(level, levelInfo, ...message) {
+        let msg = `${Game.time} \[${levelInfo}\]  ${message.map(m => typeof m == 'object' ? JSON.stringify(m) : m).join()}`
         if (level >= LOG_LEVEL){
-            console.log(`${Game.time} \[${levelInfo}\]  ${message.map(m => typeof m == 'object' ? JSON.stringify(m) : m).join()}`);
+            console.log(msg);
+        }
+        if (level >= EMAIL_LEVEL){
+            Game.notify(msg);
         }
     }
 
