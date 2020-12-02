@@ -85,6 +85,7 @@ module.exports = {
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
                 return;
             }
+            Logger.trace(`${spawn.name} has been ${creepDemand.tickNoHarv} ticks without harv`);
         } else creepDemand.tickNoHarv = 0;
 
         // collect some stats of creeps
@@ -156,11 +157,17 @@ module.exports = {
 
         // skip spawning if busy
         if (spawn.spawning) {
+            Logger.trace(`${spawn.name} is busy. skipping`);
             return;
         }
+        Logger.trace(`${spawn.name} trying to spawn rangeATK`);
         // spawn defenders: rangedAtk
         try {
             for (let targetRoom of Memory.myRooms[room]) {
+                if (!Game.rooms[targetRoom]){
+                    Logger.trace(`Offencing room ${targetRoom} can't be traced`);
+                    continue;
+                }
                 var hostiles = Game.rooms[targetRoom].find(
                     FIND_HOSTILE_CREEPS);
                 var hostile_healer = _.reduce(hostiles, ((acc, c) =>
@@ -183,11 +190,64 @@ module.exports = {
                 }
             }
         } catch (error) {
-            console.log(error);
+            Logger.error(error.message);
             // error because if there's no creep in room, you can't observe it
         }
 
+        Logger.trace(`${spawn.name} trying to spawn basic workers`)
+        // spawn creeps
+        for (let targetRoom of Memory.myRooms[room]) {
+            // spawn carry
+            Logger.all(`${targetRoom} Carry: ${creepTrack[targetRoom][helper.CARRY]}/${creepDemand[targetRoom][helper.CARRY]} `
+                + `Harv: ${creepTrack[targetRoom][helper.HARV_REMOTE]}/${creepDemand[targetRoom][helper.HARV_REMOTE]}`);
 
+            // spawn harvRemote
+            for (let i = 0; i < Memory.sources[targetRoom]; i++) {
+                // console.log(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) => acc || (c.memory.role == helper.HARV_REMOTE && 
+                // c.memory.target == sourceRoom && c.memory.home == room && c.memory.sourceIndex == i),false))
+                if (!_.reduce(Game.creeps, (acc, c) => acc ||
+                    (c.memory.role == helper.HARV_REMOTE &&
+                        c.memory.target == targetRoom && c.memory.home == room &&
+                        c.memory.sourceIndex == i),
+                    false)) {
+                    
+                    // make sure there is a carry first before 2nd harv
+                    if (sourceIndex >=1 && creepTrack[targetRoom][helper.CARRY] < 1){
+                        break;
+                    }
+                    if (Game.time % helper.logRate == 0)
+                        console.log(
+                            `    Demand: ${targetRoom} ${helper.HARV_REMOTE} sourceIndex: ${i}`
+                        );
+                    var res = spawn.spawnHarvRemoteCreep(energy,
+                        targetRoom, home = room, sourceIndex = i)
+                    if (res == 0) {
+                        console.log(
+                            `        Spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
+                        );
+                    }
+                    return;
+                }
+            }
+            if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY]) {
+                if (Game.time % helper.logRate == 0) {
+                    console.log(
+                        `    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
+                        `${creepDemand[targetRoom][helper.CARRY]}`);
+                }
+                var res = spawn.spawnCarryCreep(energy, targetRoom,
+                    home = room, sourceIndex = 0);
+                if (res == 0) {
+                    console.log(
+                        `        Spawned new ${CARRY} ${targetRoom} ${room}`
+                    );
+                }
+                return;
+            }
+        }
+
+        
+        Logger.trace(`${spawn.name} trying to spawn offensive troops`);
         if (Memory.offence[room]) {
             for (var targetRoom in Memory.offence[room]) {
                 for (var role in Memory.offence[room][targetRoom].roles) {
@@ -206,56 +266,9 @@ module.exports = {
                 }
             }
         }
-        // spawn creeps
-        for (let targetRoom of Memory.myRooms[room]) {
-            // spawn carry
-            if (creepTrack[targetRoom][helper.CARRY] < creepDemand[
-                    targetRoom][helper.CARRY]) {
-                if (Game.time % helper.logRate == 0) {
-                    console.log(
-                        `    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
-                        `${creepDemand[targetRoom][helper.CARRY]}`);
-                }
-                var res = spawn.spawnCarryCreep(energy, targetRoom,
-                    home = room, sourceIndex = 0);
-                if (res == 0) {
-                    console.log(
-                        `        Spawned new ${CARRY} ${targetRoom} ${room}`
-                    );
-                }
-                return;
-            }
-
-            // spawn harvRemote
-            for (let i = 0; i < Memory.sources[targetRoom]; i++) {
-                // console.log(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) => acc || (c.memory.role == helper.HARV_REMOTE && 
-                // c.memory.target == sourceRoom && c.memory.home == room && c.memory.sourceIndex == i),false))
-                if (!_.reduce(Game.creeps, (acc, c) => acc ||
-                        (c.memory.role == helper.HARV_REMOTE &&
-                            c.memory.target == targetRoom && c.memory.home == room &&
-                            c.memory.sourceIndex == i),
-                        false)) {
-
-                    if (Game.time % helper.logRate == 0)
-                        console.log(
-                            `    Demand: ${targetRoom} ${helper.HARV_REMOTE} sourceIndex: ${i}`
-                        );
-                    var res = spawn.spawnHarvRemoteCreep(energy,
-                        targetRoom, home = room, sourceIndex = i)
-                    if (res == 0) {
-                        console.log(
-                            `        Spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
-                        );
-                    }
-                    return;
-                }
-            }
-
-        }
-
 
         // spawn workers for each room
-
+        Logger.trace(`${spawn.name} trying to spawn other workers`);
         for (let targetRoom of Memory.myRooms[room]) {
             // spawn workers
             for (let r of [UPGRADER, REPAIRER, BUILDER, WALL_REPAIRER, CLAIMER]) {
@@ -269,6 +282,7 @@ module.exports = {
                         Game.rooms[targetRoom].controller.reservation.ticksToEnd < 500)) {
                         res = spawn.spawnClaimerCreep(energy, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
+                        Logger.debug('spawning special upgrader')
                         res = spawn.spawnSemiStaionaryCreep(energy, r, targetRoom, room);
                     } else {
                         res = spawn.spawnBalCreep(energy, r, targetRoom, room);
@@ -285,6 +299,9 @@ module.exports = {
                 }
             }
         };
+
+        
+        Logger.trace(`${spawn.name} finished without spawn`);
         // if (Game.time % helper.logRate == 0) console.log();
     },
 

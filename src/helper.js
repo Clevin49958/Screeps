@@ -29,7 +29,7 @@ Creep.prototype.myMoveTo = function(destination, options = {}) {
         return this.travelTo(destination, options);
     } else {
         return this.moveTo(destination, {
-            reusePath: 50
+            reusePath: 15
         });
     }
 };
@@ -261,7 +261,7 @@ module.exports = {
             // find exit to target room
             var exit = creep.room.findExitTo(creep.memory.target);
             // move to exit
-            creep.moveTo(creep.pos.findClosestByRange(exit));
+            creep.moveTo(creep.pos.findClosestByPath(exit));
             return true;
         } else {
             return false;
@@ -273,7 +273,7 @@ module.exports = {
             // find exit to target room
             var exit = creep.room.findExitTo(creep.memory.home);
             // move to exit
-            creep.moveTo(creep.pos.findClosestByRange(exit));
+            creep.moveTo(creep.pos.findClosestByPath(exit));
             return true;
         } else {
             return false;

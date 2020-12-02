@@ -76,7 +76,7 @@ module.exports = function() {
         var numberOfParts = Math.floor((energy - 350) / 450);
         // numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
         var body = [];
-        for (let i = 0; i < numberOfParts * 4; i++) {
+        for (let i = 0; i < numberOfParts * 4 + 2; i++) {
             body.push(WORK);
         }
         for (let i = 0; i < 2; i++) {

@@ -9,6 +9,7 @@ const lib = require('./lib');
 const tower = require('./tower');
 const init = require('./init');
 const link = require('./link');
+const Logger = require('./Logger');
 module.exports.loop = function() {
     // update code check
     if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
@@ -40,6 +41,7 @@ module.exports.loop = function() {
     }
     for (let name in Game.spawns) {
         lib.generateCreeps(name);
+        Logger.trace('-----------------------')
     }
 
     // watch values

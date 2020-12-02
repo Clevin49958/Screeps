@@ -2,6 +2,7 @@ const {
     BUILDER
 } = require("./helper");
 const helper = require("./helper");
+const Logger = require("./Logger");
 
 module.exports = {
 
@@ -38,7 +39,7 @@ module.exports = {
                         break;
                     }
                 }
-                console.log("ALERT!!!! WE ARE UNDER ATTACK!!!!! ");
+                Logger.warn(`${roomId} is under attack by ${username} with ${hostiles.length} creeps, healer? ${hostile_healer}`)
             }
 
             //if there are no hostiles....

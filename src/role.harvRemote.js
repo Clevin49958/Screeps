@@ -3,7 +3,7 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        if (!creep.memory.source) {
+        if (!creep.memory.source && Game.rooms[creep.memory.target]) {
             creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
                 .sourceIndex].id;
         }
@@ -35,7 +35,7 @@ module.exports = {
                     }
                     
                 } else {
-                    container = creep.pos.findClosestByRange(
+                    container = creep.pos.findClosestByPath(
                         FIND_CONSTRUCTION_SITES);
                     creep.build(container);
                 }

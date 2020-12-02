@@ -13,7 +13,7 @@ module.exports = {
             return;
         }
         // if creep is bringing energy to the controller but has no energy left
-        if (creep.memory.working == true && creep.carry.energy == 0) {
+        if (creep.memory.working == true && creep.carry.energy <= 10) {
             // switch state
             creep.memory.working = false;
         }
@@ -37,7 +37,7 @@ module.exports = {
             }
 
             if (!creep.room.controller.my) {
-                const target = creep.pos.findClosestByRange(
+                const target = creep.pos.findClosestByPath(
                     FIND_STRUCTURES, {
                         filter: s => s.structureType ==
                             STRUCTURE_SPAWN || s.structureType ==
@@ -58,8 +58,8 @@ module.exports = {
                 return;
             }
             // if (helper.harvestLoot(creep)) return;
-            if (helper.withdrawContainerIfRich(creep)) return;
             if (helper.withdrawStorage(creep)) return;
+            if (helper.withdrawContainerIfRich(creep)) return;
         }
     }
 };
