@@ -19,7 +19,14 @@ module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         creep.say(BUILDER.slice(0, 1));
-        if (!creep.memory.quest) findQuest(creep);
+
+        if (!creep.memory.quest) {
+            if (Game.rooms[creep.memory.target]){
+                findQuest(creep);
+            } else {
+                helper.moveTargetRoom(creep);
+            }
+        }
 
         // if creep is trying to complete a constructionSite but has no energy left
         if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {

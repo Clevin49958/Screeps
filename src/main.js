@@ -49,7 +49,10 @@ module.exports.loop = function() {
 
     stateScanner.stateScanner();
 
-    if (Game.time % helper.logRate == 0)
-        console.log(
+    if (Game.time % helper.logRate == 0){
+        Logger.info(
             '--------------------------------------------------------');
+    } else if (Game.time % 2){
+        Logger.info(`------------`);
+    }
 };

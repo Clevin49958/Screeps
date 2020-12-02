@@ -1,7 +1,7 @@
 var Logger = require('Logger')
 const RICH_THRESHOLD = 300;
 const POOR_THRESHOLD = 1000;
-const LOG_RATE = 20;
+const LOG_RATE = 5;
 const HARVESTER = 'harvester';
 const UPGRADER = 'upgrader';
 const BUILDER = 'builder';
@@ -185,10 +185,10 @@ module.exports = {
                 ERR_NOT_IN_RANGE) {
                 // move towards the source
                 creep.myMoveTo(source);
-            } else if (source.store.getFreeCapacity(RESOURCE_ENERGY) >
-                POOR_THRESHOLD) {
+            } else {
                 // Memory.states.rich[source.pos.x] = false;
-                Memory.states.rich[source.id] = false;
+                Memory.states.rich[source.id] = source.store.getFreeCapacity(RESOURCE_ENERGY) <=
+                POOR_THRESHOLD;
             }
         }
         return source;

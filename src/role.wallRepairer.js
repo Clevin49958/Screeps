@@ -70,10 +70,11 @@ module.exports = {
         // if creep is supposed to harvest energy from source
         else {
             if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
-                if (helper.withdrawContainer(creep)) return;
+                if (helper.withdrawEnergy(creep)) return;
             }
-            if (helper.withdrawContainerIfRich(creep)) return;
+            
             if (helper.harvestLoot(creep)) return;
+            if (helper.withdrawContainerIfRich(creep)) return;
         }
     }
 };

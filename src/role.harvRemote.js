@@ -3,10 +3,14 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        if (!creep.memory.source && Game.rooms[creep.memory.target]) {
-            creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
-                .sourceIndex].id;
-        }
+        if (!creep.memory.source){
+            if (Game.rooms[creep.memory.target]){
+                creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
+                    .sourceIndex].id;
+            } else {
+                helper.moveTargetRoom(creep);
+            }
+        } 
         // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))
         var source = Game.getObjectById(creep.memory.source);
         // if arrived
@@ -22,7 +26,7 @@ module.exports = {
                     container = container[0]
                     // var loot = creep.pos.findClosestByRange(
                     //     FIND_DROPPED_RESOURCES);
-                    if (container.hits < container.hitsMax * 0.8) {
+                    if (container.hits < container.hitsMax * 0.99) {
                         creep.repair(container);
                         return;
                     }
@@ -32,6 +36,7 @@ module.exports = {
                     // }
                     if (source.energy > 0){
                         creep.harvest(source);
+                        Memory.states.rich[container.id] = container.store.getFreeCapacity(RESOURCE_ENERGY) <= helper.POOR_THRESHOLD
                     }
                     
                 } else {
@@ -54,6 +59,7 @@ module.exports = {
                     FIND_CONSTRUCTION_SITES, 2);
             }
             if (container.length == 0) {
+                creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
                 return;
             }
             if (creep.pos.isEqualTo(container[0])) {

@@ -35,9 +35,11 @@ helper.roleNames.forEach(role => {
 module.exports = {
 
     generateCreeps: function(name) {
+        /** @type string */
         var spawn = Game.spawns[name];
+        /** @type string */
         var room = spawn.room.name;
-        var energy = spawn.room.energyCapacityAvailable;
+        var energyMax = spawn.room.energyCapacityAvailable;
         if (!Memory.stats.creepTrack[room]) Memory.stats.creepTrack[
             room] = {};
         var creepTrack = Memory.stats.creepTrack[room];
@@ -45,11 +47,17 @@ module.exports = {
         var res = undefined;
 
         // If I'm not logging, and it's busy, then I don't care
-        if (Game.time % helper.logRate != 0 && spawn.spawning) return;
+        if (Game.time % helper.logRate != 0 && spawn.spawning) {
+            Logger.trace(`${spawn.name} is busy. skipping`);
+            return;
+        }
 
         // update wall repairer
         creepDemand[room][WALL_REPAIRER] = Game.rooms[room].find(
             FIND_HOSTILE_CREEPS).length;
+        if (creepDemand[room][WALL_REPAIRER] == 0) {
+            creepDemand[room][WALL_REPAIRER] = 1;
+        };
 
         // count total harv creeps
         var totalHarvs;
@@ -80,9 +88,11 @@ module.exports = {
                 // spawn one with what is available
                 res = spawn.spawnBalCreep(
                     spawn.room.energyAvailable, helper.HARVESTER, targetRoom, room);
-                Game.notify(`Something went wrong. only ${totalHarvs}` +
+                if (creepDemand.tickNoHarv > 200){
+                    Game.notify(`Something went wrong. only ${totalHarvs}` +
                     ` harvesters & ${_.sum(Game.creeps,(c)=>1)} left` +
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
+                }
                 return;
             }
             Logger.trace(`${spawn.name} has been ${creepDemand.tickNoHarv} ticks without harv`);
@@ -120,7 +130,7 @@ module.exports = {
 
             // detail logs per room
             // if (Game.time % helper.logRate ==0) {
-            //     console.log(`Spawn: ${spawn.name} Room: ${targetRoom} ${JSON.stringify(creepTrack[targetRoom])}`);
+            //     Logger.info(`Spawn: ${spawn.name} Room: ${targetRoom} ${JSON.stringify(creepTrack[targetRoom])}`);
             // }
         }
 
@@ -129,12 +139,12 @@ module.exports = {
 
         if (Game.time % helper.logRate == 0) {
             // room based stats
-            console.log(`${spawn.name}: ${creepTrack.total}/${creepDemand.total}`);
+            Logger.info(`${spawn.name}: ${creepTrack.total}/${creepDemand.total}`);
             Object.keys(Memory.myRooms[room]).forEach(targetRoomID => {
                 targetRoom = Memory.myRooms[room][targetRoomID];
                 if (creepTrack[targetRoom].total < creepDemand[targetRoom].total) {
-                    console.log(
-                        `'\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`
+                    Logger.info(
+                        `\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`
                     );
                 }
             });
@@ -150,17 +160,18 @@ module.exports = {
                 var sumRole = _.reduce(Memory.myRooms[room], (acc, targetRoom) => acc + creepDemand[
                     targetRoom][role], 0);
                 if (num < sumRole) {
-                    console.log(`'\t${role}: ${num}/` + `${sumRole}`);
+                    Logger.info(`\t${role}: ${num}/` + `${sumRole}`);
                 }
             });
         }
 
-        // skip spawning if busy
+        // Logger.debug(spawn.name,spawn.spawning)
         if (spawn.spawning) {
             Logger.trace(`${spawn.name} is busy. skipping`);
             return;
         }
-        Logger.trace(`${spawn.name} trying to spawn rangeATK`);
+
+        Logger.trace(`${spawn.name} trying to spawn defender rangeATK`);
         // spawn defenders: rangedAtk
         try {
             for (let targetRoom of Memory.myRooms[room]) {
@@ -174,17 +185,17 @@ module.exports = {
                     acc || _.reduce(c.body, (acc, part) => acc || part
                         .type == HEAL, undefined) ? c : acc), null);
                 // if (hostiles.length>0){
-                //     console.log(room, targetRoom, hostile_healer, JSON.stringify(hostiles))}
+                //     Logger.info(room, targetRoom, hostile_healer, JSON.stringify(hostiles))}
                 if (hostile_healer){
                     creepDemand[targetRoom][WALL_REPAIRER] = hostiles.length;
                 } else creepDemand[targetRoom][WALL_REPAIRER] = 0;
                         
-                // console.log('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
+                // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
                 if (hostiles.length > 0 && !hostile_healer && hostiles.length > _.sum(Game
                         .creeps, c => c.memory.role == helper.ATK_RANGE && c
                         .memory.target == targetRoom && c.memory.home ==
-                        room)) {
-                    spawn.spawnAtkRangeCreep(energy, target = targetRoom,
+                        room) && Game.rooms[room].find(FIND_MY_STRUCTURES, {filter: s => s.structureType == STRUCTURE_TOWER}).length == 0) {
+                    spawn.spawnAtkRangeCreep(energyMax, target = targetRoom,
                         home = room);
                     return;
                 }
@@ -203,7 +214,7 @@ module.exports = {
 
             // spawn harvRemote
             for (let i = 0; i < Memory.sources[targetRoom]; i++) {
-                // console.log(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) => acc || (c.memory.role == helper.HARV_REMOTE && 
+                // Logger.info(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) => acc || (c.memory.role == helper.HARV_REMOTE && 
                 // c.memory.target == sourceRoom && c.memory.home == room && c.memory.sourceIndex == i),false))
                 if (!_.reduce(Game.creeps, (acc, c) => acc ||
                     (c.memory.role == helper.HARV_REMOTE &&
@@ -212,34 +223,35 @@ module.exports = {
                     false)) {
                     
                     // make sure there is a carry first before 2nd harv
-                    if (sourceIndex >=1 && creepTrack[targetRoom][helper.CARRY] < 1){
+                    if (i >=1 && creepTrack[targetRoom][helper.CARRY] < 1){
                         break;
                     }
-                    if (Game.time % helper.logRate == 0)
-                        console.log(
-                            `    Demand: ${targetRoom} ${helper.HARV_REMOTE} sourceIndex: ${i}`
+                    var res = spawn.spawnHarvRemoteCreep(energyMax,
+                    targetRoom, home = room, sourceIndex = i);
+                    if (Game.time % helper.logRate == 0) {
+                        Logger.info(
+                            `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`
                         );
-                    var res = spawn.spawnHarvRemoteCreep(energy,
-                        targetRoom, home = room, sourceIndex = i)
+                    }
                     if (res == 0) {
-                        console.log(
-                            `        Spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
+                        Logger.info(
+                            `        ${spawn.name} spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
                         );
                     }
                     return;
                 }
             }
             if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY]) {
+                var res = spawn.spawnCarryCreep(energyMax, targetRoom,
+                home = room, sourceIndex = 0);
                 if (Game.time % helper.logRate == 0) {
-                    console.log(
+                    Logger.info(
                         `    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
-                        `${creepDemand[targetRoom][helper.CARRY]}`);
+                        `${creepDemand[targetRoom][helper.CARRY]}, ${res}`);
                 }
-                var res = spawn.spawnCarryCreep(energy, targetRoom,
-                    home = room, sourceIndex = 0);
                 if (res == 0) {
-                    console.log(
-                        `        Spawned new ${CARRY} ${targetRoom} ${room}`
+                    Logger.info(
+                        `        ${spawn.name} spawned new ${CARRY} ${targetRoom} ${room}`
                     );
                 }
                 return;
@@ -258,9 +270,9 @@ module.exports = {
                             c.memory.home == room &&
                             c.ticksToLive > 220)) {
                         if (role == ATK_RANGE) {
-                            spawn.spawnAtkRangeCreep(energy, targetRoom, home = room);
+                            spawn.spawnAtkRangeCreep(energyMax, targetRoom, home = room);
                         } else if (role == ATTACKER) {
-                            spawn.spawnAttackerCreep(energy, targetRoom, home = room);
+                            spawn.spawnAttackerCreep(energyMax, targetRoom, home = room);
                         }
                     }
                 }
@@ -273,28 +285,29 @@ module.exports = {
             // spawn workers
             for (let r of [UPGRADER, REPAIRER, BUILDER, WALL_REPAIRER, CLAIMER]) {
 
-                // console.log(`In ${targetRoom} ${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
+                // Logger.info(`In ${targetRoom} ${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
                 //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${creepDemand[targetRoom][r]}`);
 
                 if (creepTrack[targetRoom][r] < creepDemand[targetRoom][r]) {
                     // spawn
                     if (r == CLAIMER && (!helper.getMemory(['rooms', targetRoom, 'controller', 'reservation'], Game) || 
                         Game.rooms[targetRoom].controller.reservation.ticksToEnd < 500)) {
-                        res = spawn.spawnClaimerCreep(energy, targetRoom, room);
+                        res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
                         Logger.debug('spawning special upgrader')
-                        res = spawn.spawnSemiStaionaryCreep(energy, r, targetRoom, room);
+                        res = spawn.spawnSemiStaionaryCreep(energyMax, r, targetRoom, room);
                     } else {
-                        res = spawn.spawnBalCreep(energy, r, targetRoom, room);
+                        res = spawn.spawnBalCreep(energyMax, r, targetRoom, room);
                     }
+                    if (Game.time % helper.logRate == 0) {
+                        Logger.info(
+                        `    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${creepDemand[targetRoom][r]}`
+                    )};
                     if (res == 0) {
-                        console.log(
-                            `Spawned new ${r} ${targetRoom} ${room}`
+                        Logger.info(
+                            `${spawn.name} spawned new ${r} ${targetRoom} ${room}`
                         );
                     }
-                    if (Game.time % helper.logRate == 0) console.log(
-                        `    Demand: ${targetRoom} ${r} Result: ${res}, ${creepTrack[targetRoom][r]}/${creepDemand[targetRoom][r]}`
-                    );
                     return;
                 }
             }
@@ -302,7 +315,7 @@ module.exports = {
 
         
         Logger.trace(`${spawn.name} finished without spawn`);
-        // if (Game.time % helper.logRate == 0) console.log();
+        // if (Game.time % helper.logRate == 0) Logger.info();
     },
 
     runCreeps: function() {

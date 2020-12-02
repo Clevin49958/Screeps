@@ -57,9 +57,11 @@ module.exports = {
                 helper.moveTargetRoom(creep);
                 return;
             }
-            // if (helper.harvestLoot(creep)) return;
             if (helper.withdrawStorage(creep)) return;
-            if (helper.withdrawContainerIfRich(creep)) return;
+            // if (helper.withdrawContainerIfRich(creep)) return;
+            
+            if (helper.harvestLoot(creep)) return;
+            helper.harvest(creep)
         }
     }
 };

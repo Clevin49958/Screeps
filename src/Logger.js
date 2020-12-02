@@ -7,7 +7,7 @@ const DEBUG = 1000;
 const TRACE = 1;
 const ALL = 0
 
-const LOG_LEVEL = ALL;
+const LOG_LEVEL = DEBUG;
 class Logger {
 
     constructor(logLevel = 2000){
@@ -16,7 +16,7 @@ class Logger {
 
     static log(level, levelInfo, ...message) {
         if (level >= LOG_LEVEL){
-            console.log(`${Game.time} \[${levelInfo}\]  ${message.join()}`);
+            console.log(`${Game.time} \[${levelInfo}\]  ${message.map(m => typeof m == 'object' ? JSON.stringify(m) : m).join()}`);
         }
     }
 
@@ -25,7 +25,7 @@ class Logger {
     }
 
     static all(...message){
-        this.log(ALL, 'ALL  ', ...message);
+        this.log(ALL, 'ALL', ...message);
     }
     static trace(...message){
         this.log(TRACE, 'TRACE', ...message);
@@ -34,10 +34,10 @@ class Logger {
         this.log(DEBUG, 'DEBUG', ...message);
     }
     static info(...message){
-        this.log(INFO, 'INFO ', ...message);
+        this.log(INFO, 'INFO', ...message);
     }
     static warn(...message){
-        this.log(WARNING, 'WARN ', ...message);
+        this.log(WARNING, 'WARN', ...message);
     }
     static error(...message){
         this.log(ERROR, 'ERROR', ...message);

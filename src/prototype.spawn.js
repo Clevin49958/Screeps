@@ -51,7 +51,7 @@ module.exports = function() {
         this.room.name) {
         var body;
         // create a body with as many [claim, move] as possible
-        var numberOfParts = Math.floor(energy/550);
+        var numberOfParts = Math.floor(energy/650);
         numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
         var body = [];
         for (let i = 0; i < numberOfParts; i++) {
