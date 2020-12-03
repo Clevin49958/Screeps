@@ -6,8 +6,7 @@ module.exports = {
         if (!creep.memory.quest && Game.rooms[creep.memory.target]) {
             creep.memory.quest = Game.rooms[creep.memory.target].controller.id;
         }
-
-        if (!creep.memory.quest && !creep.room.name == creep.memory.target) {
+        if (!creep.memory.quest && creep.room.name != creep.memory.target) {
             return helper.moveTargetRoom(creep);
         }
         if (creep.memory.quest) {

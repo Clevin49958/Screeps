@@ -7,7 +7,7 @@ const DEBUG = 1000;
 const TRACE = 1;
 const ALL = 0
 
-const LOG_LEVEL = DEBUG;
+const LOG_LEVEL = INFO;
 const EMAIL_LEVEL = WARNING;
 class Logger {
 

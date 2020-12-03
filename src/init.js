@@ -109,7 +109,7 @@ module.exports = {
 
             // Memory.myRooms.W33N12 = ['W33N12']
 
-            addControlledRoom('W34N11', 'W34N12')
+            addControlledRoom('W34N13', 'W33N12')
             // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory

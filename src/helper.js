@@ -248,6 +248,7 @@ module.exports = {
      * @returns {bool} succeed
      */
     withdrawEnergy: function(creep) {
+        if (this.withdrawLink(creep)) return true;
         if (this.withdrawContainer(creep)) return true;
         if (Memory.states.defending[creep.memory.room] || Memory.states.restart[creep.memory.home]) {
             if (this.withdrawStorage(creep)) return true;
@@ -259,10 +260,12 @@ module.exports = {
         if (creep.memory.target && creep.memory.target != creep.room
             .name) {
             // find exit to target room
+            if (Game.flags[creep.memory.target]){
+                return creep.myMoveTo(Game.flags[creep.memory.target]);
+            }
             var exit = creep.room.findExitTo(creep.memory.target);
             // move to exit
-            creep.moveTo(creep.pos.findClosestByPath(exit));
-            return true;
+            return creep.moveTo(creep.pos.findClosestByPath(exit));
         } else {
             return false;
         }

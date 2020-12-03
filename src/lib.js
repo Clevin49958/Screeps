@@ -47,8 +47,8 @@ module.exports = {
         var res = undefined;
 
         // If I'm not logging, and it's busy, then I don't care
-        if (Game.time % helper.logRate != 0 && spawn.spawning) {
-            Logger.trace(`${spawn.name} is busy. skipping`);
+        if (Game.time % helper.logRate != 0 && spawn.spawning && Logger.LOG_LEVEL >= 2000) {
+            Logger.debug(spawn.name, 'is spawning', spawn.spawning.name);
             return;
         }
 
@@ -84,9 +84,9 @@ module.exports = {
 
         // prioritised one off ones 
         if (false) {
-            if (spawn.name == "Spawn32")
-                spawn.spawnClaimerCreep(target = 'W34N12');
-            // spawn.spawnAtkRangeCreep(300, target = 'W33N11', home = 'W32N11')
+            if (spawn.name == "s3")
+                // spawn.spawnClaimerCreep(target = 'W34N12');
+            Logger.info(spawn.spawnAtkRangeCreep(energyMax, target = 'W35N11', home = 'W34N12',selfHeal =2));
             return;
         }
         // if colony is dying
@@ -98,6 +98,7 @@ module.exports = {
                 // spawn one with what is available
                 res = spawn.spawnBalCreep(
                     spawn.room.energyAvailable, helper.HARVESTER, targetRoom, room);
+                Logger.debug(spawn.name, 'attempt to spawn', 'bal harvester for emergency', 'res', res);
                 if (creepDemand.tickNoHarv > 200){
                     Game.notify(`Something went wrong. only ${totalHarvs}` +
                     ` harvesters & ${_.sum(Game.creeps,(c)=>1)} left` +
@@ -178,8 +179,8 @@ module.exports = {
         }
 
         // Logger.debug(spawn.name,spawn.spawning)
-        if (spawn.spawning) {
-            Logger.trace(`${spawn.name} is busy. skipping`);
+        if (spawn.spawning && Logger.LOG_LEVEL >= 2000) {
+            Logger.debug(spawn.name, 'is spawning', spawn.spawning.name);
             return;
         }
 
@@ -202,14 +203,26 @@ module.exports = {
                     creepDemand[targetRoom][WALL_REPAIRER] = hostiles.length;
                 } else creepDemand[targetRoom][WALL_REPAIRER] = 0;
                         
-                // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room));
+                // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room), Game.rooms[targetRoom].find(FIND_HOSTILE_STRUCTURES));
                 if (hostiles.length > 0 && !hostile_healer && hostiles.length > _.sum(Game
                         .creeps, c => c.memory.role == helper.ATK_RANGE && c
                         .memory.target == targetRoom && c.memory.home ==
-                        room) && Game.rooms[room].find(FIND_MY_STRUCTURES, {filter: s => s.structureType == STRUCTURE_TOWER}).length == 0) {
-                    spawn.spawnAtkRangeCreep(energyMax, target = targetRoom,
+                        room) && Game.rooms[targetRoom].find(FIND_MY_STRUCTURES, {filter: s => s.structureType == STRUCTURE_TOWER}).length == 0) {
+                    let res = spawn.spawnAtkRangeCreep(energyMax, target = targetRoom,
                         home = room);
+                    Logger.debug(spawn.name, 'attempt to spawn', 'atk range to defend', 'res', res);
                     return;
+                } else {
+                    hostiles = Game.rooms[targetRoom].find(FIND_HOSTILE_STRUCTURES);
+                    if (hostiles.length > 0 && hostiles.length > _.sum(Game
+                        .creeps, c => c.memory.role == helper.ATTACKER && c
+                        .memory.target == targetRoom && c.memory.home ==
+                        room)) {
+                        let res = spawn.spawnAttackerCreep(energyMax, target = targetRoom,
+                            home = room);
+                        Logger.debug(spawn.name, 'attempt to spawn', 'attacker prob target: invader core', 'res', res);
+                        return;
+                    }
                 }
             }
         } catch (error) {
@@ -245,6 +258,7 @@ module.exports = {
                             `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`
                         );
                     }
+                    Logger.debug(spawn.name, 'attempt to spawn', 'Honly', 'res', res);
                     if (res == 0) {
                         Logger.info(
                             `        ${spawn.name} spawned new ${HARV_REMOTE} ${targetRoom} ${room}`
@@ -266,10 +280,9 @@ module.exports = {
                         `${creepDemand[targetRoom][helper.CARRY]}, ${res}`);
                 }
                 if (res == 0) {
-                    Logger.info(
-                        `        ${spawn.name} spawned new ${CARRY} ${targetRoom} ${room}`
-                    );
+                    Logger.info(`${spawn.name} spawned new ${CARRY} ${targetRoom} ${room}`);
                 }
+                Logger.debug(spawn.name, 'attempt to spawn', 'carry', 'res', res);
                 return;
             }
         }
@@ -285,11 +298,13 @@ module.exports = {
                             c.memory.target == targetRoom &&
                             c.memory.home == room &&
                             c.ticksToLive > 220)) {
+                        let res;
                         if (role == ATK_RANGE) {
-                            spawn.spawnAtkRangeCreep(energyMax, targetRoom, home = room);
+                            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, home = room);
                         } else if (role == ATTACKER) {
-                            spawn.spawnAttackerCreep(energyMax, targetRoom, home = room);
+                            res = spawn.spawnAttackerCreep(energyMax, targetRoom, home = room);
                         }
+                        Logger.debug(spawn.name, 'attempt to spawn', 'offensive creeps', 'res', res);
                     }
                 }
             }
@@ -309,7 +324,6 @@ module.exports = {
                     if (r == CLAIMER) {
                         res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
-                        Logger.debug('spawning special upgrader')
                         res = spawn.spawnSemiStaionaryCreep(energyMax, r, targetRoom, room);
                     } else {
                         res = spawn.spawnBalCreep(energyMax, r, targetRoom, room);
@@ -323,13 +337,14 @@ module.exports = {
                             `${spawn.name} spawned new ${r} ${targetRoom} ${room}`
                         );
                     }
+                    Logger.debug(spawn.name, 'attempt to spawn', r, 'res', res);
                     return;
                 }
             }
         };
 
         
-        Logger.trace(`${spawn.name} finished without spawn`);
+        Logger.debug(`${spawn.name} finished without spawn`);
         // if (Game.time % helper.logRate == 0) Logger.info();
     },
 

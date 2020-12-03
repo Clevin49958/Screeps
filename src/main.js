@@ -10,7 +10,13 @@ const tower = require('./tower');
 const init = require('./init');
 const link = require('./link');
 const Logger = require('./Logger');
+
+const profiler = require('screeps-profiler');
+
+// This line monkey patches the global prototypes.
+// profiler.enable();
 module.exports.loop = function() {
+  profiler.wrap(function() {
     // update code check
     if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
         Memory.SCRIPT_VERSION = SCRIPT_VERSION
@@ -55,4 +61,5 @@ module.exports.loop = function() {
     } else if (Game.time % 2){
         Logger.info(`------------`);
     }
-};
+  });
+}

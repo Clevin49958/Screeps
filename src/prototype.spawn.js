@@ -108,16 +108,14 @@ module.exports = function() {
          */
         function(energy, target, home = this.room.name, sourceIndex = 0) {
             // create a balanced body as big as possible with the given energy
-            var numberOfParts = Math.floor((energy - (target == home ? 100 :
-                200)) / 100);
+            var numberOfParts = Math.floor((energy - 200) / 100);
             numberOfParts = numberOfParts > 7 ? 7 : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(WORK);
             }
-            if (target != home) {
-                body.push(CARRY, MOVE);
-            }
+
+            body.push(CARRY, MOVE);
             body.push(MOVE);
             body.push(MOVE);
 
@@ -148,15 +146,15 @@ module.exports = function() {
             numberOfParts = numberOfParts > 8 ? 8 : numberOfParts;
             // numberOfParts = (numberOfParts > 5 && target == home) ? 5 : numberOfParts;
             var body = [];
-            if (target != home) {
-                body.push(WORK,MOVE);
-            }
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(CARRY);
                 body.push(CARRY);
             }
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(MOVE)
+            }
+            if (target != home) {
+                body.push(WORK,MOVE);
             }
             // create creep with the created body and the given role
             return this.spawnCreep(body,
@@ -178,9 +176,9 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {string} home home room id
          */
-        function(energy, target, home = this.room.name) {
+        function(energy, target, home = this.room.name, selfHeal = 0) {
             // create a balanced body as big as possible with the given energy
-            var numberOfParts = Math.floor(energy / 210);
+            var numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(TOUGH);
@@ -192,6 +190,9 @@ module.exports = function() {
                 body.push(RANGED_ATTACK);
             }
             body.push(MOVE);
+            for (let i = 0; i < selfHeal; i++) {
+                body.push(HEAL,MOVE);
+            }
 
 
             // create creep with the created body and the given role
@@ -202,7 +203,8 @@ module.exports = function() {
                         attack: true,
                         working: true,
                         target: target,
-                        home: home
+                        home: home,
+                        heal: selfHeal > 0
                     }
                 });
         };

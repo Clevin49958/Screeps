@@ -23,6 +23,12 @@ module.exports = {
         }
 
         if (helper.moveTargetRoom(creep)) return true;
+        if (creep.memory.heal) {
+            if (creep.hits < creep.hitsMax){
+                creep.heal(creep);
+            }
+            
+        }
 
         var enermy;
         if (Memory.offence[creep.memory.home] && Memory.offence[creep.memory.home][creep.memory.target] &&
@@ -43,6 +49,7 @@ module.exports = {
             }
         }
 
+        creep.say(enermy)
 
         if (!enermy) {
             creep.memory.working = false;
