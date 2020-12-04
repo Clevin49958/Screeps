@@ -11,7 +11,8 @@ const WALL_REPAIRER = 'wallRepairer';
 const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
 const CARRY = 'carry';
-const ATTACKER = 'attacker'
+const ATTACKER = 'attacker';
+const MINER = 'miner';
 
 function getMemory (path, starter = Memory) {
     let current = starter;
@@ -25,7 +26,7 @@ function getMemory (path, starter = Memory) {
 }
 
 Creep.prototype.myMoveTo = function(destination, options = {}) {
-    if (this.memory.home != this.memory.target) {
+    if (/*this.memory.home != this.memory.target*/ true) {
         return this.travelTo(destination, options);
     } else {
         return this.moveTo(destination, {
@@ -45,10 +46,10 @@ module.exports = {
     ATK_RANGE: ATK_RANGE,
     CARRY: CARRY,
     ATTACKER,
+    MINER,
     roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-        HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY, ATTACKER
+        HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY, ATTACKER, MINER
     ],
-    home: 'W32N11',
     logRate: LOG_RATE,
 
     // logger: Log4js.getDefaultLogger(),
@@ -71,8 +72,10 @@ module.exports = {
         }
     },
 
-    payStructure: function(creep, structure) {
-        if (creep.transfer(structure, RESOURCE_ENERGY) ==
+    payStructure: function(creep, structure, mineral = false) {
+        let srcType = mineral ? _.find(_.keys(creep.store), srcType => srcType != RESOURCE_ENERGY && creep.store.getUsedCapacity(srcType) > 0)
+         : RESOURCE_ENERGY;
+        if (creep.transfer(structure, srcType) ==
             ERR_NOT_IN_RANGE) {
             // move towards it
             creep.myMoveTo(structure);
@@ -130,6 +133,10 @@ module.exports = {
     },
 
     payAny: function(creep) {
+        let carriesMineral = _.sum(_.keys(creep.store), src => src != RESOURCE_ENERGY && s.store.getUsedCapacity(src) > 0);
+        if (carriesMineral){
+            return this.payStorage(creep, true);
+        }
         if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
             if (this.payTower(creep)) return true;
         }
@@ -139,7 +146,7 @@ module.exports = {
         return false;
     },
 
-    payStorage: function(creep) {
+    payStorage: function(creep, mineral = false) {
         structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             // the second argument for findClosestByPath is an object which takes
             // a property called filter which can be a function
@@ -150,7 +157,7 @@ module.exports = {
                 100)
         });
         if (structure) {
-            this.payStructure(creep, structure);
+            this.payStructure(creep, structure, mineral);
         }
         return structure;
     },
@@ -171,24 +178,31 @@ module.exports = {
         return source;
     },
 
-    withdrawContainer: function(creep, source = null) {
+    withdrawContainer: function(creep, source = null, mineral = false) {
         // var source = null;
         if (!source) {
             source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (s) => s.structureType ==
-                    STRUCTURE_CONTAINER && s.store
-                    .getUsedCapacity(RESOURCE_ENERGY) > 200
-            });
+                filter: (s) => {
+                    if (s.structureType != STRUCTURE_CONTAINER) return false;
+                    if (!mineral){
+                        return s.store.getUsedCapacity(RESOURCE_ENERGY) >= 200;
+                    } else {
+                        return _.sum(_.keys(s.store), src => s.store.getUsedCapacity(src) >= 200)  
+                    }
+                
+            }});
         }
         if (source) {
-            if (creep.withdraw(source, RESOURCE_ENERGY) ==
-                ERR_NOT_IN_RANGE) {
-                // move towards the source
-                creep.myMoveTo(source);
+            if (creep.pos.isNearTo(source)) {
+                if (mineral) {
+                    creep.withdraw(source, _.find(_.keys(source.store), srcType => source.store.getUsedCapacity(srcType) > 50))
+                } else {
+                    creep.withdraw(source, RESOURCE_ENERGY);
+                    Memory.states.rich[source.id] = source.store.getFreeCapacity(RESOURCE_ENERGY) <=
+                    POOR_THRESHOLD;
+                }
             } else {
-                // Memory.states.rich[source.pos.x] = false;
-                Memory.states.rich[source.id] = source.store.getFreeCapacity(RESOURCE_ENERGY) <=
-                POOR_THRESHOLD;
+                creep.myMoveTo(source);
             }
         }
         return source;
@@ -287,10 +301,10 @@ module.exports = {
         creep.move(Math.floor(Math.random() * 7) + 1);
     },
 
-    harvestLoot: function(creep) {
+    harvestLoot: function(creep, lootMin = 100) {
         var source = creep.pos.findClosestByPath(
             FIND_DROPPED_RESOURCES, {
-                filter: r => r.amount > 100
+                filter: r => r.amount > lootMin
             });
         if (source) {
             // creep.say(JSON.stringify(source.pos))

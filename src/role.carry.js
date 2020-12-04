@@ -31,7 +31,7 @@ module.exports = {
             let link = helper.getMemory(path);
             link = link ? Game.getObjectById(link) : link;
             // if (creep.name == 'carry-W31N11-W32N11-12') return;
-            if (creep.memory.home == creep.room.name && link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+            if (creep.memory.home == creep.room.name && link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.pos.inRangeTo(link, 5)){
                 return helper.payStructure(creep, link);
             }
             helper.payAny(creep);
@@ -44,7 +44,7 @@ module.exports = {
                 // creep.say('c link')
                 if (helper.withdrawLink(creep)) return;
                 // creep.say('c loot')
-                if (helper.harvestLoot(creep)) return;
+                if (helper.harvestLoot(creep, 500)) return;
                 // creep.say('c container');
                 if (helper.withdrawContainerIfRich(creep)) return;
                 // creep.say('c storage')

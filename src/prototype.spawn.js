@@ -74,7 +74,7 @@ module.exports = function() {
         .home) {
         // create a balanced body as big as possible with the given energy
         var numberOfParts = Math.floor((energy - 350) / 450);
-        // numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
+        numberOfParts = numberOfParts > 3 ? 3 : numberOfParts;
         var body = [];
         for (let i = 0; i < numberOfParts * 4 + 2; i++) {
             body.push(WORK);
@@ -106,7 +106,7 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {number} sourceIndex source index of Energy
          */
-        function(energy, target, home = this.room.name, sourceIndex = 0) {
+        function(energy, target, home = this.room.name, sourceIndex = 0, role = helper.HARV_REMOTE) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor((energy - 200) / 100);
             numberOfParts = numberOfParts > 7 ? 7 : numberOfParts;
@@ -121,9 +121,9 @@ module.exports = function() {
 
             // create creep with the created body and the given role
             return this.spawnCreep(body,
-                `${getName(HARV_REMOTE,target,home)}`, {
+                `${getName(role,target,home)}`, {
                     memory: {
-                        role: helper.HARV_REMOTE,
+                        role: role,
                         arrived: false,
                         target: target,
                         home: home,
