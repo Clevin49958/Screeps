@@ -2,17 +2,18 @@ const {
     ATK_RANGE,
     WALL_REPAIRER
 } = require("./helper");
+const Logger = require("./Logger");
 
 function roomCreepConfig(room) {
     return {
         harvester: 0,
         harvRemote: Memory.sources[room],
         carry: Memory.sources[room],
-        upgrader: 0,
+        upgrader: 1,
         builder: 1,
         repairer: 1,
         wallRepairer: 0,
-        claimer: 1
+        claimer: 0
     }
 }
 
@@ -109,13 +110,14 @@ module.exports = {
 
             // Memory.myRooms.W33N12 = ['W33N12']
 
-            addControlledRoom('W34N13', 'W33N12')
+            addControlledRoom('W35N12', 'W34N12')
+            // addControlledRoom('W34N13', 'W33N12')
             // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
             // Memory.spawns.Spawn1.rooms = {
             //     W32N11:Memory
             // }
             // Memory.myRooms.W31N11 = ['W31N11'];
-
+            Logger.info(`Executed once @${Game.time}`);
             Memory.exec = 'ran';
         }
     }

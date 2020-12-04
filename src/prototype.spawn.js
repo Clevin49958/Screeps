@@ -14,10 +14,10 @@ module.exports = function() {
     // create a new function for StructureSpawn
     StructureSpawn.prototype.spawnBalCreep =
         function(energy, roleName, target = this.room.name, home = helper
-            .home) {
+            .home, lim = 8) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor(energy / 200);
-            // numberOfParts = numberOfParts > 5 ? 5 : numberOfParts;
+            numberOfParts = numberOfParts > lim ? lim : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(WORK);
@@ -71,10 +71,11 @@ module.exports = function() {
     }
 
     StructureSpawn.prototype.spawnSemiStaionaryCreep = function(energy, roleName, target = this.room.name, home = helper
-        .home) {
+        .home, lim = 3) {
         // create a balanced body as big as possible with the given energy
         var numberOfParts = Math.floor((energy - 350) / 450);
-        numberOfParts = numberOfParts > 3 ? 3 : numberOfParts;
+        numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+        
         var body = [];
         for (let i = 0; i < numberOfParts * 4 + 2; i++) {
             body.push(WORK);
@@ -106,10 +107,10 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {number} sourceIndex source index of Energy
          */
-        function(energy, target, home = this.room.name, sourceIndex = 0, role = helper.HARV_REMOTE) {
+        function(energy, target, home = this.room.name, sourceIndex = 0, role = helper.HARV_REMOTE, lim = 7) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor((energy - 200) / 100);
-            numberOfParts = numberOfParts > 7 ? 7 : numberOfParts;
+            numberOfParts = numberOfParts > lim ? lim : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(WORK);
@@ -139,12 +140,12 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {string} home home room id
          * @param {number} sourceIndex source index of Energy
+         * @param {number} lim limit the number of body part groups the creeps have have
          */
-        function(energy, target, home = this.room.name, sourceIndex = 0) {
+        function(energy, target, home = this.room.name, sourceIndex = 0, lim = 8) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor((energy - (target == home ? 0 : 150)) / 150);
-            numberOfParts = numberOfParts > 8 ? 8 : numberOfParts;
-            // numberOfParts = (numberOfParts > 5 && target == home) ? 5 : numberOfParts;
+            numberOfParts = numberOfParts > lim ? lim : numberOfParts;
             var body = [];
             for (let i = 0; i < numberOfParts; i++) {
                 body.push(CARRY);

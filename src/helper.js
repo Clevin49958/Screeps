@@ -26,6 +26,7 @@ function getMemory (path, starter = Memory) {
 }
 
 Creep.prototype.myMoveTo = function(destination, options = {}) {
+    options = _.merge({}, options)
     if (/*this.memory.home != this.memory.target*/ true) {
         return this.travelTo(destination, options);
     } else {
@@ -133,7 +134,7 @@ module.exports = {
     },
 
     payAny: function(creep) {
-        let carriesMineral = _.sum(_.keys(creep.store), src => src != RESOURCE_ENERGY && s.store.getUsedCapacity(src) > 0);
+        let carriesMineral = _.sum(_.keys(creep.store), src => src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
         if (carriesMineral){
             return this.payStorage(creep, true);
         }

@@ -6,13 +6,12 @@ module.exports = {
     run: function(creep) {
         // switch states
         // if creep is bringing energy to a structure but has no energy left
-        if (creep.memory.working == true && creep.carry.energy == 0) {
+        if (creep.memory.working == true && _.sum(_.keys(creep.store), srcType => creep.store.getUsedCapacity(srcType)) == 0) {
             // switch state
             creep.memory.working = false;
         }
         // if creep is harvesting energy but is full
-        else if (creep.memory.working == false && creep.carry.energy ==
-            creep.carryCapacity) {
+        else if (creep.memory.working == false && creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
             // switch state
             creep.memory.working = true;
         }
@@ -41,6 +40,8 @@ module.exports = {
 
             // if in target room
             if (creep.room.name == creep.memory.target) {
+                // creep.say('c mineral')
+                if (helper.withdrawContainer(creep, null, true)) return;
                 // creep.say('c link')
                 if (helper.withdrawLink(creep)) return;
                 // creep.say('c loot')

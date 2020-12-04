@@ -10,7 +10,9 @@ const {
     HARV_REMOTE,
     CLAIMER,
     ATK_RANGE,
-    ATTACKER
+    ATTACKER,
+    MINER,
+    home
 } = require('./helper');
 const helper = require('./helper');
 const Logger = require('./Logger');
@@ -115,8 +117,8 @@ module.exports = {
 
             // update builder count
             if (Game.time % helper.logRate == 0) {
-                numConstructionSites = Game.rooms[room].find(FIND_CONSTRUCTION_SITES).length;
-                creepDemand[room][BUILDER] = numConstructionSites > 10 ? 2 : (numConstructionSites > 1
+                numConstructionSites = Game.rooms[targetRoom].find(FIND_CONSTRUCTION_SITES).length;
+                creepDemand[targetRoom][BUILDER] = numConstructionSites > 10 ? 2 : (numConstructionSites > 0
                     ? 1 : 0);
             }
 
@@ -208,8 +210,7 @@ module.exports = {
                         .creeps, c => c.memory.role == helper.ATK_RANGE && c
                         .memory.target == targetRoom && c.memory.home ==
                         room) && Game.rooms[targetRoom].find(FIND_MY_STRUCTURES, {filter: s => s.structureType == STRUCTURE_TOWER}).length == 0) {
-                    let res = spawn.spawnAtkRangeCreep(energyMax, target = targetRoom,
-                        home = room);
+                    let res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room);
                     Logger.debug(spawn.name, 'attempt to spawn', 'atk range to defend', 'res', res);
                     return;
                 } else {
@@ -218,8 +219,7 @@ module.exports = {
                         .creeps, c => c.memory.role == helper.ATTACKER && c
                         .memory.target == targetRoom && c.memory.home ==
                         room)) {
-                        let res = spawn.spawnAttackerCreep(energyMax, target = targetRoom,
-                            home = room);
+                        let res = spawn.spawnAttackerCreep(energyMax, targetRoom, room);
                         Logger.debug(spawn.name, 'attempt to spawn', 'attacker prob target: invader core', 'res', res);
                         return;
                     }
@@ -252,7 +252,7 @@ module.exports = {
                         break;
                     }
                     var res = spawn.spawnHarvRemoteCreep(energyMax,
-                    targetRoom, home = room, sourceIndex = i);
+                    targetRoom, room, i);
                     if (Game.time % helper.logRate == 0) {
                         Logger.info(
                             `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`
@@ -272,8 +272,12 @@ module.exports = {
                 needExtras = Game.rooms[targetRoom].find(FIND_DROPPED_RESOURCES, {filter: r => r.amount > 500}).length;
             }
             if (creepTrack[targetRoom][helper.CARRY] < creepDemand[targetRoom][helper.CARRY] + needExtras) {
-                var res = spawn.spawnCarryCreep(energyMax, targetRoom,
-                home = room, sourceIndex = 0);
+                let res;
+                if (targetRoom == room) {
+                  res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0, 50);  
+                } else {
+                    res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0);
+                }
                 if (Game.time % helper.logRate == 0) {
                     Logger.info(
                         `    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
@@ -300,14 +304,23 @@ module.exports = {
                             c.ticksToLive > 220)) {
                         let res;
                         if (role == ATK_RANGE) {
-                            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, home = room);
+                            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room);
                         } else if (role == ATTACKER) {
-                            res = spawn.spawnAttackerCreep(energyMax, targetRoom, home = room);
+                            res = spawn.spawnAttackerCreep(energyMax, targetRoom, room);
                         }
                         Logger.debug(spawn.name, 'attempt to spawn', 'offensive creeps', 'res', res);
                     }
                 }
             }
+        }
+
+        // spawn mineral miners
+        Logger.trace(`${spawn.name} trying to spawn miners`);
+        let source = Game.rooms[room].find(FIND_MINERALS)[0];
+        let extractors = Game.rooms[room].find(FIND_STRUCTURES, {filter: s => s.structureType == STRUCTURE_EXTRACTOR});
+        let minersNum = _.sum(Game.creeps, c => c.memory.role == MINER && c.memory.home == room && c.memory.target == room && c.ticksToLive > 150);
+        if (extractors.length > 0 && minersNum == 0 && source.mineralAmount > 0) {
+            return spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, false);
         }
 
         // spawn workers for each room

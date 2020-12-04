@@ -23,6 +23,12 @@ module.exports.loop = function() {
         console.log('New code uploaded')
     }
 
+    if (Game.cpu.bucket < 2000 || false) {
+        // skip ticket
+        Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}`)
+        return;
+    }
+
     // Remove dead screeps in memory
     for (let name in Memory.creeps) {
         // and checking if the creep is still alive

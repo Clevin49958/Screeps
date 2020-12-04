@@ -50,7 +50,7 @@ module.exports.stateScanner = function() {
             storages[room] = storage;
             Memory.stats.Storages[room] = storage.store.getUsedCapacity(
                 RESOURCE_ENERGY);
-            let threshold = 700000;
+            let threshold = 500000;
             if (storage.store.getUsedCapacity(RESOURCE_ENERGY) >
                 threshold + 50000) {
                 Game.notify(
@@ -65,7 +65,7 @@ module.exports.stateScanner = function() {
 
     }
 
-    if (Memory.stats.bucket < 4000) {
+    if (Memory.stats.bucket < 500) {
         Game.notify("Bucket is low");
     }
 
