@@ -74,13 +74,13 @@ module.exports = {
                         if (closestDamagedStructure) {
                             tower.repair(closestDamagedStructure);
                         }
-                         else if (Game.time % 10 < 7) {
+                         else if (Game.time % 10 < 2) {
                             var walls = tower.room.find(FIND_STRUCTURES, {
                                 filter: (s) => ((s.structureType ==
                                         STRUCTURE_WALL || s
                                         .structureType ==
                                         STRUCTURE_RAMPART) &&
-                                    s.hits < 300000)
+                                    s.hits < 300000 && s.pos.inRangeTo(tower, 25))
                             });
                             var target = undefined;
                             var minHits = 1000000;

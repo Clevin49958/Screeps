@@ -70,7 +70,7 @@ module.exports = function() {
             });
     }
 
-    StructureSpawn.prototype.spawnSemiStaionaryCreep = function(energy, roleName, target = this.room.name, home = helper
+    StructureSpawn.prototype.spawnSemiStationaryCreep = function(energy, roleName, target = this.room.name, home = helper
         .home, lim = 3) {
         // create a balanced body as big as possible with the given energy
         var numberOfParts = Math.floor((energy - 350) / 450);
@@ -107,7 +107,7 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {number} sourceIndex source index of Energy
          */
-        function(energy, target, home = this.room.name, sourceIndex = 0, role = helper.HARV_REMOTE, lim = 7) {
+        function(energy, target, home = this.room.name, sourceIndex = 0, role = helper.HARV_REMOTE, lim = 8) {
             // create a balanced body as big as possible with the given energy
             var numberOfParts = Math.floor((energy - 200) / 100);
             numberOfParts = numberOfParts > lim ? lim : numberOfParts;

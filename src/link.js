@@ -17,7 +17,7 @@ module.exports = {
         let senders = _.values(room.sender).map(l => Game.getObjectById(l));
         // console.log(receivers,senders);
         receivers = _.filter(receivers, r => r.store.getUsedCapacity(RESOURCE_ENERGY) == 0);
-        senders = _.filter(senders, s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 300 && s.cooldown === 0);
+        senders = _.filter(senders, s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 700 && s.cooldown === 0);
 
         if (receivers.length == 0 || senders.length == 0) {
             return false;

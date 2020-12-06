@@ -58,22 +58,27 @@ module.exports = {
             } else {
                 creep.harvest(source);
             }
-        } else if (creep.pos.isNearTo(source)) {
+        } else if (creep.pos.inRangeTo(source, 2)) {
 
             var container = creep.pos.findInRange(FIND_STRUCTURES,
-                2, {
+                4, {
                     filter: (s) => s.structureType ==
                         STRUCTURE_CONTAINER
                 });
             if (container.length == 0) {
                 container = creep.pos.findInRange(
-                    FIND_CONSTRUCTION_SITES, 2);
+                    FIND_CONSTRUCTION_SITES, 4, {filter: s => s.structureType == STRUCTURE_CONTAINER});
             }
             if (container.length == 0) {
+                if (!creep.pos.isNearTo(source)) {
+                    return creep.myMoveTo(source);
+                }
                 creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
-                return;
+                container = creep.pos.findInRange(
+                    FIND_CONSTRUCTION_SITES, 4, {filter: s => s.structureType == STRUCTURE_CONTAINER});
             }
             if (creep.pos.isEqualTo(container[0])) {
+                creep.say(container[0].pos.x + ' ' + container[0].pos.y)
                 creep.memory.arrived = true;
                 creep.harvest(source);
             } else {

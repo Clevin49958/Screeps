@@ -6,7 +6,7 @@ const helper = require("./helper");
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
-        creep.say(UPGRADER.slice(0, 1))
+        // creep.say(UPGRADER.slice(0, 1))
         if (creep.memory.target && creep.room.name != creep.memory
             .target) {
             helper.moveTargetRoom(creep);
@@ -58,10 +58,10 @@ module.exports = {
                 return;
             }
             if (helper.withdrawStorage(creep)) return;
-            // if (helper.withdrawContainerIfRich(creep)) return;
+            if (helper.withdrawContainerIfRich(creep)) return;
             
-            if (helper.harvestLoot(creep)) return;
-            helper.harvest(creep)
+            // if (helper.harvestLoot(creep)) return;
+            // helper.harvest(creep)
         }
     }
 };

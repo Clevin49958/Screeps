@@ -1,4 +1,5 @@
 const helper = require("./helper");
+const Logger = require("./Logger");
 const roleUpgrader = require("./role.upgrader");
 
 module.exports = {
@@ -19,7 +20,8 @@ module.exports = {
         // if creep is supposed to transfer energy to a structure
         if (creep.memory.working == true) {
             if (helper.moveHome(creep)) {
-                let standingAt = creep.room.lookAt(LOOK_STRUCTURES, creep.pos);
+                let standingAt = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos);
+                // Logger.info(creep.name, standingAt);
                 standingAt = _.find(standingAt, s => s.hits < s.hitsMax - 1600);
                 if (standingAt) {
                     creep.repair(standingAt);
@@ -40,15 +42,15 @@ module.exports = {
 
             // if in target room
             if (creep.room.name == creep.memory.target) {
-                // creep.say('c mineral')
+                creep.say('c mineral')
                 if (helper.withdrawContainer(creep, null, true)) return;
-                // creep.say('c link')
+                creep.say('c link')
                 if (helper.withdrawLink(creep)) return;
-                // creep.say('c loot')
-                if (helper.harvestLoot(creep, 500)) return;
-                // creep.say('c container');
+                creep.say('c loot')
+                if (helper.harvestLoot(creep, 300)) return;
+                creep.say('c container');
                 if (helper.withdrawContainerIfRich(creep)) return;
-                // creep.say('c storage')
+                creep.say('c storage')
                 if (helper.withdrawStorage(creep)) return;
                 // if (creep.store.getUsedCapacity(RESOURCE_ENERGY)>creep.store.getCapacity(RESOURCE_ENERGY)*0.5){
                 //     creep.memory.working = true;

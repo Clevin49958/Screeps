@@ -9,9 +9,9 @@ function roomCreepConfig(room) {
         harvester: 0,
         harvRemote: Memory.sources[room],
         carry: Memory.sources[room],
-        upgrader: 1,
-        builder: 1,
-        repairer: 1,
+        upgrader: 0,
+        builder: 0,
+        repairer: 0,
         wallRepairer: 0,
         claimer: 0
     }
@@ -118,7 +118,7 @@ module.exports = {
             // }
             // Memory.myRooms.W31N11 = ['W31N11'];
             Logger.info(`Executed once @${Game.time}`);
-            Memory.exec = 'ran';
+            Memory.exec = Game.time;
         }
     }
 }

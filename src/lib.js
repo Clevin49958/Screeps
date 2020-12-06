@@ -92,10 +92,13 @@ module.exports = {
             return;
         }
         // if colony is dying
-        if (totalHarvs < 2) {
+        if (totalHarvs < 1) {
+            if (creepDemand.tickNoHarv === undefined) {
+                creepDemand.tickNoHarv = 0;
+            }
             creepDemand.tickNoHarv++;
 
-            if (creepDemand.tickNoHarv > 50) {
+            if (creepDemand.tickNoHarv > 100) {
                 Memory.states.restart[room] = true;
                 // spawn one with what is available
                 res = spawn.spawnBalCreep(
@@ -113,13 +116,16 @@ module.exports = {
 
         // collect some stats of creeps
         for (let targetRoom of Memory.myRooms[room]) {
-            if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
-
-            // update builder count
-            if (Game.time % helper.logRate == 0) {
-                numConstructionSites = Game.rooms[targetRoom].find(FIND_CONSTRUCTION_SITES).length;
-                creepDemand[targetRoom][BUILDER] = numConstructionSites > 10 ? 2 : (numConstructionSites > 0
-                    ? 1 : 0);
+            if(!Game.rooms[targetRoom]) {
+                continue;
+            } else {
+                if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
+                // update builder count
+                if (Game.time % helper.logRate == 0) {
+                    numConstructionSites = Game.rooms[targetRoom].find(FIND_CONSTRUCTION_SITES).length;
+                    creepDemand[targetRoom][BUILDER] = numConstructionSites > 10 ? 2 : (numConstructionSites > 0
+                        ? 1 : 0);
+                }
             }
 
             // count each role
@@ -320,7 +326,7 @@ module.exports = {
         let extractors = Game.rooms[room].find(FIND_STRUCTURES, {filter: s => s.structureType == STRUCTURE_EXTRACTOR});
         let minersNum = _.sum(Game.creeps, c => c.memory.role == MINER && c.memory.home == room && c.memory.target == room && c.ticksToLive > 150);
         if (extractors.length > 0 && minersNum == 0 && source.mineralAmount > 0) {
-            return spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, false);
+            return spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, 50);
         }
 
         // spawn workers for each room
@@ -337,7 +343,7 @@ module.exports = {
                     if (r == CLAIMER) {
                         res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
                     } else if (r == UPGRADER && helper.getMemory(['stats', 'Storages', room])) {
-                        res = spawn.spawnSemiStaionaryCreep(energyMax, r, targetRoom, room);
+                        res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, room);
                     } else {
                         res = spawn.spawnBalCreep(energyMax, r, targetRoom, room);
                     }
