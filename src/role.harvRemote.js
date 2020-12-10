@@ -61,12 +61,6 @@ module.exports = {
             } else {
                 creep.harvest(source);
             }
-        } else if (!creep || !creep.pos){
-            try {
-                Logger.warn(name, creep, creep.memory.role, creepInfo);
-            } catch (error) {
-                Logger.warn('logger warn msg failed', error, creepInfo)
-            }
         } else if (source && creep.pos.inRangeTo(source, 2)) {
 
             var container = creep.pos.findInRange(FIND_STRUCTURES,

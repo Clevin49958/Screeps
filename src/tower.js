@@ -39,7 +39,10 @@ module.exports = {
                         break;
                     }
                 }
-                Logger.warn(`${roomId} is under attack by ${username} with ${hostiles.length} creeps, healer: ${hostile_healer}`)
+                if (username != 'Invader' || hostile_healer) {
+                    Logger.warn(`${roomId} is under attack by ${username} with ${hostiles.length} creeps, healer: ${hostile_healer}`)
+                }
+                
             }
 
             //if there are no hostiles....
