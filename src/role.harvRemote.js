@@ -1,8 +1,11 @@
 const helper = require("./helper");
+const Logger = require("./Logger");
 
 module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
+        // TODO debug
+        let creepInfo = JSON.stringify(creep);
         if (!creep.memory.source){
             if (Game.rooms[creep.memory.target]){
                 creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
@@ -58,7 +61,13 @@ module.exports = {
             } else {
                 creep.harvest(source);
             }
-        } else if (creep.pos.inRangeTo(source, 2)) {
+        } else if (!creep || !creep.pos){
+            try {
+                Logger.warn(name, creep, creep.memory.role, creepInfo);
+            } catch (error) {
+                Logger.warn('logger warn msg failed', error, creepInfo)
+            }
+        } else if (source && creep.pos.inRangeTo(source, 2)) {
 
             var container = creep.pos.findInRange(FIND_STRUCTURES,
                 4, {

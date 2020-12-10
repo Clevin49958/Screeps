@@ -1,6 +1,6 @@
 var Logger = require('Logger')
-const RICH_THRESHOLD = 500;
-const POOR_THRESHOLD = 1200;
+const RICH_THRESHOLD = 1000;
+const POOR_THRESHOLD = 1600;
 const LOG_RATE = 5;
 const HARVESTER = 'harvester';
 const UPGRADER = 'upgrader';
@@ -302,33 +302,63 @@ module.exports = {
         creep.move(Math.floor(Math.random() * 7) + 1);
     },
 
-    harvestLoot: function(creep, lootMin = 100) {
-        var source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
-            filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 100
-        });
-        if (!source) {
-            source = creep.pos.findClosestByPath(FIND_RUINS, {
-                filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
+    harvestLoot: function(creep, lootMin = 100, energyOnly = true) {
+        var source;
+        if (energyOnly) {
+            source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+                filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 100
             });
-        }
-        if (source) {
-            if (creep.withdraw(source, RESOURCE_ENERGY) ==
-                ERR_NOT_IN_RANGE) {
-                // move towards the source
-                creep.myMoveTo(source);
-            }
-        } else {
-            source = creep.pos.findClosestByPath(
-                FIND_DROPPED_RESOURCES, {
-                    filter: r => r.amount > lootMin
+            if (!source) {
+                source = creep.pos.findClosestByPath(FIND_RUINS, {
+                    filter: s => s.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
                 });
-            if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
-                // move towards the source
-                creep.myMoveTo(source);
             }
-            
+            if (source) {
+                if (creep.withdraw(source, RESOURCE_ENERGY) ==
+                    ERR_NOT_IN_RANGE) {
+                    // move towards the source
+                    creep.myMoveTo(source);
+                }
+            } else {
+                source = creep.pos.findClosestByPath(
+                    FIND_DROPPED_RESOURCES, {
+                        filter: r => r.amount > lootMin && r.resourceType == RESOURCE_ENERGY
+                    });
+                if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
+                    // move towards the source
+                    creep.myMoveTo(source);
+                }
+                
+            }
+            return source;
+        } else {
+            source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+                filter: s => _.find(_.keys(s.store), srcType => s.store.getUsedCapacity(srcType) > 50)
+            });
+            if (!source) {
+                source = creep.pos.findClosestByPath(FIND_RUINS, {
+                    filter: s => _.find(_.keys(s.store), srcType => s.store.getUsedCapacity(srcType) > 50)
+                });
+            }
+            if (source) {
+                if (creep.withdraw(source, _.find(_.keys(source.store), srcType => source.store.getUsedCapacity(srcType) > 50)) ==
+                    ERR_NOT_IN_RANGE) {
+                    // move towards the source
+                    creep.myMoveTo(source);
+                }
+            } else {
+                source = creep.pos.findClosestByPath(
+                    FIND_DROPPED_RESOURCES, {
+                        filter: r => r.amount > lootMin
+                    });
+                if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
+                    // move towards the source
+                    creep.myMoveTo(source);
+                }
+                
+            }
+            return source;
         }
-        return source;
     },
 
     recycle: function(creep) {

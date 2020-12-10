@@ -98,6 +98,14 @@ module.exports = {
             }
             creepDemand.tickNoHarv++;
 
+            if (helper.getMemory('states', 'restart', room)) {
+                if (helper.getMemory('stats', 'Storages', room) > 10000){
+                    res = spawn.spawnCarryCreep(spawn.room.energyAvailable, targetRoom, room, 0, 50);
+                } else {
+                    res = spawn.spawnBalCreep(
+                        spawn.room.energyAvailable, helper.HARVESTER, targetRoom, room);
+                }
+            }
             if (creepDemand.tickNoHarv > 100) {
                 Memory.states.restart[room] = true;
                 // spawn one with what is available
@@ -122,7 +130,7 @@ module.exports = {
                 if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
                 // update builder count
                 if (Game.time % helper.logRate == 0) {
-                    numConstructionSites = Game.rooms[targetRoom].find(FIND_CONSTRUCTION_SITES).length;
+                    numConstructionSites = Game.rooms[targetRoom].find(FIND_MY_CONSTRUCTION_SITES).length;
                     creepDemand[targetRoom][BUILDER] = numConstructionSites > 10 ? 2 : (numConstructionSites > 0
                         ? 1 : 0);
                 }
@@ -325,7 +333,7 @@ module.exports = {
         let source = Game.rooms[room].find(FIND_MINERALS)[0];
         let extractors = Game.rooms[room].find(FIND_STRUCTURES, {filter: s => s.structureType == STRUCTURE_EXTRACTOR});
         let minersNum = _.sum(Game.creeps, c => c.memory.role == MINER && c.memory.home == room && c.memory.target == room && c.ticksToLive > 150);
-        if (extractors.length > 0 && minersNum == 0 && source.mineralAmount > 0) {
+        if (extractors.length > 0 && minersNum == 0 && source.mineralAmount > 0 && extractors[0].pos.findInRange(FIND_STRUCTURES, 1, {filter: s => s.structureType == STRUCTURE_CONTAINER}).length > 0) {
             return spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, 50);
         }
 
@@ -377,10 +385,15 @@ module.exports = {
             // creep.say(creep.memory.role.slice(0,1));
 
             for (let role of roleNames) {
-                if (creep.memory.role == role) {
-                    // creep.say(role);
-                    roles[role].run(creep);
+                try {
+                    if (creep && creep.memory.role == role) {
+                        // creep.say(role);
+                        roles[role].run(creep);
+                    }
+                } catch (e) {
+                    Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep)
                 }
+                
             }
         }
     },

@@ -4,7 +4,8 @@ module.exports = {
     // a function to run the logic for this role
     run: function(creep) {
         if (!creep.memory.working && Game.rooms[creep.memory.target] && Game.rooms[creep.memory.target]
-            .find(FIND_HOSTILE_CREEPS).length == 0) {
+            .find(FIND_HOSTILE_CREEPS).length == 0 && Game.rooms[creep.memory.target]
+            .find(FIND_HOSTILE_STRUCTURES).length == 0) {
             // suicide damaged creeps if they can't be healed
             for (let name in Game.creeps) {
                 var creeper = Game.creeps[name];

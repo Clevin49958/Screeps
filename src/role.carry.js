@@ -47,7 +47,7 @@ module.exports = {
                 creep.say('c link')
                 if (helper.withdrawLink(creep)) return;
                 creep.say('c loot')
-                if (helper.harvestLoot(creep, 300)) return;
+                if (helper.harvestLoot(creep, 300, false)) return;
                 creep.say('c container');
                 if (helper.withdrawContainerIfRich(creep)) return;
                 creep.say('c storage')
