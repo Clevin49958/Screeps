@@ -83,7 +83,9 @@ const functionBlackList = [
 ];
 
 function wrapFunction(name, originalFunction) {
-  if (originalFunction.profilerWrapped) { throw new AlreadyWrappedError(); }
+  if (originalFunction.profilerWrapped) {
+    throw new AlreadyWrappedError();
+  }
   function wrappedFunction() {
     if (Profiler.isProfiling()) {
       const nameMatchesFilter = name === getFilter();
@@ -113,7 +115,7 @@ function wrapFunction(name, originalFunction) {
 }
 
 function hookUpPrototypes() {
-  Profiler.prototypes.forEach(proto => {
+  Profiler.prototypes.forEach((proto) => {
     profileObjectFunctions(proto.val, proto.name);
   });
 }
@@ -121,7 +123,7 @@ function hookUpPrototypes() {
 function profileObjectFunctions(object, label) {
   const objectToWrap = object.prototype ? object.prototype : object;
 
-  Object.getOwnPropertyNames(objectToWrap).forEach(functionName => {
+  Object.getOwnPropertyNames(objectToWrap).forEach((functionName) => {
     const extendedLabel = `${label}.${functionName}`;
 
     const isBlackListed = functionBlackList.indexOf(functionName) !== -1;
@@ -223,7 +225,7 @@ const Profiler = {
   },
 
   lines() {
-    const stats = Object.keys(Memory.profiler.map).map(functionName => {
+    const stats = Object.keys(Memory.profiler.map).map((functionName) => {
       const functionCalls = Memory.profiler.map[functionName];
       return {
         name: functionName,
@@ -235,7 +237,7 @@ const Profiler = {
       return val2.totalTime - val1.totalTime;
     });
 
-    const lines = stats.map(data => {
+    const lines = stats.map((data) => {
       return [
         data.calls,
         data.totalTime.toFixed(1),
@@ -248,14 +250,14 @@ const Profiler = {
   },
 
   prototypes: [
-    { name: 'Game', val: Game },
-    { name: 'Room', val: Room },
-    { name: 'Structure', val: Structure },
-    { name: 'Spawn', val: Spawn },
-    { name: 'Creep', val: Creep },
-    { name: 'RoomPosition', val: RoomPosition },
-    { name: 'Source', val: Source },
-    { name: 'Flag', val: Flag },
+    {name: 'Game', val: Game},
+    {name: 'Room', val: Room},
+    {name: 'Structure', val: Structure},
+    {name: 'Spawn', val: Spawn},
+    {name: 'Creep', val: Creep},
+    {name: 'RoomPosition', val: RoomPosition},
+    {name: 'Source', val: Source},
+    {name: 'Flag', val: Flag},
   ],
 
   record(functionName, time) {
