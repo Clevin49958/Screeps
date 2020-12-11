@@ -36,11 +36,13 @@ helper.roleNames.forEach((role) => {
 module.exports = {
 
   generateCreeps: function(name) {
-    /** @type string */
+    /** @type {string} */
     const spawn = Game.spawns[name];
-    /** @type string */
+    /** @type {string} */
     const room = spawn.room.name;
+    /** @type {number} */
     const energyMax = spawn.room.energyCapacityAvailable;
+
     if (!Memory.stats.creepTrack[room]) {
       Memory.stats.creepTrack[
           room] = {};
@@ -73,8 +75,7 @@ module.exports = {
     }
 
     // count total harv creeps
-    const totalHarvs;
-    totalHarvs = _.sum(Game.creeps,
+    const totalHarvs = _.sum(Game.creeps,
         (c) => (c.memory.role == helper.HARVESTER || c.memory
             .role == helper.HARV_REMOTE) &&
             c.ticksToLive > 75 && c.memory.home == room,
@@ -160,6 +161,7 @@ module.exports = {
       });
     }
 
+    // if it's busy and I'm not debugging, skip spawn
     if (spawn.spawning && Logger.LOG_LEVEL >= 2000) {
       Logger.debug(spawn.name, 'is spawning', spawn.spawning.name);
       return;
@@ -172,7 +174,8 @@ module.exports = {
 
     // if colony is dying
     if (Memory.states.restart[room] || totalHarvs < 1 ||
-    (_.get(Memory, ['stats', 'Storages', room]) > 10000 && creepTrack[room][helper.CARRY] < 1)) {
+          (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
+          _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][helper.CARRY], 0) < 1)) {
       if (creepDemand.tickSinceRestart === undefined) {
         creepDemand.tickSinceRestart = 0;
       }

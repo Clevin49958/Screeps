@@ -323,19 +323,20 @@ module.exports = {
       }
       return source;
     } else {
+      // look for minerals
       source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
         filter: (s) => _.find(_.keys(s.store), (srcType) =>
-          s.store.getUsedCapacity(srcType) > 50),
+          s.store.getUsedCapacity(srcType) > 0),
       });
       if (!source) {
         source = creep.pos.findClosestByPath(FIND_RUINS, {
           filter: (s) => _.find(_.keys(s.store), (srcType) =>
-            s.store.getUsedCapacity(srcType) > 50),
+            s.store.getUsedCapacity(srcType) > 0),
         });
       }
       if (source) {
         if (creep.withdraw(source, _.find(_.keys(source.store), (srcType) =>
-          source.store.getUsedCapacity(srcType) > 50)) == ERR_NOT_IN_RANGE) {
+          source.store.getUsedCapacity(srcType) > 0)) == ERR_NOT_IN_RANGE) {
           // move towards the source
           creep.myMoveTo(source);
         }
