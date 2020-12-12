@@ -9,7 +9,7 @@ const lib = require('./lib');
 const tower = require('./tower');
 const init = require('./init');
 const link = require('./link');
-const Logger = require('./Logger');
+const {Logger} = require('./Logger');
 
 const profiler = require('screeps-profiler');
 
@@ -23,9 +23,14 @@ module.exports.loop = function() {
       console.log('New code uploaded');
     }
 
-    if (Game.cpu.bucket < 2000 || false) {
+    if (Game.cpu.bucket < 15 || false) {
       // skip ticket
-      Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}`);
+      let timeSinceLastSkip = -1;
+      if (global.lastSkip) {
+        timeSinceLastSkip = Game.time - global.lastSkip;
+      }
+      global.lastSkip = Game.time
+      Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
       return;
     }
 
@@ -49,15 +54,16 @@ module.exports.loop = function() {
     lib.runCreeps();
 
     for (const room in Memory.myRooms) {
-      if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
+      // if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
         link.ship(room);
-      }
+      // }
     }
     for (const name in Game.spawns) {
-      if ({}.hasOwnProperty.call(Game.spawns, name)) {
+      // if ({}.hasOwnProperty.call(Game.spawns, name)) {
+        if (name == 's5') continue;
         lib.generateCreeps(name);
         Logger.trace('-----------------------');
-      }
+      // }
     }
 
     // watch values

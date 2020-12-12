@@ -83,7 +83,7 @@ module.exports = {
    */
   minCreeps: () => {
     for (const spawnName in Game.spawns) {
-      if ({}.hasOwnProperty.call(Game.spawns, spawnName)) {
+      // if ({}.hasOwnProperty.call(Game.spawns, spawnName)) {
         const spawn = Game.spawns[spawnName];
         if (!spawn.memory.init) {
           spawn.memory.init = {};
@@ -107,7 +107,7 @@ module.exports = {
 
           // remote harv room config
           for (const id in Memory.myRooms[spawn.room.name]) {
-            if ({}.hasOwnProperty.call(Memory.myRooms[spawn.room.name], id)) {
+            // if ({}.hasOwnProperty.call(Memory.myRooms[spawn.room.name], id)) {
               const roomName = Memory.myRooms[spawn.room.name][id];
               spawn.memory[roomName] = {
                 // harvester:0,
@@ -119,11 +119,11 @@ module.exports = {
                 repairer: 0,
                 wallRepairer: 0,
               };
-            }
+            // }
           }
           spawn.memory.init.minCreeps = true;
         }
-      }
+      // }
     }
   },
 
