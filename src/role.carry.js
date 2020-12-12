@@ -39,16 +39,18 @@ module.exports = {
       // if creep is supposed to harvest energy from source
       // if in target room
       if (creep.room.name == creep.memory.target) {
-        creep.say('c mineral');
+        creep.say('mineral');
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
           helper.withdrawContainer(creep, null, true)) return;
-        creep.say('c link');
+        creep.say('link');
         if (helper.withdrawLink(creep)) return;
-        creep.say('c loot');
+        creep.say('loot mnr');
         if (helper.harvestLoot(creep, 10, false)) return;
-        creep.say('c container');
+        creep.say('loot');
+        if (helper.harvestLoot(creep, 300, true)) return;
+        creep.say('container');
         if (helper.withdrawContainerIfRich(creep)) return;
-        creep.say('c storage');
+        creep.say('storage');
         if (helper.withdrawStorage(creep)) return;
         // if (creep.store.getUsedCapacity(RESOURCE_ENERGY) >
         //  creep.store.getCapacity(RESOURCE_ENERGY) * 0.5){

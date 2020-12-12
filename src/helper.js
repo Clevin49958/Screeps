@@ -127,13 +127,14 @@ module.exports = {
     const carriesMineral = _.sum(_.keys(creep.store), (src) =>
       src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
     if (carriesMineral) {
-      return this.payStorage(creep, true);
+      return this.payTerminal(creep, true);
     }
     if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
       if (this.payTower(creep)) return true;
     }
     if (this.paySpawn(creep)) return true;
     if (this.payTower(creep)) return true;
+    if (this.payTerminal(creep)) return true;
     if (this.payStorage(creep)) return true;
     return false;
   },
@@ -145,6 +146,18 @@ module.exports = {
                 s.store.getFreeCapacity(RESOURCE_ENERGY) >
                 100),
     });
+    if (structure) {
+      this.payStructure(creep, structure, mineral);
+    }
+    return structure;
+  },
+
+  payTerminal: function(creep, mineral = false) {
+    structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (s) => (s.structureType ==
+                STRUCTURE_TERMINAL &&
+                (s.store.getUsedCapacity(RESOURCE_ENERGY) <= 30000 || mineral)
+    )});
     if (structure) {
       this.payStructure(creep, structure, mineral);
     }
@@ -326,11 +339,13 @@ module.exports = {
       // look for minerals
       source = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
         filter: (s) => _.find(_.keys(s.store), (srcType) =>
+          srcType != RESOURCE_ENERGY &&
           s.store.getUsedCapacity(srcType) > 0),
       });
       if (!source) {
         source = creep.pos.findClosestByPath(FIND_RUINS, {
           filter: (s) => _.find(_.keys(s.store), (srcType) =>
+            srcType != RESOURCE_ENERGY &&
             s.store.getUsedCapacity(srcType) > 0),
         });
       }
@@ -343,7 +358,7 @@ module.exports = {
       } else {
         source = creep.pos.findClosestByPath(
             FIND_DROPPED_RESOURCES, {
-              filter: (r) => r.amount > lootMin,
+              filter: (r) => r.amount > lootMin && r.resourceType != RESOURCE_ENERGY,
             });
         if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
           // move towards the source

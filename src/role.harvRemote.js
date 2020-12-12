@@ -16,7 +16,7 @@ module.exports = {
     // if arrived
     if (creep.memory.arrived == true) {
       // check for presence of link
-      if (creep.memory.link === undefined) {
+      if (!creep.memory.link) {
         const links = creep.pos.findInRange(FIND_STRUCTURES,
             1, {filter: (s) => s.structureType == STRUCTURE_LINK});
         creep.memory.link = (links.length > 0) ? links[0].id : null;

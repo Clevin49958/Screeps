@@ -29,6 +29,9 @@ module.exports = {
           return;
         }
       }
+    } else {
+      helper.moveTargetRoom(creep.memory.target);
+      return true;
     }
     
     // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))
@@ -80,7 +83,6 @@ module.exports = {
         creep.myMoveTo(container[0]);
       }
     } else {
-      // TODO: error will occur when creep has no vision to source
       creep.myMoveTo(source);
     }
   },

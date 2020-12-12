@@ -78,7 +78,7 @@ module.exports = function() {
       // create a body with as many [claim, move] as possible
       let numberOfParts = Math.floor(energy/650);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-      numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+      numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
 
       // construct body
       for (let i = 0; i < numberOfParts; i++) {
@@ -118,7 +118,7 @@ module.exports = function() {
     const maxSets = 9;
     let numberOfParts = Math.floor((energy - 350) / 450);
     numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-    numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+    numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
 
     const body = [];
     for (let i = 0; i < numberOfParts * 4 + 2; i++) {
@@ -167,7 +167,7 @@ module.exports = function() {
       const maxSets = 8;
       let numberOfParts = Math.floor((energy - 200) / 100);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-      numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+      numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
 
       const body = [];
       for (let i = 0; i < numberOfParts; i++) {
@@ -204,7 +204,7 @@ module.exports = function() {
           const maxSets = 16;
           let numberOfParts = Math.floor((energy - (energy > 600 ? 150 : 0)) / 150);
           numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+          numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
     
           let body = [];
           for (let i = 0; i < numberOfParts; i++) {
@@ -242,7 +242,7 @@ module.exports = function() {
         function(energy, target, home = this.room.name, selfHeal = 0) {
           const maxSets = 16;
           const numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
-          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+          numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
     
           const body = [];
           for (let i = 0; i < numberOfParts; i++) {
@@ -284,7 +284,7 @@ module.exports = function() {
         function(energy, target, home = this.room.name) {
           const maxSets = 16;
           const numberOfParts = Math.floor(energy / 140);
-          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+          numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts ;
     
           const body = [];
           for (let i = 0; i < numberOfParts; i++) {
