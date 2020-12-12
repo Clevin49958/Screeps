@@ -26,15 +26,15 @@ Creep.prototype.myMoveTo = function(destination, options = {}) {
 };
 
 module.exports = {
-  HARVESTER: HARVESTER,
-  UPGRADER: UPGRADER,
-  BUILDER: BUILDER,
-  REPAIRER: REPAIRER,
-  HARV_REMOTE: HARV_REMOTE,
-  WALL_REPAIRER: WALL_REPAIRER,
-  CLAIMER: CLAIMER,
-  ATK_RANGE: ATK_RANGE,
-  CARRY: CARRY,
+  HARVESTER,
+  UPGRADER,
+  BUILDER,
+  REPAIRER,
+  HARV_REMOTE,
+  WALL_REPAIRER,
+  CLAIMER,
+  ATK_RANGE,
+  CARRY,
   ATTACKER,
   MINER,
   roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
@@ -157,7 +157,7 @@ module.exports = {
       filter: (s) => (s.structureType ==
                 STRUCTURE_TERMINAL &&
                 (s.store.getUsedCapacity(RESOURCE_ENERGY) <= 30000 || mineral)
-    )});
+      )});
     if (structure) {
       this.payStructure(creep, structure, mineral);
     }
@@ -241,7 +241,7 @@ module.exports = {
      *
      * @param {Creep} creep
      * @param {StructureLink} link link to withdraw, any receiver link by default
-     * @return {StructureLink} the link withdrawn from, null otherwise
+     * @returns {StructureLink} the link withdrawn from, null otherwise
      */
   withdrawLink: function(creep, link = null) {
     if (!link || link.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
@@ -265,7 +265,7 @@ module.exports = {
   /**
      *
      * @param {creep} creep
-     * @return {bool} succeed
+     * @returns {bool} succeed
      */
   withdrawEnergy: function(creep) {
     if (this.withdrawLink(creep)) return true;

@@ -59,7 +59,7 @@ class Logger {
    * get logger
    * @deprecated all logger methods are now static. Use Logger.xxx instead
    * @param {number} level level constant
-   * @return {Logger}logger instance
+   * @returns {Logger}logger instance
    */
   static getLogger(level) {
     return new Logger(level);
@@ -125,5 +125,5 @@ class Logger {
 module.exports = {
   Logger,
   LOG_LEVEL,
-  EMAIL_LEVEL
+  EMAIL_LEVEL,
 };

@@ -20,6 +20,16 @@ module.exports = {
       "ignoreTemplateLiterals": true,
       "ignoreComments": true,
       "ignoreStrings": true
-    }]
+    }],
+    'guard-for-in': 'off',
+    'valid-jsdoc': [
+      "error", {
+        "prefer": {
+          "return": "returns"
+        },
+        'requireReturn': false,
+        'requireParamDescription': false
+      }
+    ]
   },
 };

@@ -29,8 +29,13 @@ module.exports.loop = function() {
       if (global.lastSkip) {
         timeSinceLastSkip = Game.time - global.lastSkip;
       }
-      global.lastSkip = Game.time
-      Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
+      global.lastSkip = Game.time;
+      if (timeSinceLastSkip < 200) {
+        Logger.info(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
+      } else {
+        Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
+      }
+
       return;
     }
 
@@ -55,14 +60,14 @@ module.exports.loop = function() {
 
     for (const room in Memory.myRooms) {
       // if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
-        link.ship(room);
+      link.ship(room);
       // }
     }
     for (const name in Game.spawns) {
       // if ({}.hasOwnProperty.call(Game.spawns, name)) {
-        if (name == 's5') continue;
-        lib.generateCreeps(name);
-        Logger.trace('-----------------------');
+      if (name == 's5') continue;
+      lib.generateCreeps(name);
+      Logger.trace('-----------------------');
       // }
     }
 

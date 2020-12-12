@@ -7,8 +7,8 @@ const roleRepairer = require('./role.repairer');
 
 /**
  *
- * @param {Game.Creep} creep
- * @return {number} -1: quest not found; -2: moving to target room
+ * @param {Game.Creep} creep creep to exec
+ * @returns {number} -1: quest not found; -2: moving to target room
  */
 function findQuest(creep) {
   if (creep.memory.target && creep.memory.target != creep.room.name) {

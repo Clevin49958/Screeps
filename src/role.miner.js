@@ -4,7 +4,8 @@ const {Logger} = require('./Logger');
 module.exports = {
   /**
    * Miner will harvest mineral from creep.memory.target (room), and store in a terminal if in reach
-   * @param {Creep} creep 
+   * @param {Creep} creep creep to exec
+   * @returns {Object|number} if used at all. negative number is probably error
    */
   run: function(creep) {
     if (Game.rooms[creep.memory.target]) {
@@ -33,7 +34,7 @@ module.exports = {
       helper.moveTargetRoom(creep.memory.target);
       return true;
     }
-    
+
     // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))
     const source = Game.getObjectById(creep.memory.source);
     const extractor = Game.getObjectById(creep.memory.extractor);
@@ -49,12 +50,12 @@ module.exports = {
         if (terminals.length) {
           creep.memory.terminal = terminals[0].id;
           terminal = terminals[0];
-        } 
+        }
       }
       if (source.mineralAmount > 0 && extractor.cooldown === 0) {
         creep.harvest(source);
       } else {
-        if (terminal && creep.store.getUsedCapacity(creep.memory.mineralType) > 0){
+        if (terminal && creep.store.getUsedCapacity(creep.memory.mineralType) > 0) {
           creep.transfer(terminal, creep.memory.mineralType);
         }
       }

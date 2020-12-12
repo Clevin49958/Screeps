@@ -32,7 +32,7 @@ function findWall(creep) {
 module.exports = {
   /**
    * a function to run the logic for this role
-   * @param {Creep} creep
+   * @param {Creep} creep creep to exec
   */
   run: function(creep) {
     creep.say(WALL_REPAIRER.slice(0, 1));

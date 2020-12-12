@@ -6,7 +6,7 @@ require('./Logger');
  * default room configuration
  * @param {string} room room name
  * @param {boolean} owner whether the room will be claimed/reserved
- * @return {Object} room config obj
+ * @returns {Object} room config obj
  */
 function roomCreepConfig(room, owner = false) {
   return {
@@ -40,7 +40,7 @@ function addControlledRoom(controlled, room, demands = null) {
  * remove controlled room from room
  * @param {string} controlled room name
  * @param {string} room room name
- * @return {Object.<string, number>} [demands] a specfic room config in format of roomCreepConfig
+ * @returns {Object.<string, number>} [demands] a specfic room config in format of roomCreepConfig
  */
 function removeControlledRoom(controlled, room) {
   Memory.myRooms[room].splice(Memory.myRooms[room].findIndex((r) => r == controlled), 1);
@@ -51,9 +51,9 @@ function removeControlledRoom(controlled, room) {
 
 /**
  * transfer control of room from old owner to new owner
- * @param {string} room
- * @param {string} oldOwner
- * @param {string} newOwner
+ * @param {string} room transfered room
+ * @param {string} oldOwner original owner room name
+ * @param {string} newOwner new owner room name
  */
 function transferControlledRoom(room, oldOwner, newOwner) {
   addControlledRoom(room, newOwner, demands = removeControlledRoom(room,
@@ -84,45 +84,45 @@ module.exports = {
   minCreeps: () => {
     for (const spawnName in Game.spawns) {
       // if ({}.hasOwnProperty.call(Game.spawns, spawnName)) {
-        const spawn = Game.spawns[spawnName];
-        if (!spawn.memory.init) {
-          spawn.memory.init = {};
-        }
+      const spawn = Game.spawns[spawnName];
+      if (!spawn.memory.init) {
+        spawn.memory.init = {};
+      }
 
-        // if (true){
-        if (!spawn.memory.init.minCreeps) {
-          // current room config
-          spawn.memory[spawn.room.name] = {
+      // if (true){
+      if (!spawn.memory.init.minCreeps) {
+        // current room config
+        spawn.memory[spawn.room.name] = {
+          // harvester:0,
+          // carry:0,
+          harvRemote: Memory.sources[Game.spawns[
+              spawnName].room.name],
+          carry: Memory.sources[Game.spawns[spawnName]
+              .room.name],
+          upgrader: 1,
+          builder: 1,
+          repairer: 0,
+          wallRepairer: 0,
+        };
+
+        // remote harv room config
+        for (const id in Memory.myRooms[spawn.room.name]) {
+          // if ({}.hasOwnProperty.call(Memory.myRooms[spawn.room.name], id)) {
+          const roomName = Memory.myRooms[spawn.room.name][id];
+          spawn.memory[roomName] = {
             // harvester:0,
             // carry:0,
-            harvRemote: Memory.sources[Game.spawns[
-                spawnName].room.name],
-            carry: Memory.sources[Game.spawns[spawnName]
-                .room.name],
-            upgrader: 1,
+            harvRemote: Memory.sources[roomName],
+            carry: Memory.sources[roomName],
+            upgrader: 0,
             builder: 1,
             repairer: 0,
             wallRepairer: 0,
           };
-
-          // remote harv room config
-          for (const id in Memory.myRooms[spawn.room.name]) {
-            // if ({}.hasOwnProperty.call(Memory.myRooms[spawn.room.name], id)) {
-              const roomName = Memory.myRooms[spawn.room.name][id];
-              spawn.memory[roomName] = {
-                // harvester:0,
-                // carry:0,
-                harvRemote: Memory.sources[roomName],
-                carry: Memory.sources[roomName],
-                upgrader: 0,
-                builder: 1,
-                repairer: 0,
-                wallRepairer: 0,
-              };
-            // }
-          }
-          spawn.memory.init.minCreeps = true;
+          // }
         }
+        spawn.memory.init.minCreeps = true;
+      }
       // }
     }
   },

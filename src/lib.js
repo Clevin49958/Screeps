@@ -139,7 +139,7 @@ module.exports = {
       Object.keys(Memory.myRooms[room]).forEach((targetRoomID) => {
         targetRoom = Memory.myRooms[room][targetRoomID];
         if (creepTrack[targetRoom].total < creepDemand[targetRoom].total) {
-          msg.push (
+          msg.push(
               `\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`,
           );
         }
@@ -195,7 +195,7 @@ module.exports = {
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
         }
 
-        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 && 
+        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
             _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][helper.CARRY], 0) < 1) {
           res = spawn.spawnCarryCreep(spawn.room.energyAvailable, room, room, 0, 16);
           Logger.warn(spawn.name, 'attempt to spawn', 'carry for emergency', 'res', res);
@@ -283,9 +283,9 @@ module.exports = {
           const res = spawn.spawnHarvRemoteCreep(energyMax,
               targetRoom, room, i);
           // if (Game.time % helper.logRate == 0) {
-            Logger.info(
-                `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`,
-            );
+          Logger.info(
+              `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`,
+          );
           // }
           // Logger.debug(spawn.name, 'attempt to spawn', 'Honly', 'res', res);
           // if (res == 0) {
@@ -368,7 +368,7 @@ module.exports = {
     ) {
       res = spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, 18);
       Logger.debug(
-        spawn.name, 'attempt to spawn', MINER, 'res', res
+          spawn.name, 'attempt to spawn', MINER, 'res', res,
       );
       return;
     }
@@ -416,32 +416,32 @@ module.exports = {
     // for every creep name in Game.creeps
     for (const name in Game.creeps) {
       // if ({}.hasOwnProperty.call(Game.creeps, name)) {
-        // get the creep object
-        const creep = Game.creeps[name];
+      // get the creep object
+      const creep = Game.creeps[name];
 
-        // who r u?
-        // creep.say(creep.memory.role.slice(0,1));
+      // who r u?
+      // creep.say(creep.memory.role.slice(0,1));
 
-        for (const role of roleNames) {
-          try {
-            if (creep && creep.memory.role == role) {
-              // creep.say(role);
-              roles[role].run(creep);
-            }
-          } catch (e) {
-            Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep);
+      for (const role of roleNames) {
+        try {
+          if (creep && creep.memory.role == role) {
+            // creep.say(role);
+            roles[role].run(creep);
           }
+        } catch (e) {
+          Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep);
         }
+      }
       // }
     }
   },
   roleChange: function(oldRole, newRole) {
     for (const name in Game.creeps) {
       // if ({}.hasOwnProperty.call(Game.creeps, name)) {
-        const creep = Game.creeps[name];
-        if (creep.memory.role == oldRole) {
-          creep.memory.role == newRole;
-        }
+      const creep = Game.creeps[name];
+      if (creep.memory.role == oldRole) {
+        creep.memory.role == newRole;
+      }
       // }
     }
   },
