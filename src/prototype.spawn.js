@@ -1,9 +1,11 @@
+const { max } = require('lodash');
 const {
   CLAIMER,
   ATK_RANGE,
   ATTACKER,
 } = require('./helper');
 const helper = require('./helper');
+const {Logger} = require('./Logger');
 
 /**
  * Generate a random name for creep in the format of
@@ -25,14 +27,18 @@ module.exports = function() {
      * @param {string} roleName role of creep
      * @param {string} target room name
      * @param {string} home room name
-     * @param {number} lim max number of body sets
+     * @param {number} lim max number of body sets, max 16
      * @returns {number} spawn result
      */
     function(energy, roleName, target = this.room.name, home = helper
         .home, lim = 8) {
       // create a balanced body as big as possible with the given energy
+      const maxSets = 16;
       let numberOfParts = Math.floor(energy / 200);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+      numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
+
+      // construct body
       const body = [];
       for (let i = 0; i < numberOfParts; i++) {
         body.push(WORK);
@@ -68,9 +74,13 @@ module.exports = function() {
    */
     function(energy, target, home = this.room.name, lim = 5) {
       const body = [];
+      const maxSets = 5; // prevent overClaim
       // create a body with as many [claim, move] as possible
       let numberOfParts = Math.floor(energy/650);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+      numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+
+      // construct body
       for (let i = 0; i < numberOfParts; i++) {
         body.push(CLAIM);
       }
@@ -102,11 +112,13 @@ module.exports = function() {
       roleName,
       target = this.room.name,
       home = this.room.name,
-      lim = 3,
+      lim = 9,
   ) {
     // create a balanced body as big as possible with the given energy
+    const maxSets = 9;
     let numberOfParts = Math.floor((energy - 350) / 450);
     numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+    numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
 
     const body = [];
     for (let i = 0; i < numberOfParts * 4 + 2; i++) {
@@ -134,14 +146,14 @@ module.exports = function() {
 
   StructureSpawn.prototype.spawnHarvRemoteCreep =
     /**
-     * set: [WORK, CARRY, MOVE]
+     * set: [WORK] + [CARRY, MOVE * 3]
      * @param {number} energy energy used
      * @param {string} target room name
      * @param {string} home room name
      * @param {string} sourceIndex id of source given by Room.find(SOURCES)
      * @param {string} roleName role of creep
      * @param {number} lim max number of body sets
-     * @returns {number} spawn result
+     * @returns {number} spawn result max 8
      */
     function(
         energy,
@@ -152,8 +164,11 @@ module.exports = function() {
         lim = 8,
     ) {
       // create a balanced body as big as possible with the given energy
+      const maxSets = 8;
       let numberOfParts = Math.floor((energy - 200) / 100);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+      numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+
       const body = [];
       for (let i = 0; i < numberOfParts; i++) {
         body.push(WORK);
@@ -183,12 +198,15 @@ module.exports = function() {
          * @param {string} target target room id
          * @param {string} home home room id
          * @param {number} sourceIndex source index of Energy
-         * @param {number} lim limit the number of body part groups the creeps have
+         * @param {number} [lim=8] limit the number of body part groups the creeps have, max 16, 1600
          */
         function(energy, target, home = this.room.name, sourceIndex = 0, lim = 8) {
+          const maxSets = 16;
           let numberOfParts = Math.floor((energy - (energy > 600 ? 150 : 0)) / 150);
           numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-          const body = [];
+          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+    
+          let body = [];
           for (let i = 0; i < numberOfParts; i++) {
             body.push(CARRY);
             body.push(CARRY);
@@ -222,8 +240,10 @@ module.exports = function() {
          * @returns {number} spawn result
          */
         function(energy, target, home = this.room.name, selfHeal = 0) {
-          // create a balanced body as big as possible with the given energy
+          const maxSets = 16;
           const numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
+          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+    
           const body = [];
           for (let i = 0; i < numberOfParts; i++) {
             body.push(TOUGH);
@@ -262,8 +282,10 @@ module.exports = function() {
          * @param {string} home home room id
          */
         function(energy, target, home = this.room.name) {
-          // create a balanced body as big as possible with the given energy
+          const maxSets = 16;
           const numberOfParts = Math.floor(energy / 140);
+          numberOfParts = numberOfParts > maxSets ? numberOfParts : maxSets;
+    
           const body = [];
           for (let i = 0; i < numberOfParts; i++) {
             body.push(TOUGH);
