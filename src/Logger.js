@@ -39,11 +39,11 @@ class Logger {
     if (Game.time == Memory.stats.logTick) {
       msg = `     \[${levelInfo}\]  ${message.map((m) =>
         typeof m == 'object' ? JSON.stringify(m) : m,
-      ).join()}`;
+      ).join(' ')}`;
     } else {
       msg = `${Game.time % 10000} \[${levelInfo}\]  ${message.map((m) =>
         typeof m == 'object' ? JSON.stringify(m) : m,
-      ).join()}`;
+      ).join(' ')}`;
       Memory.stats.logTick = Game.time;
     }
 
@@ -122,4 +122,8 @@ class Logger {
   }
 }
 
-module.exports = Logger;
+module.exports = {
+  Logger,
+  LOG_LEVEL,
+  EMAIL_LEVEL
+};

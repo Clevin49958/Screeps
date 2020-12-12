@@ -1,5 +1,5 @@
 const helper = require('./helper');
-const Logger = require('./Logger');
+const {Logger} = require('./Logger');
 
 module.exports = {
   // a function to run the logic for this role

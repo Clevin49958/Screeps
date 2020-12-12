@@ -1,12 +1,12 @@
 require('./helper');
-const Logger = require('./Logger');
+const {Logger} = require('./Logger');
 
 module.exports = {
 
   // TOWER CODE
   defendMyRoom: function() {
     for (const roomName in Memory.myRooms) {
-      if ({}.hasOwnProperty.call(Memory.myRooms, roomName)) {
+      // if ({}.hasOwnProperty.call(Memory.myRooms, roomName)) {
         // console.log(roomName)
         room = Game.rooms[roomName];
 
@@ -21,20 +21,15 @@ module.exports = {
         if (hostiles.length > 0) {
           Memory.states.defending[room.name] = true;
           const username = hostiles[0].owner.username;
-          Game.notify(
-              `User ${username} spotted in room ${room.name}`);
           let hostileHealer;
-          for (const hostile of hostiles) {
-            hostileHealer = _.reduce(hostiles, ((acc, c) => acc ||
-              _.reduce(c.body, (acc, part) => acc || part.type == 'HEAL', undefined) ? c : acc),
-            null);
-            if (towers.length > 0 && (towers[0].pos.inRangeTo(
-                hostile, 16) || !hostileHealer)) {
-              towers.forEach((tower) => tower.attack(
-                              hostileHealer ? hostileHealer :
-                              hostiles[0]));
-              break;
-            }
+          hostileHealer = _.reduce(hostiles, ((acc, c) => acc ||
+            _.reduce(c.body, (acc, part) => acc || part.type == 'HEAL', undefined) ? c : acc),
+          null);
+          if (towers.length > 0 && (towers[0].pos.inRangeTo(hostiles[0], 16) || !hostileHealer)) {
+            towers.forEach((tower) => tower.attack(
+                            hostileHealer ? hostileHealer :
+                            hostiles[0]));
+            break;
           }
           if (username != 'Invader' || hostileHealer) {
             Logger.warn(`${roomId} is under attack by ${username} with ${hostiles.length} creeps, healer: ${hostileHealer}`);
@@ -49,13 +44,13 @@ module.exports = {
 
           // ....first heal any damaged creeps
           for (const name in Game.creeps) {
-            if ({}.hasOwnProperty.call(Game.creeps, name)) {
+            // if ({}.hasOwnProperty.call(Game.creeps, name)) {
               // get the creep object
               const creep = Game.creeps[name];
               if (creep.hits < creep.hitsMax) {
                 towers.forEach((tower) => tower.heal(creep));
               }
-            }
+            // }
           }
 
           for (const tower of towers) {
@@ -83,13 +78,13 @@ module.exports = {
                 let target = undefined;
                 let minHits = 1000000;
                 for (const name in walls) {
-                  if ({}.hasOwnProperty.call(walls, name)) {
+                  // if ({}.hasOwnProperty.call(walls, name)) {
                     const wall = walls[name];
                     if (wall.hits < minHits) {
                       target = wall;
                       minHits = wall.hits;
                     }
-                  }
+                  // }
                 }
                 if (target) {
                   tower.repair(target);
@@ -99,6 +94,6 @@ module.exports = {
           }
         }
       }
-    }
+    // }
   },
 };

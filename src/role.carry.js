@@ -41,11 +41,11 @@ module.exports = {
       if (creep.room.name == creep.memory.target) {
         creep.say('c mineral');
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
-        helper.withdrawContainer(creep, null, true)) return;
+          helper.withdrawContainer(creep, null, true)) return;
         creep.say('c link');
         if (helper.withdrawLink(creep)) return;
         creep.say('c loot');
-        if (helper.harvestLoot(creep, 300, false)) return;
+        if (helper.harvestLoot(creep, 10, false)) return;
         creep.say('c container');
         if (helper.withdrawContainerIfRich(creep)) return;
         creep.say('c storage');

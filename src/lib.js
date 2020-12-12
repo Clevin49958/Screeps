@@ -14,7 +14,7 @@ const {
   MINER,
 } = require('./helper');
 const helper = require('./helper');
-const Logger = require('./Logger');
+const {Logger, LOG_LEVEL} = require('./Logger');
 
 const roles = {};
 // var creepTrack[targetRoom] = {};
@@ -52,7 +52,7 @@ module.exports = {
     let res = undefined;
 
     // If I'm not logging, and it's busy, then I don't care
-    if (Game.time % helper.logRate != 0 && spawn.spawning && Logger.LOG_LEVEL >= 2000) {
+    if (Game.time % helper.logRate != 0 && spawn.spawning && LOG_LEVEL >= 2000) {
       Logger.debug(spawn.name, 'is spawning', spawn.spawning.name);
       return;
     }
@@ -98,7 +98,7 @@ module.exports = {
         // update builder count
         if (Game.time % helper.logRate == 0) {
           numConstructionSites = Game.rooms[targetRoom].find(FIND_MY_CONSTRUCTION_SITES).length;
-          creepDemand[targetRoom][BUILDER] = numConstructionSites > 10 ? 2 :
+          creepDemand[targetRoom][BUILDER] = numConstructionSites > 12 ? 2 :
             (numConstructionSites > 0 ? 1 : 0);
         }
       }
@@ -134,17 +134,21 @@ module.exports = {
 
     if (Game.time % helper.logRate == 0) {
       // room based stats
-      Logger.info(`${spawn.name}: ${creepTrack.total}/${creepDemand.total}`);
+      let msg = [];
+      msg.push(`${spawn.name}:  `);
       Object.keys(Memory.myRooms[room]).forEach((targetRoomID) => {
         targetRoom = Memory.myRooms[room][targetRoomID];
         if (creepTrack[targetRoom].total < creepDemand[targetRoom].total) {
-          Logger.info(
+          msg.push (
               `\t${targetRoom}: ${creepTrack[targetRoom].total}/${creepDemand[targetRoom].total}`,
           );
         }
       });
+      Logger.info(...msg);
 
       // role based stats
+      msg = [];
+      msg.push(`  ${creepTrack.total}/${creepDemand.total}`);
       [HARV_REMOTE, helper.CARRY, UPGRADER,
         BUILDER, REPAIRER, WALL_REPAIRER, CLAIMER,
       ].forEach((role) => {
@@ -155,14 +159,15 @@ module.exports = {
         const sumRole = _.reduce(Memory.myRooms[room], (acc, targetRoom) => acc + creepDemand[
             targetRoom][role], 0);
         if (num < sumRole) {
-          Logger.info(`\t${role}: ${num}/${sumRole}`);
+          msg.push(`\t${role}: ${num}/${sumRole}`);
         }
         helper.addMemory(['stats', 'roleDemand'], {[role]: num / sumRole});
       });
+      Logger.info(...msg);
     }
 
     // if it's busy and I'm not debugging, skip spawn
-    if (spawn.spawning && Logger.LOG_LEVEL >= 2000) {
+    if (spawn.spawning && LOG_LEVEL >= 2000) {
       Logger.debug(spawn.name, 'is spawning', spawn.spawning.name);
       return;
     }
@@ -190,8 +195,9 @@ module.exports = {
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
         }
 
-        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 && creepTrack[room][helper.CARRY] < 1) {
-          res = spawn.spawnCarryCreep(spawn.room.energyAvailable, room, room, 0, 15);
+        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 && 
+            _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][helper.CARRY], 0) < 1) {
+          res = spawn.spawnCarryCreep(spawn.room.energyAvailable, room, room, 0, 16);
           Logger.warn(spawn.name, 'attempt to spawn', 'carry for emergency', 'res', res);
           return res;
         } else {
@@ -276,17 +282,17 @@ module.exports = {
           }
           const res = spawn.spawnHarvRemoteCreep(energyMax,
               targetRoom, room, i);
-          if (Game.time % helper.logRate == 0) {
+          // if (Game.time % helper.logRate == 0) {
             Logger.info(
                 `    Demand: ${targetRoom} ${helper.HARV_REMOTE}, ${res}, sourceIndex: ${i}`,
             );
-          }
-          Logger.debug(spawn.name, 'attempt to spawn', 'Honly', 'res', res);
-          if (res == 0) {
-            Logger.info(
-                `        ${spawn.name} spawned new ${HARV_REMOTE} ${targetRoom} ${room}`,
-            );
-          }
+          // }
+          // Logger.debug(spawn.name, 'attempt to spawn', 'Honly', 'res', res);
+          // if (res == 0) {
+          //   Logger.info(
+          //       `        ${spawn.name} spawned new ${HARV_REMOTE} ${targetRoom} ${room}`,
+          //   );
+          // }
           return;
         }
       }
@@ -300,7 +306,7 @@ module.exports = {
           creepDemand[targetRoom][helper.CARRY] + needExtras) {
         let res;
         if (targetRoom == room) {
-          res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0, 50);
+          res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0, 16);
         } else {
           res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0);
         }
@@ -360,7 +366,11 @@ module.exports = {
             s.structureType == STRUCTURE_CONTAINER,
           }).length > 0
     ) {
-      return spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, 50);
+      res = spawn.spawnHarvRemoteCreep(energyMax, room, room, 0, MINER, 18);
+      Logger.debug(
+        spawn.name, 'attempt to spawn', MINER, 'res', res
+      );
+      return;
     }
 
     // spawn workers for each room
@@ -405,7 +415,7 @@ module.exports = {
   runCreeps: function() {
     // for every creep name in Game.creeps
     for (const name in Game.creeps) {
-      if ({}.hasOwnProperty.call(Game.creeps, name)) {
+      // if ({}.hasOwnProperty.call(Game.creeps, name)) {
         // get the creep object
         const creep = Game.creeps[name];
 
@@ -422,17 +432,17 @@ module.exports = {
             Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep);
           }
         }
-      }
+      // }
     }
   },
   roleChange: function(oldRole, newRole) {
     for (const name in Game.creeps) {
-      if ({}.hasOwnProperty.call(Game.creeps, name)) {
+      // if ({}.hasOwnProperty.call(Game.creeps, name)) {
         const creep = Game.creeps[name];
         if (creep.memory.role == oldRole) {
           creep.memory.role == newRole;
         }
-      }
+      // }
     }
   },
 };

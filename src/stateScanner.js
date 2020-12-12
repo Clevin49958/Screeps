@@ -12,11 +12,11 @@ const helper = require('./helper');
 module.exports.stateScanner = function() {
   // 每 20 tick 运行一次
 
-  if (Game.time % logRate) return;
-
-  if (Game.cpu.bucket > 9900) {
+  if (Game.cpu.bucket == 10000) {
     Game.cpu.generatePixel();
   }
+  
+  if (Game.time % logRate) return;
   if (!Memory.stats) Memory.stats = {};
 
   // 统计 GCL / GPL 的升级百分比和等级
@@ -75,9 +75,9 @@ module.exports.stateScanner = function() {
     }
   }
 
-  if (Memory.stats.bucket < 500) {
-    Game.notify('Bucket is low');
-  }
+  // if (Memory.stats.bucket < 500) {
+  //   Game.notify('Bucket is low');
+  // }
 
   if (Game.time % helper.logRate == 0) {
     console.log(Memory.watch.values.status);
