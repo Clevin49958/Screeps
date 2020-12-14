@@ -16,7 +16,9 @@ module.exports = {
             .owner) {
           creep.attackController(controller);
         } else {
-          if (creep.claimController(controller) == ERR_GCL_NOT_ENOUGH) {
+          if (_.keys(Memory.myRooms).includes(creep.memory.target)) {
+            creep.claimController(controller)
+          } else {
             creep.reserveController(controller);
           }
         }

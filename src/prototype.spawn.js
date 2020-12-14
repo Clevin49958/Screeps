@@ -144,7 +144,8 @@ module.exports = function() {
 
   StructureSpawn.prototype.spawnHarvRemoteCreep =
     /**
-     * set: [WORK] + [CARRY, MOVE * 3]
+     * set: [WORK] * n + [CARRY, MOVE * 3]
+     * set: [WORK] * n + [MOVE] if energy <= 550
      * @param {number} energy energy used
      * @param {string} target room name
      * @param {string} home room name
@@ -163,7 +164,10 @@ module.exports = function() {
     ) {
       // create a balanced body as big as possible with the given energy
       const maxSets = 46;
-      let numberOfParts = Math.floor((energy - 200) / 100);
+      let numberOfParts = Math.floor((energy - 150) / 100);
+      if (energy <= 550) {
+        numberOfParts = Math.floor((energy - 50) / 100);
+      }
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
       numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
@@ -172,9 +176,12 @@ module.exports = function() {
         body.push(WORK);
       }
 
-      body.push(CARRY, MOVE);
-      body.push(MOVE);
-      body.push(MOVE);
+      if (energy <= 550) {
+        body.push(MOVE);
+      } else {
+        body.push(CARRY, MOVE, MOVE);
+      }
+      
 
       // create creep with the created body and the given role
       return this.spawnCreep(body,

@@ -18,7 +18,7 @@ function findWall(creep) {
   for (const name in walls) {
     if ({}.hasOwnProperty.call(walls, name)) {
       const wall = walls[name];
-      if (wall.hits < minHits) {
+      if (wall.hits < minHits && wall.hits < wall.hitsMax) {
         target = wall;
         minHits = wall.hits;
       }

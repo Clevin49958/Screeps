@@ -13,7 +13,7 @@ module.exports = {
       creep.store.getUsedCapacity(srcType)) == 0) {
       // switch state
       creep.memory.working = false;
-    } else if (creep.memory.working == false && creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+    } else if (creep.memory.working == false && creep.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
       // if creep is harvesting energy but is full
       // switch state
       creep.memory.working = true;

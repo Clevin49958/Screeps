@@ -84,7 +84,7 @@ module.exports = {
         creep.myMoveTo(container[0]);
       }
     } else {
-      creep.myMoveTo(source);
+      creep.myMoveTo(source, {range: 2});
     }
   },
 };

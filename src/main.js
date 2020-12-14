@@ -30,7 +30,7 @@ module.exports.loop = function() {
         timeSinceLastSkip = Game.time - global.lastSkip;
       }
       global.lastSkip = Game.time;
-      if (timeSinceLastSkip < 200) {
+      if (timeSinceLastSkip > 1000 || timeSinceLastSkip == -1) {
         Logger.info(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
       } else {
         Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);

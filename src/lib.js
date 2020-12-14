@@ -64,8 +64,10 @@ module.exports = {
       creepDemand[room][WALL_REPAIRER] = 1;
     };
     // update claimer
-    for (let targetRoomId in Memory.myRooms[room]) {
-      let targetRoom = Memory.myRooms[room][targetRoomId];
+    for (let targetRoom of Memory.myRooms[room]) {
+      if (creepDemand[targetRoom][CLAIMER] == -1) {
+        continue;
+      }
       let demand = 0;
       if (targetRoom != room) {
         demand = (!_.get(Game, ['rooms', targetRoom, 'controller', 'reservation']) ||
@@ -119,8 +121,10 @@ module.exports = {
           targetRoom]).reduce((acc, role) => acc + (role ==
                 'total' ? 0 : creepTrack[targetRoom][role]), 0);
       creepDemand[targetRoom].total = Object.keys(creepDemand[
-          targetRoom]).reduce((acc, role) => acc + (role ==
-                'total' ? 0 : creepDemand[targetRoom][role]), 0);
+          targetRoom]).reduce((acc, role) => acc + (
+            (role == 'total' || creepDemand[targetRoom][role] < 0) ?
+            0 : creepDemand[targetRoom][role]
+          ), 0);
 
       // detail logs per room
       // if (Game.time % helper.logRate ==0) {
@@ -267,7 +271,7 @@ module.exports = {
     }
 
 
-    // spawn creeps
+    // spawn harv and carry
     Logger.trace(`${spawn.name} trying to spawn basic workers`);
     for (let targetRoom of Memory.myRooms[room]) {
       // spawn carry
@@ -275,6 +279,9 @@ module.exports = {
                 `Harv: ${creepTrack[targetRoom][helper.HARV_REMOTE]}/${creepDemand[targetRoom][helper.HARV_REMOTE]}`);
 
       // spawn harvRemote
+      if (creepDemand[targetRoom][HARV_REMOTE] == -1) {
+        continue;
+      }
       for (let i = 0; i < Memory.sources[targetRoom]; i++) {
         // Logger.info(i,Memory.sources[sourceRoom],_.reduce(Game.creeps, (acc,c) =>
         // acc || (c.memory.role == helper.HARV_REMOTE &&
@@ -285,7 +292,10 @@ module.exports = {
                         c.memory.sourceIndex == i),
         false)) {
           // make sure there is a carry first before 2nd harv
-          if (i >=1 && creepTrack[targetRoom][helper.CARRY] < 1) {
+          if (i >=1 &&
+              creepTrack[targetRoom][helper.CARRY] < 1 &&
+              creepDemand[targetRoom][helper.CARRY] > 0
+              ) {
             break;
           }
           const res = spawn.spawnHarvRemoteCreep(energyMax,
@@ -309,6 +319,7 @@ module.exports = {
         needExtras = Game.rooms[targetRoom].find(FIND_DROPPED_RESOURCES, {
           filter: (r) => r.amount > 500,
         }).length;
+        needExtras = needExtras > 2 ? 2 : needExtras;
       }
       if (creepTrack[targetRoom][helper.CARRY] <
           creepDemand[targetRoom][helper.CARRY] + needExtras) {
@@ -415,7 +426,12 @@ module.exports = {
       }
     };
 
-
+    if (Game.rooms[room].find(FIND_STRUCTURES, {filter: s => s.structureType == STRUCTURE_STORAGE}).length == 0 &&
+        creepTrack[room][UPGRADER] < 6 / Game.rooms[room].controller.level
+        ) {
+      res = spawn.spawnBalCreep(energyMax, UPGRADER, room, room);
+      Logger.debug(`Spawned extra upgraders for ${room}: RCL: ${Game.rooms[room].controller.level}`)
+    }
     Logger.debug(`${spawn.name} finished without spawn`);
     // if (Game.time % helper.logRate == 0) Logger.info();
   },

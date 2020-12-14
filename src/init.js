@@ -1,5 +1,5 @@
-require('./helper');
-require('./Logger');
+const helper = require('./helper');
+const {Logger} = require('./Logger');
 /* eslint-disable no-unused-vars */
 
 /**
@@ -31,7 +31,10 @@ function addControlledRoom(controlled, room, demands = null) {
   if (!demands) {
     demands = roomCreepConfig(controlled);
   }
-  Memory.myRooms[room].push(controlled);
+  if (!Memory.myRooms[room].includes(controlled)) {
+    Memory.myRooms[room].push(controlled);
+  }
+  
   Memory.creepDemand[room][controlled] = demands;
   Memory.stats.creepTrack[room][controlled] = {};
 }
@@ -69,7 +72,7 @@ function addOwnerRoom(room) {
   Memory.myRooms[room] = [room];
   const creepTrack = Memory.stats.creepTrack;
   creepTrack[room] = {};
-  creepTrack[room][room] = roomCreepConfig(room);
+  creepTrack[room][room] = roomCreepConfig(room, true);
   const creepDemand = Memory.creepDemand;
   creepDemand[room] = {
     [room]: roomCreepConfig(room, true),
@@ -131,15 +134,9 @@ module.exports = {
    * manual control
    */
   alter: () => {
-    // var r = Game.rooms.W34N12;
-    // if (r.controller.level == 4 && r.find(FIND_MY_STRUCTURES, {
-    //     filter: { structureType: STRUCTURE_STORAGE }}).length == 0) {
-    //     try {
-    //         r.createConstructionSite(25,33,STRUCTURE_STORAGE);
-    //     } catch (error) {
-
-    //     }
-    // }
+    if (Game.rooms.W36N9.controller.level >= 3 && Memory.myRooms.W35N12.W36N9) {
+      removeControlledRoom('W36N9','W35N12');
+    }
   },
 
   /**
@@ -153,7 +150,7 @@ module.exports = {
     if (Memory.exec === true) {
       // Memory.myRooms.W33N12 = ['W33N12']
 
-      addControlledRoom('W35N12', 'W34N12');
+      addOwnerRoom('W36N9');
       // addControlledRoom('W34N13', 'W33N12')
       // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
       // Memory.spawns.Spawn1.rooms = {

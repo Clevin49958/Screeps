@@ -56,7 +56,7 @@ module.exports = {
       if (helper.withdrawContainerIfRich(creep)) return;
 
       // if (helper.harvestLoot(creep)) return;
-      // helper.harvest(creep)
+      helper.harvest(creep)
     }
   },
 };

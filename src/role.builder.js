@@ -26,14 +26,11 @@ module.exports = {
   run: function(creep) {
     creep.say(BUILDER.slice(0, 1));
 
-    // if (!creep.memory.quest) {
-    //     if (Game.rooms[creep.memory.target]){
-    //         findQuest(creep);
-    //     } else {
-    //         helper.moveTargetRoom(creep);
-    //     }
-    // }
-
+    // move to target room first
+    if (creep.memory.target && creep.memory.target != creep.room.name) {
+      helper.moveTargetRoom(creep);
+    }
+    
     // if creep is trying to complete a constructionSite but has no energy left
     if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
       // switch state
@@ -69,8 +66,10 @@ module.exports = {
       if (helper.harvestLoot(creep)) return;
       creep.say('can');
       if (helper.withdrawEnergy(creep)) return;
+      creep.say('store')
       if (helper.withdrawStorage(creep)) return;
-      // helper.harvest(creep);
+      creep.say('harv')
+      helper.harvest(creep);
     }
   },
 };
