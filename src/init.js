@@ -12,7 +12,7 @@ function roomCreepConfig(room, owner = false) {
   return {
     harvester: 0,
     harvRemote: Memory.sources[room],
-    carry: Memory.sources[room],
+    hauler: Memory.sources[room],
     upgrader: owner ? 1 : 0,
     builder: 0,
     repairer: 0,
@@ -79,6 +79,16 @@ function addOwnerRoom(room) {
   };
 }
 
+function parseObjectProperties (obj, parse) {
+  for (var k in obj) {
+    if (typeof obj[k] === 'object' && obj[k] !== null) {
+      parseObjectProperties(obj[k], parse)
+    } else if (Object.hasOwnProperty.call(obj, k)) {
+      parse(obj, k)
+    }
+  }
+}
+
 module.exports = {
   /**
    * TODO: verify
@@ -97,10 +107,10 @@ module.exports = {
         // current room config
         spawn.memory[spawn.room.name] = {
           // harvester:0,
-          // carry:0,
+          // hauler:0,
           harvRemote: Memory.sources[Game.spawns[
               spawnName].room.name],
-          carry: Memory.sources[Game.spawns[spawnName]
+          hauler: Memory.sources[Game.spawns[spawnName]
               .room.name],
           upgrader: 1,
           builder: 1,
@@ -114,9 +124,9 @@ module.exports = {
           const roomName = Memory.myRooms[spawn.room.name][id];
           spawn.memory[roomName] = {
             // harvester:0,
-            // carry:0,
+            // hauler:0,
             harvRemote: Memory.sources[roomName],
-            carry: Memory.sources[roomName],
+            hauler: Memory.sources[roomName],
             upgrader: 0,
             builder: 1,
             repairer: 0,
@@ -148,15 +158,21 @@ module.exports = {
   alterOnce: () => {
     // Memory.init.exec = 0;s
     if (Memory.exec === true) {
-      // Memory.myRooms.W33N12 = ['W33N12']
 
-      addOwnerRoom('W36N9');
+      // creepDemand = Memory.creepDemand;
+      // creepTrack = Memory.stats.creepTrack;
+      // global.creepDemand = creepDemand;
+      // global.creepTrack = creepTrack;
+
+      // parseObjectProperties(Memory, (obj, k) => {
+      //   if (obj[k] == 'carry') {
+      //     obj[k] = 'hauler'
+      //   }
+      // })
+
+      // addOwnerRoom('W36N9');
       // addControlledRoom('W34N13', 'W33N12')
       // transferControlledRoom('W34N13', 'W34N12', 'W33N12')
-      // Memory.spawns.Spawn1.rooms = {
-      //     W32N11:Memory
-      // }
-      // Memory.myRooms.W31N11 = ['W31N11'];
       Logger.info(`Executed once @${Game.time}`);
       Memory.exec = Game.time;
     }

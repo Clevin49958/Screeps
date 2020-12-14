@@ -3,7 +3,7 @@ const helper = require('./helper');
 module.exports = {
   // a function to run the logic for this role
   /**
-   * carry
+   * hauler
    * @param {Creep} creep creep to work
    */
   run: function(creep) {
@@ -34,7 +34,7 @@ module.exports = {
       const path = ['mine', 'links', creep.memory.home, 'sender', creep.memory.target];
       let link = _.get(Memory, path);
       link = link ? Game.getObjectById(link) : link;
-      // if (creep.name == 'carry-W31N11-W32N11-12') return;
+      // if (creep.name == 'hauler-W31N11-W32N11-12') return;
       if (creep.memory.home == creep.room.name) {
         if (link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
           creep.pos.inRangeTo(link, 5)) {

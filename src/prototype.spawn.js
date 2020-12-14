@@ -1,4 +1,5 @@
 const {
+  HAULER,
   CLAIMER,
   ATK_RANGE,
   ATTACKER,
@@ -196,7 +197,7 @@ module.exports = function() {
           });
     };
 
-  StructureSpawn.prototype.spawnCarryCreep =
+  StructureSpawn.prototype.spawnHaulerCreep =
         /**
          * body set: [CARRY, CARRY, MOVE] * n + [WORK, MOVE] (for repair roads)
          * @param {number} energy used to generate
@@ -224,9 +225,9 @@ module.exports = function() {
           }
           // create creep with the created body and the given role
           return this.spawnCreep(body,
-              `${getName(helper.CARRY, target, home)}`, {
+              `${getName(HAULER, target, home)}`, {
                 memory: {
-                  role: helper.CARRY,
+                  role: HAULER,
                   working: false,
                   target: target,
                   home: home,

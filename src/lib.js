@@ -1,7 +1,7 @@
 /* eslint-disable guard-for-in */
 require('prototype.spawn')();
 const {
-  CARRY,
+  HAULER,
   BUILDER,
   REPAIRER,
   WALL_REPAIRER,
@@ -30,7 +30,7 @@ helper.roleNames.forEach((role) => {
 // const roleWallRepair = require('role.wallRepairer');
 // const roleClaimer = require('role.claimer');
 // const roleAtkRange = require('role.atkRange');
-// const roleCarry = require('role.carry');
+// const roleHauler = require('role.hauler');
 
 
 module.exports = {
@@ -106,8 +106,8 @@ module.exports = {
       }
 
       // count each role
-      for (let role of [CARRY, HARV_REMOTE, BUILDER, REPAIRER,
-        WALL_REPAIRER, CARRY, UPGRADER, CLAIMER,
+      for (let role of [HAULER, HARV_REMOTE, BUILDER, REPAIRER,
+        WALL_REPAIRER, UPGRADER, CLAIMER,
       ]) {
         creepTrack[targetRoom][role] = _.sum(Game.creeps, (c) =>
           c.memory.role == role &&
@@ -153,7 +153,7 @@ module.exports = {
       // role based stats
       msg = [];
       msg.push(`  ${creepTrack.total}/${creepDemand.total}`);
-      [HARV_REMOTE, helper.CARRY, UPGRADER,
+      [HARV_REMOTE, HAULER, UPGRADER,
         BUILDER, REPAIRER, WALL_REPAIRER, CLAIMER,
       ].forEach((role) => {
         const num = _.reduce(creepTrack,
@@ -184,7 +184,7 @@ module.exports = {
     // if colony is dying
     if (Memory.states.restart[room] || totalHarvs < 1 ||
           (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
-          _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][helper.CARRY], 0) < 1)) {
+          _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][HAULER], 0) < 1)) {
       if (creepDemand.tickSinceRestart === undefined) {
         creepDemand.tickSinceRestart = 0;
       }
@@ -200,9 +200,9 @@ module.exports = {
         }
 
         if (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
-            _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][helper.CARRY], 0) < 1) {
-          res = spawn.spawnCarryCreep(spawn.room.energyAvailable, room, room, 0, 16);
-          Logger.warn(spawn.name, 'attempt to spawn', 'carry for emergency', 'res', res);
+            _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][HAULER], 0) < 1) {
+          res = spawn.spawnHaulerCreep(spawn.room.energyAvailable, room, room, 0, 16);
+          Logger.warn(spawn.name, 'attempt to spawn', 'hauler for emergency', 'res', res);
           return res;
         } else {
           res = spawn.spawnBalCreep(spawn.room.energyAvailable, helper.HARVESTER, room, room);
@@ -271,11 +271,11 @@ module.exports = {
     }
 
 
-    // spawn harv and carry
+    // spawn harv and hauler
     Logger.trace(`${spawn.name} trying to spawn basic workers`);
     for (let targetRoom of Memory.myRooms[room]) {
-      // spawn carry
-      Logger.all(`${targetRoom} Carry: ${creepTrack[targetRoom][helper.CARRY]}/${creepDemand[targetRoom][helper.CARRY]} ` +
+      // spawn hauler
+      Logger.all(`${targetRoom} Hauler: ${creepTrack[targetRoom][HAULER]}/${creepDemand[targetRoom][HAULER]} ` +
                 `Harv: ${creepTrack[targetRoom][helper.HARV_REMOTE]}/${creepDemand[targetRoom][helper.HARV_REMOTE]}`);
 
       // spawn harvRemote
@@ -291,10 +291,10 @@ module.exports = {
                         c.memory.target == targetRoom && c.memory.home == room &&
                         c.memory.sourceIndex == i),
         false)) {
-          // make sure there is a carry first before 2nd harv
+          // make sure there is a hauler first before 2nd harv
           if (i >=1 &&
-              creepTrack[targetRoom][helper.CARRY] < 1 &&
-              creepDemand[targetRoom][helper.CARRY] > 0
+              creepTrack[targetRoom][HAULER] < 1 &&
+              creepDemand[targetRoom][HAULER] > 0
               ) {
             break;
           }
@@ -321,23 +321,23 @@ module.exports = {
         }).length;
         needExtras = needExtras > 2 ? 2 : needExtras;
       }
-      if (creepTrack[targetRoom][helper.CARRY] <
-          creepDemand[targetRoom][helper.CARRY] + needExtras) {
+      if (creepTrack[targetRoom][HAULER] <
+          creepDemand[targetRoom][HAULER] + needExtras) {
         let res;
         if (targetRoom == room) {
-          res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0, 16);
+          res = spawn.spawnHaulerCreep(energyMax, targetRoom, room, 0, 16);
         } else {
-          res = spawn.spawnCarryCreep(energyMax, targetRoom, room, 0);
+          res = spawn.spawnHaulerCreep(energyMax, targetRoom, room, 0);
         }
         if (Game.time % helper.logRate == 0) {
           Logger.info(
-              `    Demand: ${targetRoom} ${helper.CARRY}, have: ${creepTrack[targetRoom][helper.CARRY]}/` +
-                        `${creepDemand[targetRoom][helper.CARRY]}, ${res}`);
+              `    Demand: ${targetRoom} ${HAULER}, have: ${creepTrack[targetRoom][HAULER]}/` +
+                        `${creepDemand[targetRoom][HAULER]}, ${res}`);
         }
         if (res == 0) {
-          Logger.info(`${spawn.name} spawned new ${CARRY} ${targetRoom} ${room}`);
+          Logger.info(`${spawn.name} spawned new ${HAULER} ${targetRoom} ${room}`);
         }
-        Logger.debug(spawn.name, 'attempt to spawn', 'carry', 'res', res);
+        Logger.debug(spawn.name, 'attempt to spawn', 'hauler', 'res', res);
         return;
       }
     }

@@ -10,7 +10,7 @@ const HARV_REMOTE = 'harvRemote';
 const WALL_REPAIRER = 'wallRepairer';
 const CLAIMER = 'claimer';
 const ATK_RANGE = 'atkRange';
-const CARRY = 'carry';
+const HAULER = 'hauler';
 const ATTACKER = 'attacker';
 const MINER = 'miner';
 
@@ -34,11 +34,11 @@ module.exports = {
   WALL_REPAIRER,
   CLAIMER,
   ATK_RANGE,
-  CARRY,
+  HAULER,
   ATTACKER,
   MINER,
   roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY, ATTACKER, MINER,
+    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER,
   ],
   logRate: LOG_RATE,
   RICH_THRESHOLD,

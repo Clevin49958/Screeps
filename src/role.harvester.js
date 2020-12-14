@@ -8,11 +8,11 @@ module.exports = {
   run: function(creep) {
     creep.say(HARVESTER.slice(0, 1));
     // if creep is bringing energy to the spawn or an extension but has no energy left
-    if (creep.memory.working == true && creep.carry.energy == 0) {
+    if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
       // switch state
       creep.memory.working = false;
-    } else if (creep.memory.working == false && creep.carry.energy ==
-      creep.carryCapacity) {
+    } else if (creep.memory.working == false && creep.store.getUsedCapacity(RESOURCE_ENERGY) ==
+      creep.store.getCapacity(RESOURCE_ENERGY)) {
       // if creep is harvesting energy but is full
       // switch state
       creep.memory.working = true;

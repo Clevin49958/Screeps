@@ -13,6 +13,9 @@ const {Logger} = require('./Logger');
 
 const profiler = require('screeps-profiler');
 
+// execute alterOnce for once
+Memory.exec = true;
+
 // This line monkey patches the global prototypes.
 // profiler.enable();
 module.exports.loop = function() {
