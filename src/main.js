@@ -48,7 +48,7 @@ module.exports.loop = function() {
       }
     }
 
-    init.minCreeps();
+    // init.minCreeps();
 
     init.alter();
 

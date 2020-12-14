@@ -21,16 +21,15 @@ module.exports = {
             1, {filter: (s) => s.structureType == STRUCTURE_LINK});
         creep.memory.link = (links.length > 0) ? links[0].id : null;
       }
-
+      if (!creep.memory.container) {
+        const container = creep.pos.findInRange(FIND_STRUCTURES,
+            0, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
+        creep.memory.container = (container.length > 0) ? container[0].id : null;
+      }
+      let container = Game.getObjectById(creep.memory.container);
       if (creep.store.getCapacity(RESOURCE_ENERGY) > 0 && creep
           .store.getFreeCapacity(RESOURCE_ENERGY) <= 10) {
-        let container = creep.pos.findInRange(FIND_STRUCTURES,
-            0, {
-              filter: (s) => s.structureType ==
-                            STRUCTURE_CONTAINER,
-            });
-        if (container.length > 0) {
-          container = container[0];
+        if (container) {
           // var loot = creep.pos.findClosestByRange(
           //     FIND_DROPPED_RESOURCES);
           if (container.hits < container.hitsMax * 0.99) {
@@ -48,8 +47,7 @@ module.exports = {
 
           if (source.energy > 0) {
             creep.harvest(source);
-            Memory.states.rich[container.id] =
-              container.store.getFreeCapacity(RESOURCE_ENERGY) <= helper.POOR_THRESHOLD;
+            helper.updateContainer(container);
           }
         } else {
           container = creep.pos.findClosestByPath(
@@ -58,6 +56,7 @@ module.exports = {
         }
       } else {
         creep.harvest(source);
+        helper.updateContainer(container)
       }
     } else if (source && creep.pos.inRangeTo(source, 2)) {
       let container = creep.pos.findInRange(FIND_STRUCTURES,

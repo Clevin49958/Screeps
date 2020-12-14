@@ -2,6 +2,10 @@ const helper = require('./helper');
 
 module.exports = {
   // a function to run the logic for this role
+  /**
+   * carry
+   * @param {Creep} creep creep to work
+   */
   run: function(creep) {
     // switch states
     // if creep is bringing energy to a structure but has no energy left
@@ -17,24 +21,30 @@ module.exports = {
 
     // if creep is supposed to transfer energy to a structure
     if (creep.memory.working == true) {
-      if (helper.moveHome(creep)) {
+      if (creep.room.name != creep.memory.home) {
         let standingAt = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos);
         // Logger.info(creep.name, standingAt);
         standingAt = _.find(standingAt, (s) => s.hits < s.hitsMax - 1600);
         if (standingAt) {
           creep.repair(standingAt);
         }
+        helper.moveHome(creep);
         return;
       }
       const path = ['mine', 'links', creep.memory.home, 'sender', creep.memory.target];
       let link = _.get(Memory, path);
       link = link ? Game.getObjectById(link) : link;
       // if (creep.name == 'carry-W31N11-W32N11-12') return;
-      if (creep.memory.home == creep.room.name && link &&
-        link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.pos.inRangeTo(link, 5)) {
-        return helper.payStructure(creep, link);
+      if (creep.memory.home == creep.room.name) {
+        if (link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
+          creep.pos.inRangeTo(link, 5)) {
+          return helper.payStructure(creep, link);
+        } else {
+          return helper.payAny(creep);
+        }
+      } else {
+        return helper.moveHome(creep);
       }
-      helper.payAny(creep);
     } else {
       // if creep is supposed to harvest energy from source
       // if in target room
@@ -56,6 +66,11 @@ module.exports = {
         //  creep.store.getCapacity(RESOURCE_ENERGY) * 0.5){
         //     creep.memory.working = true;
         // } else
+        creep.say('edge')
+        if (helper.isOnTheEdge(creep)) {
+          creep.move(helper.isOnTheEdge(creep));
+        }
+        creep.say('none')
       } else {
         // if not in target room
         helper.moveTargetRoom(creep);

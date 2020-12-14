@@ -36,7 +36,7 @@ helper.roleNames.forEach((role) => {
 module.exports = {
 
   generateCreeps: function(name) {
-    /** @type {string} */
+    /** @type {StructureSpawn} */
     const spawn = Game.spawns[name];
     /** @type {string} */
     const room = spawn.room.name;
@@ -64,8 +64,8 @@ module.exports = {
       creepDemand[room][WALL_REPAIRER] = 1;
     };
     // update claimer
-    for (const targetRoomId in Memory.myRooms[room]) {
-      const targetRoom = Memory.myRooms[room][targetRoomId];
+    for (let targetRoomId in Memory.myRooms[room]) {
+      let targetRoom = Memory.myRooms[room][targetRoomId];
       let demand = 0;
       if (targetRoom != room) {
         demand = (!_.get(Game, ['rooms', targetRoom, 'controller', 'reservation']) ||
@@ -90,7 +90,7 @@ module.exports = {
     }
 
     // collect some stats of creeps
-    for (const targetRoom of Memory.myRooms[room]) {
+    for (let targetRoom of Memory.myRooms[room]) {
       if (!Game.rooms[targetRoom]) {
         continue;
       } else {
@@ -104,7 +104,7 @@ module.exports = {
       }
 
       // count each role
-      for (const role of [CARRY, HARV_REMOTE, BUILDER, REPAIRER,
+      for (let role of [CARRY, HARV_REMOTE, BUILDER, REPAIRER,
         WALL_REPAIRER, CARRY, UPGRADER, CLAIMER,
       ]) {
         creepTrack[targetRoom][role] = _.sum(Game.creeps, (c) =>
@@ -213,14 +213,14 @@ module.exports = {
     // spawn defenders: rangedAtk
     Logger.trace(`${spawn.name} trying to spawn defender rangeATK`);
     try {
-      for (const targetRoom of Memory.myRooms[room]) {
+      for (let targetRoom of Memory.myRooms[room]) {
         if (!Game.rooms[targetRoom]) {
           Logger.trace(`Offencing room ${targetRoom} can't be traced`);
           continue;
         }
         let hostiles = Game.rooms[targetRoom].find(
             FIND_HOSTILE_CREEPS);
-        const hostileHealer = _.reduce(hostiles, ((acc, c) =>
+        let hostileHealer = _.reduce(hostiles, ((acc, c) =>
                     acc || _.reduce(c.body, (acc, part) => acc || part
                         .type == HEAL, undefined) ? c : acc), null);
         // if (hostiles.length>0){
@@ -230,6 +230,7 @@ module.exports = {
         } else creepDemand[targetRoom][WALL_REPAIRER] = 0;
 
         // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room), Game.rooms[targetRoom].find(FIND_HOSTILE_STRUCTURES));
+        // energy exist without healer, and no tower in the room
         if (hostiles.length > 0 && !hostileHealer && hostiles.length > _.sum(
             Game.creeps, (c) => c.memory.role == helper.ATK_RANGE &&
             c.memory.target == targetRoom && c.memory.home == room) &&
@@ -237,7 +238,14 @@ module.exports = {
               s.structureType == STRUCTURE_TOWER,
             }).length == 0
         ) {
-          const res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room);
+          spawn.sp
+          let res;
+          if (hostiles.length == 1) {
+            spawn.spawat
+            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room, 1, 5);
+          } else {
+            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room);
+          }
           Logger.debug(spawn.name, 'attempt to spawn', 'atk range to defend', 'res', res);
           return;
         } else {
@@ -246,7 +254,7 @@ module.exports = {
               .creeps, (c) => c.memory.role == helper.ATTACKER && c
               .memory.target == targetRoom && c.memory.home ==
                         room)) {
-            const res = spawn.spawnAttackerCreep(energyMax, targetRoom, room);
+            let res = spawn.spawnAttackerCreep(energyMax, targetRoom, room);
             Logger.debug(spawn.name, 'attempt to spawn',
                 'attacker prob target: invader core', 'res', res);
             return;
@@ -254,14 +262,14 @@ module.exports = {
         }
       }
     } catch (error) {
-      Logger.error(error.message);
+      Logger.error('Error when spawning defender:', error.message, error.stack, '.');
       // error because if there's no creep in room, you can't observe it
     }
 
 
     // spawn creeps
     Logger.trace(`${spawn.name} trying to spawn basic workers`);
-    for (const targetRoom of Memory.myRooms[room]) {
+    for (let targetRoom of Memory.myRooms[room]) {
       // spawn carry
       Logger.all(`${targetRoom} Carry: ${creepTrack[targetRoom][helper.CARRY]}/${creepDemand[targetRoom][helper.CARRY]} ` +
                 `Harv: ${creepTrack[targetRoom][helper.HARV_REMOTE]}/${creepDemand[targetRoom][helper.HARV_REMOTE]}`);
@@ -326,8 +334,8 @@ module.exports = {
 
     Logger.trace(`${spawn.name} trying to spawn offensive troops`);
     if (Memory.offence[room]) {
-      for (const targetRoom in Memory.offence[room]) {
-        for (const role in Memory.offence[room][targetRoom].roles) {
+      for (let targetRoom in Memory.offence[room]) {
+        for (let role in Memory.offence[room][targetRoom].roles) {
           if (Memory.offence[room][targetRoom].roles[role] >
                         _.sum(Game.creeps, (c) =>
                           c.memory.role == role &&
@@ -375,9 +383,9 @@ module.exports = {
 
     // spawn workers for each room
     Logger.trace(`${spawn.name} trying to spawn other workers`);
-    for (const targetRoom of Memory.myRooms[room]) {
+    for (let targetRoom of Memory.myRooms[room]) {
       // spawn workers
-      for (const r of [UPGRADER, REPAIRER, BUILDER, WALL_REPAIRER, CLAIMER]) {
+      for (let r of [UPGRADER, REPAIRER, BUILDER, WALL_REPAIRER, CLAIMER]) {
         // Logger.info(`In ${targetRoom} ` +
         // `${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
         //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${creepDemand[targetRoom][r]}`);
@@ -387,7 +395,7 @@ module.exports = {
           if (r == CLAIMER) {
             res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
           } else if (r == UPGRADER && _.get(Memory, ['stats', 'Storages', room])) {
-            res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, room);
+            res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, room, 4);
           } else {
             res = spawn.spawnBalCreep(energyMax, r, targetRoom, room);
           }
@@ -414,15 +422,15 @@ module.exports = {
 
   runCreeps: function() {
     // for every creep name in Game.creeps
-    for (const name in Game.creeps) {
+    for (let name in Game.creeps) {
       // if ({}.hasOwnProperty.call(Game.creeps, name)) {
       // get the creep object
-      const creep = Game.creeps[name];
+      let creep = Game.creeps[name];
 
       // who r u?
       // creep.say(creep.memory.role.slice(0,1));
 
-      for (const role of roleNames) {
+      for (let role of roleNames) {
         try {
           if (creep && creep.memory.role == role) {
             // creep.say(role);
@@ -436,9 +444,9 @@ module.exports = {
     }
   },
   roleChange: function(oldRole, newRole) {
-    for (const name in Game.creeps) {
+    for (let name in Game.creeps) {
       // if ({}.hasOwnProperty.call(Game.creeps, name)) {
-      const creep = Game.creeps[name];
+      let creep = Game.creeps[name];
       if (creep.memory.role == oldRole) {
         creep.memory.role == newRole;
       }

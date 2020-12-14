@@ -41,6 +41,8 @@ module.exports = {
     HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, CARRY, ATTACKER, MINER,
   ],
   logRate: LOG_RATE,
+  RICH_THRESHOLD,
+  POOR_THRESHOLD,
 
   // logger: Log4js.getDefaultLogger(),
 
@@ -114,11 +116,7 @@ module.exports = {
     });
     if (structure) {
       this.payStructure(creep, structure);
-      if (structure.store.getFreeCapacity(RESOURCE_ENERGY) <
-                RICH_THRESHOLD) {
-        // Memory.states.rich[structure.pos.x] = true;
-        Memory.states.rich[structure.id] = true;
-      }
+      this.updateContainer(structure);
     }
     return structure;
   },
@@ -127,15 +125,22 @@ module.exports = {
     const carriesMineral = _.sum(_.keys(creep.store), (src) =>
       src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
     if (carriesMineral) {
-      return this.payTerminal(creep, true);
+      if (this.payTerminal(creep, true)) return true;
+      if (this.payStorage(creep,true)) return true;
     }
     if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+      creep.say('tower');
       if (this.payTower(creep)) return true;
     }
+    creep.say('spawn');
     if (this.paySpawn(creep)) return true;
+    creep.say('tower');
     if (this.payTower(creep)) return true;
+    creep.say('terminal');
     if (this.payTerminal(creep)) return true;
+    creep.say('storage');
     if (this.payStorage(creep)) return true;
+    creep.say(`can't pay`);
     return false;
   },
 
@@ -203,8 +208,7 @@ module.exports = {
           );
         } else {
           creep.withdraw(source, RESOURCE_ENERGY);
-          Memory.states.rich[source.id] =
-            source.store.getFreeCapacity(RESOURCE_ENERGY) <= POOR_THRESHOLD;
+          this.updateContainer(source);
         }
       } else {
         creep.myMoveTo(source);
@@ -216,21 +220,17 @@ module.exports = {
   withdrawContainerIfRich: function(creep) {
     const source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: (s) =>
-        s.structureType == STRUCTURE_CONTAINER && (Memory.states.rich[s.id] ||
-          s.store.getFreeCapacity(RESOURCE_ENERGY) < RICH_THRESHOLD) &&
+        s.structureType == STRUCTURE_CONTAINER && _.get(Memory, ['states', 'rich', s.id]) &&
           !_.find(_.keys(s.store), (srcType) => srcType != RESOURCE_ENERGY),
     });
     if (source) {
-      // console.log(creep,source.pos.x,Memory.states.rich[source.pos.x],
-      // source.store.getFreeCapacity(RESOURCE_ENERGY)<RICH_THRESHOLD)
-      Memory.states.rich[source.id] = true;
       this.withdrawContainer(creep, source);
     } else {
       if (creep.pos.findInRange(FIND_STRUCTURES, 0, {
         filter: (s) => s.structureType ==
                         STRUCTURE_CONTAINER,
       }).length > 0) {
-        this.moveRand(creep);
+        // this.moveRand(creep);
         return false;
       }
     }
@@ -269,38 +269,26 @@ module.exports = {
      */
   withdrawEnergy: function(creep) {
     if (this.withdrawLink(creep)) return true;
+    if (this.withdrawStorage(creep)) return true;
     if (this.withdrawContainer(creep)) return true;
-    if (Memory.states.defending[creep.memory.room] || Memory.states.restart[creep.memory.home]) {
-      if (this.withdrawStorage(creep)) return true;
-    }
+    // if (Memory.states.defending[creep.memory.room] || Memory.states.restart[creep.memory.home]) {
+    //   if (this.withdrawStorage(creep)) return true;
+    // }
     return false;
   },
 
   moveTargetRoom: function(creep) {
-    if (creep.memory.target && creep.memory.target != creep.room
-        .name) {
       // find exit to target room
       if (Game.flags[creep.memory.target]) {
         return creep.myMoveTo(Game.flags[creep.memory.target]);
       }
       const exit = creep.room.findExitTo(creep.memory.target);
       // move to exit
-      return creep.moveTo(creep.pos.findClosestByPath(exit));
-    } else {
-      return false;
-    }
+      return creep.myMoveTo(creep.pos.findClosestByPath(exit));
   },
 
   moveHome: function(creep) {
-    if (creep.memory.home && creep.memory.home != creep.room.name) {
-      // find exit to target room
-      const exit = creep.room.findExitTo(creep.memory.home);
-      // move to exit
-      creep.moveTo(creep.pos.findClosestByPath(exit));
-      return true;
-    } else {
-      return false;
-    }
+    creep.myMoveTo(Game.rooms[creep.memory.home].controller);
   },
 
   moveRand: function(creep) {
@@ -391,4 +379,44 @@ module.exports = {
     _.merge(current, content);
     return true;
   },
+
+  /**
+   * determine if the creep is on the edge of the room
+   * @param {Creep} creep to determine
+   * @returns {number} direction to move away from the edge, 0 if not
+   */
+  isOnTheEdge: function(creep) {
+    let pos = creep.pos;
+    if (pos.x == 0){
+      return 3;
+    }
+    if (pos.y == 0){
+      return 5;
+    }
+    if (pos.x == 49){
+      return 7;
+    }
+    if (pos.y == 49){
+      return 1;
+    }
+    return 0;
+  },
+
+  /**
+   * update whether the container is rich or not
+   * @param {StructureContainer} container the container to update
+   * @returns {boolean} whether the container is rich or not; false if in between
+   */
+  updateContainer: function(container) {
+    if (container) {
+      const space = container.store.getFreeCapacity(RESOURCE_ENERGY);
+      if (space < RICH_THRESHOLD) {
+        _.set(Memory, ['states', 'rich', container.id], true);
+        return true;
+      } else if (space > POOR_THRESHOLD) {
+        _.set(Memory, ['states', 'rich', container.id], false);
+        return false;
+      }
+    }
+  }
 };

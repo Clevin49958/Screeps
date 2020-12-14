@@ -70,9 +70,9 @@ module.exports = function() {
    * @param {number} lim max num of body sets
    * @returns {number} spawn result
    */
-    function(energy, target, home = this.room.name, lim = 5) {
+    function(energy, target, home = this.room.name, lim = 4) {
       const body = [];
-      const maxSets = 5; // prevent overClaim
+      const maxSets = 4; // prevent overClaim
       // create a body with as many [claim, move] as possible
       let numberOfParts = Math.floor(energy/650);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
@@ -162,7 +162,7 @@ module.exports = function() {
         lim = 8,
     ) {
       // create a balanced body as big as possible with the given energy
-      const maxSets = 8;
+      const maxSets = 46;
       let numberOfParts = Math.floor((energy - 200) / 100);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
       numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
@@ -227,19 +227,20 @@ module.exports = function() {
                 },
               });
         };
-
-  StructureSpawn.prototype.spawnAtkRangeCreep =
         /**
          * body sets: [TOUGH, RANGE_ATTACK, MOVE] * n + [HEAL, MOVE] * selfHeal
          * @param {number} energy used to generate
          * @param {string} target target room id
          * @param {string} home home room id
          * @param {number} selfHeal num of heal body sets, default 0
+   * @param {number} [lim=16] max num of sets
          * @returns {number} spawn result
          */
-        function(energy, target, home = this.room.name, selfHeal = 0) {
+  StructureSpawn.prototype.spawnAtkRangeCreep =
+    function(energy, target, home = this.room.name, selfHeal = 0, lim = 16) {
           const maxSets = 16;
-          const numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
+      let numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
+      numberOfParts = numberOfParts > lim ? lim : numberOfParts;
           numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
           const body = [];
@@ -278,10 +279,12 @@ module.exports = function() {
          * @param {number} energy used to generate
          * @param {string} target target room id
          * @param {string} home home room id
+         * @param {number} [lim=16] max num of sets
          */
-        function(energy, target, home = this.room.name) {
+        function(energy, target, home = this.room.name, lim = 16) {
           const maxSets = 16;
-          const numberOfParts = Math.floor(energy / 140);
+          let numberOfParts = Math.floor(energy / 140);
+          numberOfParts = numberOfParts > lim ? lim : numberOfParts;
           numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
           const body = [];

@@ -38,7 +38,7 @@ module.exports = {
     // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))
     const source = Game.getObjectById(creep.memory.source);
     const extractor = Game.getObjectById(creep.memory.extractor);
-    const terminal = Game.getObjectById(creep.memory.terminal);
+    let terminal = Game.getObjectById(creep.memory.terminal);
     // if arrived
     if (creep.memory.arrived == true) {
       creep.say(extractor.cooldown);

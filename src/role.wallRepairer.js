@@ -68,8 +68,12 @@ module.exports = {
         }
       } else {
         // if we can't fine one
-        // look for construction sites
-        roleUpgrader.run(creep);
+        if (creep.memory.target == creep.memory.home) {
+          roleUpgrader.run(creep);
+        } else {
+          creep.memory.target = creep.memory.home;
+        }
+        
       }
     } else {
       // if creep is supposed to harvest energy from source
