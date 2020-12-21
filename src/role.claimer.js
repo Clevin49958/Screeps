@@ -9,6 +9,7 @@ module.exports = {
     if (!creep.memory.quest && creep.room.name != creep.memory.target) {
       return helper.moveTargetRoom(creep);
     }
+    
     if (creep.memory.quest) {
       const controller = Game.getObjectById(creep.memory.quest);
       if (creep.pos.isNearTo(controller)) {

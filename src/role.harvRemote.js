@@ -1,5 +1,5 @@
 const helper = require('./helper');
-
+const {Logger} = require('./Logger');
 module.exports = {
   // a function to run the logic for this role
   run: function(creep) {
@@ -16,7 +16,7 @@ module.exports = {
     // if arrived
     if (creep.memory.arrived == true) {
       // check for presence of link
-      if (!creep.memory.link) {
+      if (creep.memory.link === undefined) {
         const links = creep.pos.findInRange(FIND_STRUCTURES,
             1, {filter: (s) => s.structureType == STRUCTURE_LINK});
         creep.memory.link = (links.length > 0) ? links[0].id : null;
@@ -52,6 +52,15 @@ module.exports = {
         } else {
           container = creep.pos.findClosestByPath(
               FIND_CONSTRUCTION_SITES);
+          if (!container) {
+            const res = creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
+            if (res) {
+              Logger.error(`Creep failed to create construction site for container in ${creep.room} res: ${res}`, creep);
+              return;
+            }
+            container = creep.pos.findClosestByPath(
+              FIND_CONSTRUCTION_SITES);
+          }
           creep.build(container);
         }
       } else {
@@ -72,7 +81,11 @@ module.exports = {
         if (!creep.pos.isNearTo(source)) {
           return creep.myMoveTo(source);
         }
-        creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
+        const res = creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
+        if (res) {
+          Logger.error(`Creep failed to create construction site for container in ${creep.room} res: ${res}`, creep);
+          return;
+        }
         container = creep.pos.findInRange(
             FIND_CONSTRUCTION_SITES, 4, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
       }
@@ -84,7 +97,7 @@ module.exports = {
         creep.myMoveTo(container[0]);
       }
     } else {
-      creep.myMoveTo(source, {range: 2});
+      creep.myMoveTo(source, {range: 1});
     }
   },
 };

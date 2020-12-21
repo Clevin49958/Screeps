@@ -62,12 +62,15 @@ module.exports = {
       }
     } else {
       // if creep is supposed to harvest energy from source
-      creep.say('loot');
-      if (helper.harvestLoot(creep)) return;
-      creep.say('can');
-      if (helper.withdrawEnergy(creep)) return;
+      // creep.say('loot');
+      // if (helper.harvestLoot(creep)) return;
       creep.say('store')
       if (helper.withdrawStorage(creep)) return;
+      if (creep.getActiveBodyparts(WORK) > creep.body.length / 3) {
+        return;
+      }
+      creep.say('can');
+      if (helper.withdrawEnergy(creep)) return;
       creep.say('harv')
       helper.harvest(creep);
     }

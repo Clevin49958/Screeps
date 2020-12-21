@@ -51,6 +51,9 @@ class Logger {
       console.log(msg);
     }
     if (level >= EMAIL_LEVEL) {
+      msg = `${Math.floor(Game.time / 100)}xx} \[${levelInfo}\]  ${message.map((m) =>
+        typeof m == 'object' ? JSON.stringify(m) : m,
+      ).join(' ')}`;
       Game.notify(msg);
     }
   }

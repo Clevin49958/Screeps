@@ -60,14 +60,14 @@ module.exports.stateScanner = function() {
           }%`);
         }
         // update upgrader
-        if (Game.time % 500 == 0 && Math.abs(energy - threshold) > flunctuationRange) {
+        if (Game.time % 300 == 0 && Math.abs(energy - threshold) > flunctuationRange) {
           if (energy - threshold > flunctuationRange &&
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 3) {
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 2) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] += 1;
           }
 
           if (energy - threshold < -flunctuationRange &&
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 1) {
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 0) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] -= 1;
           }
         }

@@ -1,3 +1,5 @@
+const { Logger } = require('./Logger');
+
 require('Logger');
 const RICH_THRESHOLD = 1000;
 const POOR_THRESHOLD = 1600;
@@ -121,6 +123,11 @@ module.exports = {
     return structure;
   },
 
+  /**
+   * 
+   * @param {Creep} creep creep to pay
+   * @returns {boolean} whether creep found a target to pay
+   */
   payAny: function(creep) {
     const carriesMineral = _.sum(_.keys(creep.store), (src) =>
       src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
@@ -151,6 +158,13 @@ module.exports = {
                 s.store.getFreeCapacity(RESOURCE_ENERGY) >
                 100),
     });
+    if (!structure && creep.room.controller) {
+      structure = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2,{
+        filter: s => s.structureType == STRUCTURE_CONTAINER &&
+          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      });
+      structure = structure.length == 0 ? null : structure[0];
+    }
     if (structure) {
       this.payStructure(creep, structure, mineral);
     }
@@ -169,12 +183,24 @@ module.exports = {
     return structure;
   },
 
+  /**
+   * withdraw energy from storage or the container in range 2 to the controller
+   * @param {Creep} creep creep
+   */
   withdrawStorage: function(creep) {
-    const source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    let source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: (s) =>
         s.structureType == STRUCTURE_STORAGE && s.store
             .getUsedCapacity(RESOURCE_ENERGY) > 0,
     });
+    
+    if (!source && creep.room.controller) {
+      source = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: s => s.structureType == STRUCTURE_CONTAINER &&
+          s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      });
+      source = source.length == 0 ? null : source[0];
+    }
     if (source) {
       if (creep.withdraw(source, RESOURCE_ENERGY) ==
                 ERR_NOT_IN_RANGE) {
@@ -417,6 +443,19 @@ module.exports = {
         _.set(Memory, ['states', 'rich', container.id], false);
         return false;
       }
+    }
+  },
+
+  /**
+   * Creep will move away from road, towards a flag labeled with room name
+   * @param {Creep} creep creep to move away from road
+   */
+  moveOffRoad: function(creep) {
+    let standingAt = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+      filter: s => s.structureType == STRUCTURE_ROAD
+    });
+    if (standingAt.length > 0 && Game.flags[creep.room.name]) {
+      creep.myMoveTo(Game.flags[creep.room.name], {offRoad: true});
     }
   }
 };

@@ -13,7 +13,11 @@ module.exports = {
       creep.store.getUsedCapacity(srcType)) == 0) {
       // switch state
       creep.memory.working = false;
-    } else if (creep.memory.working == false && creep.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
+    } else if (creep.memory.working == false && 
+      (creep.store.getUsedCapacity(RESOURCE_ENERGY) >= 
+        creep.store.getCapacity(RESOURCE_ENERGY) * 0.5 ||
+      creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0
+      )) {
       // if creep is harvesting energy but is full
       // switch state
       creep.memory.working = true;
@@ -31,16 +35,21 @@ module.exports = {
         helper.moveHome(creep);
         return;
       }
-      const path = ['mine', 'links', creep.memory.home, 'sender', creep.memory.target];
-      let link = _.get(Memory, path);
-      link = link ? Game.getObjectById(link) : link;
-      // if (creep.name == 'hauler-W31N11-W32N11-12') return;
+      const path = ['mine', 'links', creep.memory.home, 'sender'];
+      const links = _.filter(_.values(_.get(Memory, path)).map(id => Game.getObjectById(id)),
+        l => creep.pos.inRangeTo(l, 5) &&
+        l.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      );
+
+      const link = links.length == 0 ? null : links[0];
       if (creep.memory.home == creep.room.name) {
-        if (link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-          creep.pos.inRangeTo(link, 5)) {
+        if (link) {
           return helper.payStructure(creep, link);
         } else {
-          return helper.payAny(creep);
+          if (!helper.payAny(creep)) {
+            helper.moveOffRoad(creep);
+          }
+          return;
         }
       } else {
         return helper.moveHome(creep);
@@ -60,17 +69,15 @@ module.exports = {
         if (helper.harvestLoot(creep, 300, true)) return;
         creep.say('container');
         if (helper.withdrawContainerIfRich(creep)) return;
-        creep.say('storage');
+        creep.say('store');
         if (helper.withdrawStorage(creep)) return;
-        // if (creep.store.getUsedCapacity(RESOURCE_ENERGY) >
-        //  creep.store.getCapacity(RESOURCE_ENERGY) * 0.5){
-        //     creep.memory.working = true;
-        // } else
         creep.say('edge')
         if (helper.isOnTheEdge(creep)) {
           creep.move(helper.isOnTheEdge(creep));
+          return;
         }
-        creep.say('none')
+        creep.say('none');
+        helper.moveOffRoad(creep);
       } else {
         // if not in target room
         helper.moveTargetRoom(creep);

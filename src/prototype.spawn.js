@@ -97,7 +97,7 @@ module.exports = function() {
     };
 
   /**
-     * body set: [WORK * 4, MOVE] * n + [WORK * 2, CARRY * 2, MOVE]
+     * body set: [WORK * 4, MOVE] * n + [WORK * 1, CARRY * 3, MOVE]
      * at lim = 3: sum(WORK) = 14
      * @param {number} energy energy used
      * @param {string} roleName role of creep
@@ -115,7 +115,7 @@ module.exports = function() {
   ) {
     // create a balanced body as big as possible with the given energy
     const maxSets = 9;
-    let numberOfParts = Math.floor((energy - 350) / 450);
+    let numberOfParts = Math.floor((energy - 300) / 450);
     numberOfParts = numberOfParts > lim ? lim : numberOfParts;
     numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 

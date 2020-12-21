@@ -144,8 +144,13 @@ module.exports = {
    * manual control
    */
   alter: () => {
-    if (Game.rooms.W36N9.controller.level >= 3 && Memory.myRooms.W35N12.W36N9) {
-      removeControlledRoom('W36N9','W35N12');
+    if (Game.rooms.W36N9.controller.level >= 4 && Memory.myRooms.W35N12.W36N9) {
+      Game.rooms.W36N9.createConstructionSite(40, 22, STRUCTURE_STORAGE);
+      Game.rooms.W36N9.createConstructionSite(39, 22, STRUCTURE_TOWER);
+      if (Memory.stats.Storages.W36N9 > 0) {
+        removeControlledRoom('W36N9','W35N12');
+      }
+      
     }
   },
 

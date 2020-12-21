@@ -26,7 +26,7 @@ module.exports.loop = function() {
       console.log('New code uploaded');
     }
 
-    if (Game.cpu.bucket < 15 || false) {
+    if (Game.cpu.bucket < 100 || false) {
       // skip ticket
       let timeSinceLastSkip = -1;
       if (global.lastSkip) {
@@ -36,7 +36,7 @@ module.exports.loop = function() {
       if (timeSinceLastSkip > 1000 || timeSinceLastSkip == -1) {
         Logger.info(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
       } else {
-        Logger.warn(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
+        Logger.warn(`Skipping tick ${Game.time}, current bucket: <${Math.floor(Game.cpu.bucket/100) + 1}00, time since last skip: <${Math.floor(timeSinceLastSkip/10) + 1}0`);
       }
 
       return;
@@ -68,7 +68,7 @@ module.exports.loop = function() {
     }
     for (const name in Game.spawns) {
       // if ({}.hasOwnProperty.call(Game.spawns, name)) {
-      if (name == 's5') continue;
+      if (name == 'Spawn1' || name == 's' || name == 's3') continue;
       lib.generateCreeps(name);
       Logger.trace('-----------------------');
       // }

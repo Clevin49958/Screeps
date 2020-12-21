@@ -70,8 +70,14 @@ module.exports = {
       }
       let demand = 0;
       if (targetRoom != room) {
-        demand = (!_.get(Game, ['rooms', targetRoom, 'controller', 'reservation']) ||
-                Game.rooms[targetRoom].controller.reservation.ticksToEnd < 1000) ? 1 : 0;
+        if (Game.rooms[targetRoom]) {
+          const controller = Game.rooms[targetRoom].controller;
+          demand = (!_.get(controller, ['reservation']) ||
+            controller.reservation.ticksToEnd < 1000 ||
+            !controller.my) ? 1 : 0;
+        } else {
+          demand = 1;
+        }
       }
       helper.addMemory(['creepDemand', room, targetRoom], {'claimer': demand});
     }
@@ -99,9 +105,13 @@ module.exports = {
         if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
         // update builder count
         if (Game.time % helper.logRate == 0) {
-          numConstructionSites = Game.rooms[targetRoom].find(FIND_MY_CONSTRUCTION_SITES).length;
-          creepDemand[targetRoom][BUILDER] = numConstructionSites > 12 ? 2 :
-            (numConstructionSites > 0 ? 1 : 0);
+          totalProgress = _.sum(Game.rooms[targetRoom]
+            .find(FIND_MY_CONSTRUCTION_SITES)
+            .map(s => s.progressTotal - s.progress)
+          );
+          let totalRequired = Math.ceil(totalProgress / 4500 / Game.rooms[room].controller.level);
+          totalRequired = totalRequired > 3 ? 3 : totalRequired;
+          creepDemand[targetRoom][BUILDER] = totalRequired;
         }
       }
 
@@ -182,9 +192,14 @@ module.exports = {
     }
 
     // if colony is dying
+    const totalHauler = _.sum(
+      _.keys(creepTrack).map(r => creepTrack[r][HAULER])
+    )
+    Logger.debug(spawn.name, Memory.states.restart[room], totalHarvs < 1, _.get(Memory, ['stats', 'Storages', room]) > 10000, totalHauler < 1)
     if (Memory.states.restart[room] || totalHarvs < 1 ||
           (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
-          _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][HAULER], 0) < 1)) {
+           totalHauler < 1
+          )) {
       if (creepDemand.tickSinceRestart === undefined) {
         creepDemand.tickSinceRestart = 0;
       }
@@ -199,8 +214,7 @@ module.exports = {
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
         }
 
-        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
-            _.reduce(_.keys(creepTrack), (acc, r) => acc + creepTrack[r][HAULER], 0) < 1) {
+        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 && totalHauler < 1) {
           res = spawn.spawnHaulerCreep(spawn.room.energyAvailable, room, room, 0, 16);
           Logger.warn(spawn.name, 'attempt to spawn', 'hauler for emergency', 'res', res);
           return res;
@@ -405,8 +419,13 @@ module.exports = {
           // spawn
           if (r == CLAIMER) {
             res = spawn.spawnClaimerCreep(energyMax, targetRoom, room);
-          } else if (r == UPGRADER && _.get(Memory, ['stats', 'Storages', room])) {
-            res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, room, 4);
+          } else if (
+              r == UPGRADER && (
+                _.get(Memory, ['stats', 'Storages', room]) ||
+                Game.rooms[targetRoom].controller.pos.findInRange(FIND_STRUCTURES, 2, {
+                  filter: s => s.structureType == STRUCTURE_CONTAINER
+              }).length > 0)) {
+            res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, room);
           } else {
             res = spawn.spawnBalCreep(energyMax, r, targetRoom, room);
           }
@@ -429,7 +448,14 @@ module.exports = {
     if (Game.rooms[room].find(FIND_STRUCTURES, {filter: s => s.structureType == STRUCTURE_STORAGE}).length == 0 &&
         creepTrack[room][UPGRADER] < 6 / Game.rooms[room].controller.level
         ) {
-      res = spawn.spawnBalCreep(energyMax, UPGRADER, room, room);
+      if (Game.rooms[room].controller.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: s => s.structureType == STRUCTURE_CONTAINER
+      }).length > 0) {
+        res = spawn.spawnSemiStationaryCreep(energyMax, UPGRADER, room, room, 4);
+      } else {
+        res = spawn.spawnBalCreep(energyMax, UPGRADER, room, room);
+      }
+      
       Logger.debug(`Spawned extra upgraders for ${room}: RCL: ${Game.rooms[room].controller.level}`)
     }
     Logger.debug(`${spawn.name} finished without spawn`);
@@ -464,7 +490,7 @@ module.exports = {
       // if ({}.hasOwnProperty.call(Game.creeps, name)) {
       let creep = Game.creeps[name];
       if (creep.memory.role == oldRole) {
-        creep.memory.role == newRole;
+        creep.memory.role = newRole;
       }
       // }
     }
