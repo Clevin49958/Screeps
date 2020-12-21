@@ -46,7 +46,7 @@ module.exports = {
         if (link) {
           return helper.payStructure(creep, link);
         } else {
-          if (!helper.payAny(creep)) {
+          if (!helper.payAny(creep, !creep.memory.gotFromStorage)) {
             helper.moveOffRoad(creep);
           }
           return;
@@ -58,6 +58,7 @@ module.exports = {
       // if creep is supposed to harvest energy from source
       // if in target room
       if (creep.room.name == creep.memory.target) {
+        creep.memory.gotFromStorage = false;
         creep.say('mineral');
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
           helper.withdrawContainer(creep, null, true)) return;
@@ -70,7 +71,10 @@ module.exports = {
         creep.say('container');
         if (helper.withdrawContainerIfRich(creep)) return;
         creep.say('store');
-        if (helper.withdrawStorage(creep)) return;
+        if (helper.withdrawStorage(creep)) {
+          creep.memory.gotFromStorage = true;
+          return;
+        }
         creep.say('edge')
         if (helper.isOnTheEdge(creep)) {
           creep.move(helper.isOnTheEdge(creep));

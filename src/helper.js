@@ -131,7 +131,7 @@ module.exports = {
    * @param {Creep} creep creep to pay
    * @returns {boolean} whether creep found a target to pay
    */
-  payAny: function(creep) {
+  payAny: function(creep, includeStorage = true) {
     const carriesMineral = _.sum(_.keys(creep.store), (src) =>
       src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
     if (carriesMineral) {
@@ -149,7 +149,7 @@ module.exports = {
     creep.say('terminal');
     if (this.payTerminal(creep)) return true;
     creep.say('storage');
-    if (this.payStorage(creep)) return true;
+    if (includeStorage && this.payStorage(creep)) return true;
     creep.say(`can't pay`);
     return false;
   },
