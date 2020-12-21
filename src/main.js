@@ -8,7 +8,8 @@ const helper = require('./helper');
 const lib = require('./lib');
 const tower = require('./tower');
 const init = require('./init');
-const link = require('./link');
+const myLink = require('./link');
+const myTerminal = require('./terminal');
 const {Logger} = require('./Logger');
 
 const profiler = require('screeps-profiler');
@@ -26,7 +27,8 @@ module.exports.loop = function() {
       console.log('New code uploaded');
     }
 
-    if (Game.cpu.bucket < 100 || false) {
+    // CPU bucket check
+    if (Game.cpu.bucket < 50 || false) {
       // skip ticket
       let timeSinceLastSkip = -1;
       if (global.lastSkip) {
@@ -36,7 +38,7 @@ module.exports.loop = function() {
       if (timeSinceLastSkip > 1000 || timeSinceLastSkip == -1) {
         Logger.info(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
       } else {
-        Logger.warn(`Skipping tick ${Game.time}, current bucket: <${Math.floor(Game.cpu.bucket/100) + 1}00, time since last skip: <${Math.floor(timeSinceLastSkip/10) + 1}0`);
+        Logger.warn(`Skipping tick, current bucket: <${Math.floor(Game.cpu.bucket/100) + 1}00, time since last skip: <${Math.floor(timeSinceLastSkip/10) + 1}0`);
       }
 
       return;
@@ -51,8 +53,6 @@ module.exports.loop = function() {
       }
     }
 
-    // init.minCreeps();
-
     init.alter();
 
     init.alterOnce();
@@ -61,11 +61,16 @@ module.exports.loop = function() {
 
     lib.runCreeps();
 
+    // link and terminal processing
     for (const room in Memory.myRooms) {
-      // if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
-      link.ship(room);
-      // }
+      myLink.ship(room);
+      const terminal = Game.rooms[room].terminal;
+      if (!Game.time % 100 && terminal) {
+        myTerminal.autoDealExcess(terminal);
+      }
     }
+
+    // spawn creeps
     for (const name in Game.spawns) {
       // if ({}.hasOwnProperty.call(Game.spawns, name)) {
       if (name == 'Spawn1' || name == 's' || name == 's3') continue;
@@ -79,6 +84,7 @@ module.exports.loop = function() {
 
     stateScanner.stateScanner();
 
+    // console line break
     if (Game.time % helper.logRate == 0) {
       Logger.info(
           '--------------------------------------------------------');
