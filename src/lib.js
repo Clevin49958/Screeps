@@ -12,6 +12,7 @@ const {
   ATK_RANGE,
   ATTACKER,
   MINER,
+  KEEPER,
 } = require('./helper');
 const helper = require('./helper');
 const {Logger, LOG_LEVEL} = require('./Logger');
@@ -377,6 +378,18 @@ module.exports = {
           }
         }
       }
+    }
+
+    // spawn keeper
+    Logger.trace(`${spawn.name} trying to spawn keeper`);
+    const flagName = `keeper-${room}`;
+    if (Game.flags[flagName] && _.sum(Game.creeps, (c) =>
+          c.memory.role == KEEPER &&
+          c.memory.target == room &&
+          c.memory.home == room &&
+          c.ticksToLive > 5) == 0) {
+      const dir = _.get(Game, ['flags', flagName, 'memory', 'dir']);
+      spawn.spawnKeeperCreep(room, room, dir, true, true);
     }
 
     // spawn mineral miners

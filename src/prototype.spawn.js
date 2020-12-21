@@ -3,6 +3,7 @@ const {
   CLAIMER,
   ATK_RANGE,
   ATTACKER,
+  KEEPER,
 } = require('./helper');
 const helper = require('./helper');
 
@@ -99,6 +100,7 @@ module.exports = function() {
   /**
      * body set: [WORK * 4, MOVE] * n + [WORK * 1, CARRY * 3, MOVE]
      * at lim = 3: sum(WORK) = 14
+     * most efficient: WORK*36 + CARRY * 5 + MOVE * 9
      * @param {number} energy energy used
      * @param {string} roleName role of creep
      * @param {string} target room name
@@ -282,42 +284,63 @@ module.exports = function() {
         };
 
   StructureSpawn.prototype.spawnAttackerCreep =
-        /**
-         * body set: [TOUGH, ATTACK, MOVE]
-         * @param {number} energy used to generate
-         * @param {string} target target room id
-         * @param {string} home home room id
-         * @param {number} [lim=16] max num of sets
-         */
-        function(energy, target, home = this.room.name, lim = 16) {
-          const maxSets = 16;
-          let numberOfParts = Math.floor(energy / 140);
-          numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-          numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
+    /**
+     * body set: [TOUGH, ATTACK, MOVE]
+     * @param {number} energy used to generate
+     * @param {string} target target room id
+     * @param {string} home home room id
+     * @param {number} [lim=16] max num of sets
+     */
+    function(energy, target, home = this.room.name, lim = 16) {
+      const maxSets = 16;
+      let numberOfParts = Math.floor(energy / 140);
+      numberOfParts = numberOfParts > lim ? lim : numberOfParts;
+      numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
-          const body = [];
-          for (let i = 0; i < numberOfParts; i++) {
-            body.push(TOUGH);
-          }
-          for (let i = 0; i < numberOfParts - 1; i++) {
-            body.push(MOVE);
-          }
-          for (let i = 0; i < numberOfParts; i++) {
-            body.push(ATTACK);
-          }
+      const body = [];
+      for (let i = 0; i < numberOfParts; i++) {
+        body.push(TOUGH);
+      }
+      for (let i = 0; i < numberOfParts - 1; i++) {
+        body.push(MOVE);
+      }
+      for (let i = 0; i < numberOfParts; i++) {
+        body.push(ATTACK);
+      }
+      body.push(MOVE);
+
+
+      // create creep with the created body and the given role
+      return this.spawnCreep(body,
+          `${getName(ATTACKER, target, home)}`, {
+            memory: {
+              role: helper.ATTACKER,
+              attack: true,
+              working: true,
+              target: target,
+              home: home,
+            },
+          });
+    };
+  
+    StructureSpawn.prototype.spawnKeeperCreep = 
+      function(target, home = this.room.name, dir = null, doubleCarry = false, move = false) {
+        const body = [CARRY];
+        if (doubleCarry) {
+          body.push(CARRY);
+        }
+        if (move) {
           body.push(MOVE);
+        }
 
-
-          // create creep with the created body and the given role
-          return this.spawnCreep(body,
-              `${getName(ATTACKER, target, home)}`, {
-                memory: {
-                  role: helper.ATTACKER,
-                  attack: true,
-                  working: true,
-                  target: target,
-                  home: home,
-                },
-              });
-        };
+        return this.spawnCreep(body,
+          `${getName(KEEPER, target, home)}`, {
+            memory: {
+              role: KEEPER,
+              target: target,
+              home: home,
+            },
+            directions: [dir]
+          })
+      }
 };

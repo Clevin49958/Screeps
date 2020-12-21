@@ -61,8 +61,8 @@ module.exports = {
         creep.say('mineral');
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
           helper.withdrawContainer(creep, null, true)) return;
-        creep.say('link');
-        if (helper.withdrawLink(creep)) return;
+        // creep.say('link');
+        // if (helper.withdrawLink(creep)) return;
         creep.say('loot mnr');
         if (helper.harvestLoot(creep, 10, false)) return;
         creep.say('loot');
