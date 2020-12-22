@@ -306,14 +306,32 @@ module.exports = {
     return false;
   },
 
+  /**
+   * move the creep to target room and ensure it's not on the edge
+   * 
+   * requires creep.memory.target
+   * @param {Creep} creep 
+   * @returns {boolean} whether the creep is on its way (true)/arrived
+   */
   moveTargetRoom: function(creep) {
+    if (creep.room.name != creep.memory.target) {
       // find exit to target room
       if (Game.flags[creep.memory.target]) {
-        return creep.myMoveTo(Game.flags[creep.memory.target]);
+        creep.myMoveTo(Game.flags[creep.memory.target]);
+        return true;
       }
       const exit = creep.room.findExitTo(creep.memory.target);
       // move to exit
-      return creep.myMoveTo(creep.pos.findClosestByPath(exit));
+      creep.myMoveTo(creep.pos.findClosestByPath(exit));
+      return true;
+    } else {
+      if (this.isOnTheEdge(creep)) {
+        creep.move(this.isOnTheEdge(creep));
+        return true;
+      } else {
+        return false;
+      }
+    }
   },
 
   moveHome: function(creep) {

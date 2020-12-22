@@ -11,8 +11,7 @@ const roleRepairer = require('./role.repairer');
  * @returns {number} -1: quest not found; -2: moving to target room
  */
 function findQuest(creep) {
-  if (creep.memory.target && creep.memory.target != creep.room.name) {
-    helper.moveTargetRoom(creep);
+  if (helper.moveTargetRoom(creep)) {
     return -2;
   } else {
     const c = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
@@ -27,8 +26,8 @@ module.exports = {
     creep.say(BUILDER.slice(0, 1));
 
     // move to target room first
-    if (creep.memory.target && creep.memory.target != creep.room.name) {
-      helper.moveTargetRoom(creep);
+    if (helper.moveTargetRoom(creep)) {
+      return;
     }
     
     // if creep is trying to complete a constructionSite but has no energy left

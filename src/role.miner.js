@@ -15,7 +15,9 @@ module.exports = {
           creep.memory.source = mineral.id;
           creep.memory.mineralType = mineral.mineralType;
         } else {
-          return helper.moveTargetRoom(creep);
+          if (helper.moveTargetRoom(creep)) {
+            return;
+          }
         }
       }
       if (!creep.memory.extractor) {
@@ -31,8 +33,9 @@ module.exports = {
         }
       }
     } else {
-      helper.moveTargetRoom(creep.memory.target);
-      return true;
+      if (helper.moveTargetRoom(creep)) {
+        return true;
+      }
     }
 
     // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))

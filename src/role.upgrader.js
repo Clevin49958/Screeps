@@ -38,9 +38,7 @@ module.exports = {
    */
   run: function(creep) {
     // creep.say(UPGRADER.slice(0, 1))
-    if (creep.memory.target && creep.room.name != creep.memory
-        .target) {
-      helper.moveTargetRoom(creep);
+    if (helper.moveTargetRoom(creep)) {
       return;
     }
 

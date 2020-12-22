@@ -19,9 +19,7 @@ module.exports = {
       creep.memory.working = true;
     }
 
-    if (creep.memory.target && creep.memory.target != creep.room
-        .name) {
-      helper.moveTargetRoom(creep);
+    if (helper.moveTargetRoom(creep)) {
       return;
     }
     // if creep is supposed to repair something

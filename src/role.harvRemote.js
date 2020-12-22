@@ -8,7 +8,9 @@ module.exports = {
         creep.memory.source = Game.rooms[creep.memory.target].find(FIND_SOURCES)[creep.memory
             .sourceIndex].id;
       } else {
-        helper.moveTargetRoom(creep);
+        if (helper.moveTargetRoom(creep)) {
+          return;
+        }
       }
     }
     // console.log(creep.name,JSON.stringify(Game.getObjectById(creep.memory.source)))

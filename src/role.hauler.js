@@ -56,36 +56,34 @@ module.exports = {
       }
     } else {
       // if creep is supposed to harvest energy from source
-      // if in target room
-      if (creep.room.name == creep.memory.target) {
-        creep.memory.gotFromStorage = false;
-        creep.say('mineral');
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
-          helper.withdrawContainer(creep, null, true)) return;
-        // creep.say('link');
-        // if (helper.withdrawLink(creep)) return;
-        creep.say('loot mnr');
-        if (helper.harvestLoot(creep, 10, false)) return;
-        creep.say('loot');
-        if (helper.harvestLoot(creep, 300, true)) return;
-        creep.say('container');
-        if (helper.withdrawContainerIfRich(creep)) return;
-        creep.say('store');
-        if (helper.withdrawStorage(creep)) {
-          creep.memory.gotFromStorage = true;
-          return;
-        }
-        creep.say('edge')
-        if (helper.isOnTheEdge(creep)) {
-          creep.move(helper.isOnTheEdge(creep));
-          return;
-        }
-        creep.say('none');
-        helper.moveOffRoad(creep);
-      } else {
-        // if not in target room
-        helper.moveTargetRoom(creep);
+      if (helper.moveTargetRoom(creep)) {
+        return;
       }
+
+      creep.memory.gotFromStorage = false;
+      creep.say('mineral');
+      if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 100 &&
+        helper.withdrawContainer(creep, null, true)) return;
+      // creep.say('link');
+      // if (helper.withdrawLink(creep)) return;
+      creep.say('loot mnr');
+      if (helper.harvestLoot(creep, 10, false)) return;
+      creep.say('loot');
+      if (helper.harvestLoot(creep, 300, true)) return;
+      creep.say('container');
+      if (helper.withdrawContainerIfRich(creep)) return;
+      creep.say('store');
+      if (helper.withdrawStorage(creep)) {
+        creep.memory.gotFromStorage = true;
+        return;
+      }
+      creep.say('edge')
+      if (helper.isOnTheEdge(creep)) {
+        creep.move(helper.isOnTheEdge(creep));
+        return;
+      }
+      creep.say('none');
+      helper.moveOffRoad(creep);
     }
   },
 };
