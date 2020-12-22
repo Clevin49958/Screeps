@@ -59,11 +59,9 @@ module.exports = {
     }
 
     // update wall repairer
-    creepDemand[room][WALL_REPAIRER] = Game.rooms[room].find(
+    const demand = Game.rooms[room].find(
         FIND_HOSTILE_CREEPS).length;
-    if (creepDemand[room][WALL_REPAIRER] == 0) {
-      creepDemand[room][WALL_REPAIRER] = 1;
-    };
+    creepDemand[room][WALL_REPAIRER] = _.min([1, demand, creepDemand[room][WALL_REPAIRER]]);
     // update claimer
     for (let targetRoom of Memory.myRooms[room]) {
       if (creepDemand[targetRoom][CLAIMER] == -1) {
@@ -75,7 +73,7 @@ module.exports = {
           const controller = Game.rooms[targetRoom].controller;
           demand = (!_.get(controller, ['reservation']) ||
             controller.reservation.ticksToEnd < 1000 ||
-            !controller.my) ? 1 : 0;
+            controller.reservation.username != Memory.userName) ? 1 : 0;
         } else {
           demand = 1;
         }
@@ -242,11 +240,6 @@ module.exports = {
         let hostileHealer = _.reduce(hostiles, ((acc, c) =>
                     acc || _.reduce(c.body, (acc, part) => acc || part
                         .type == HEAL, undefined) ? c : acc), null);
-        // if (hostiles.length>0){
-        //     Logger.info(room, targetRoom, hostile_healer, JSON.stringify(hostiles))}
-        if (hostileHealer) {
-          creepDemand[targetRoom][WALL_REPAIRER] = hostiles.length;
-        } else creepDemand[targetRoom][WALL_REPAIRER] = 0;
 
         // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room), Game.rooms[targetRoom].find(FIND_HOSTILE_STRUCTURES));
         // energy exist without healer, and no tower in the room
