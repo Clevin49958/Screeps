@@ -1,4 +1,5 @@
 const helper = require('./helper');
+const { Logger } = require('./Logger');
 
 module.exports = {
   // a function to run the logic for this role
@@ -51,7 +52,7 @@ module.exports = {
       });
       if (!enermy) {
         enermy = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
-          ignoreDestructibleStructures: true,
+          ignoreDestructibleStructures: false,
         });
       }
       if (!enermy) {
@@ -66,28 +67,19 @@ module.exports = {
       return;
     }
 
-    console.log(`${creep.name} Attacking target: ${JSON.stringify(enermy.pos)}`);
+    Logger.info(`${creep.name} Attacking target: ${JSON.stringify(enermy.pos)}`);
 
-    if (creep.pos.inRangeTo(enermy, 3) && creep.pos.x != 49) {
-      const ramparts = creep.pos.findInRange(FIND_MY_STRUCTURES, 3, {
-        filter: (s) => s.structureType ==
-                    STRUCTURE_RAMPART,
-      });
-      if (ramparts.length > 0) {
-        if (_.reduce(ramparts, (acc, r) => (acc || r.pos
-            .isEqualTo(creep.pos)), false)) {
-          creep.rangedAttack(enermy);
-        } else {
-          ramparts.forEach((rampart) => {
-            if (rampart.inRangeTo(enermy, 3)) {
-              creep.myMoveTo(rampart);
-              return;
-            }
-          });
-        }
-      } else {
-        creep.rangedAttack(enermy);
+    if (creep.pos.inRangeTo(enermy, 3)) {
+      const rampart = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: r =>
+        r.structureType == STRUCTURE_RAMPART &&
+        r.pos.inRangeTo(creep, 3) &&
+        r.pos.inRangeTo(enermy, 3)
+      })
+      if (rampart) {
+        creep.myMoveTo(rampart);
       }
+      
+      creep.rangedAttack(enermy);
     } else {
       // console.log(
       creep.myMoveTo(enermy, {ignoreStructures: false, range: 3});
