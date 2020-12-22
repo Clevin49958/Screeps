@@ -72,7 +72,6 @@ module.exports = {
       }
     } else {
       // detect flag
-      Logger.warn(creep.name, 'required movement');
       const flag = Game.flags[`keeper-${creep.room.name}`];
       if (flag) {
         if (creep.pos.isEqualTo(flag)) {
