@@ -27,6 +27,14 @@ module.exports.loop = function() {
       console.log('New code uploaded');
     }
 
+    // terminal processing
+    for (const room in Memory.myRooms) {
+      const terminal = Game.rooms[room].terminal;
+      if (!(Game.time % 500) && terminal) {
+        myTerminal.autoDealExcess(terminal);
+      }
+    }
+
     // CPU bucket check
     if (Game.cpu.bucket < 50 || false) {
       // skip ticket
@@ -61,13 +69,9 @@ module.exports.loop = function() {
 
     lib.runCreeps();
 
-    // link and terminal processing
+    // link processing
     for (const room in Memory.myRooms) {
       myLink.ship(room);
-      const terminal = Game.rooms[room].terminal;
-      if (!Game.time % 100 && terminal) {
-        myTerminal.autoDealExcess(terminal);
-      }
     }
 
     // spawn creeps
