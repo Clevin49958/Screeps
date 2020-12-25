@@ -99,6 +99,7 @@ module.exports = {
         creep.myMoveTo(container[0]);
       }
     } else {
+      if (!source && helper.moveTargetRoom(creep)) return true;
       creep.myMoveTo(source, {range: 1});
     }
   },

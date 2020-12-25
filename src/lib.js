@@ -278,6 +278,17 @@ module.exports = {
       // error because if there's no creep in room, you can't observe it
     }
 
+    // spawn keeper
+    Logger.trace(`${spawn.name} trying to spawn keeper`);
+    const flagName = `keeper-${room}`;
+    if (Game.flags[flagName] && _.sum(Game.creeps, (c) =>
+          c.memory.role == KEEPER &&
+          c.memory.target == room &&
+          c.memory.home == room &&
+          c.ticksToLive > 5) == 0) {
+      const dir = _.get(Game, ['flags', flagName, 'memory', 'dir']);
+      spawn.spawnKeeperCreep(room, room, dir, true, true);
+    }
 
     // spawn harv and hauler
     Logger.trace(`${spawn.name} trying to spawn basic workers`);
@@ -371,18 +382,6 @@ module.exports = {
           }
         }
       }
-    }
-
-    // spawn keeper
-    Logger.trace(`${spawn.name} trying to spawn keeper`);
-    const flagName = `keeper-${room}`;
-    if (Game.flags[flagName] && _.sum(Game.creeps, (c) =>
-          c.memory.role == KEEPER &&
-          c.memory.target == room &&
-          c.memory.home == room &&
-          c.ticksToLive > 5) == 0) {
-      const dir = _.get(Game, ['flags', flagName, 'memory', 'dir']);
-      spawn.spawnKeeperCreep(room, room, dir, true, true);
     }
 
     // spawn mineral miners

@@ -335,7 +335,13 @@ module.exports = {
   },
 
   moveHome: function(creep) {
-    creep.myMoveTo(Game.rooms[creep.memory.home].controller);
+    if (creep.room.name == creep.memory.home) {
+      return false;
+    } else {
+      creep.myMoveTo(Game.rooms[creep.memory.home].controller);
+      return true;
+    }
+    
   },
 
   moveRand: function(creep) {
@@ -405,14 +411,16 @@ module.exports = {
   },
 
   recycle: function(creep) {
-    // recycle spawn;
-    let spawn;
-    if (creep.memory.home) {
-      spawn = Game.getObjectById(Memory.mySpawns[creep.memory.home]);
-    } else spawn = Game.spawns.Spawn1;
+    if (this.moveHome(creep)) return true;
+
+    const spawn = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: s =>
+      s.structureType == STRUCTURE_SPAWN
+    });
     if (creep.pos.isNearTo(spawn)) {
       spawn.recycleCreep(creep);
-    } else creep.myMoveTo(spawn);
+    } else {
+      creep.myMoveTo(spawn);
+    }
   },
 
   addMemory: function(path, content, starter = Memory) {
