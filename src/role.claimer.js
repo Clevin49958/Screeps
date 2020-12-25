@@ -9,7 +9,7 @@ module.exports = {
     if (helper.moveTargetRoom(creep)) {
       return;
     }
-    
+
     if (creep.memory.quest) {
       const controller = Game.getObjectById(creep.memory.quest);
       if (creep.pos.isNearTo(controller)) {
@@ -18,7 +18,7 @@ module.exports = {
           creep.attackController(controller);
         } else {
           if (_.keys(Memory.myRooms).includes(creep.memory.target)) {
-            creep.claimController(controller)
+            creep.claimController(controller);
           } else {
             creep.reserveController(controller);
           }

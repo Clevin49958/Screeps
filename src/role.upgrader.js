@@ -2,7 +2,7 @@ const helper = require('./helper');
 
 /**
  * get the first flag position without a creep
- * 
+ *
  * flag should be name in the format of up-${room}-${index}
  * where index is integer starting from 1
  * @param {Creep} creep current creep
@@ -56,7 +56,6 @@ module.exports = {
 
     // if creep is supposed to transfer energy to the controller
     if (creep.memory.working == true) {
-
       if (creep.upgradeController(creep.room.controller) ==
                 ERR_NOT_IN_RANGE) {
         // if not in range, move towards the controller
@@ -69,15 +68,14 @@ module.exports = {
           creep.upgradeController(creep.room.controller);
         }
         // move to position
-        let destination = getDestinyFlag(creep);
+        const destination = getDestinyFlag(creep);
         if (destination) {
           if (!creep.pos.isEqualTo(destination)) {
             creep.myMoveTo(destination);
           }
         } else {
-          creep.myMoveTo(creep.room.controller, {range:3});
+          creep.myMoveTo(creep.room.controller, {range: 3});
         }
-
       } else {
         // probs in a hostile room? dismantle spawn and extensions
         const target = creep.pos.findClosestByPath(
@@ -98,7 +96,7 @@ module.exports = {
       if (helper.withdrawContainerIfRich(creep)) return;
 
       // if (helper.harvestLoot(creep)) return;
-      helper.harvest(creep)
+      helper.harvest(creep);
     }
   },
 };

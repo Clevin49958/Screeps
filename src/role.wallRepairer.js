@@ -73,7 +73,6 @@ module.exports = {
         } else {
           creep.memory.target = creep.memory.home;
         }
-        
       }
     } else {
       // if creep is supposed to harvest energy from source

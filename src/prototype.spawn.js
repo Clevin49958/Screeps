@@ -184,7 +184,7 @@ module.exports = function() {
       } else {
         body.push(CARRY, MOVE, MOVE);
       }
-      
+
 
       // create creep with the created body and the given role
       return this.spawnCreep(body,
@@ -237,7 +237,7 @@ module.exports = function() {
                 },
               });
         };
-        /**
+  /**
          * body sets: [TOUGH, RANGE_ATTACK, MOVE] * n + [HEAL, MOVE] * selfHeal
          * @param {number} energy used to generate
          * @param {string} target target room id
@@ -248,40 +248,40 @@ module.exports = function() {
          */
   StructureSpawn.prototype.spawnAtkRangeCreep =
     function(energy, target, home = this.room.name, selfHeal = 0, lim = 16) {
-          const maxSets = 16;
+      const maxSets = 16;
       let numberOfParts = Math.floor((energy - 300 * selfHeal) / 210);
       numberOfParts = numberOfParts > lim ? lim : numberOfParts;
-          numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
+      numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
-          const body = [];
-          for (let i = 0; i < numberOfParts; i++) {
-            body.push(TOUGH);
-          }
-          for (let i = 0; i < numberOfParts - 1; i++) {
-            body.push(MOVE);
-          }
-          for (let i = 0; i < numberOfParts; i++) {
-            body.push(RANGED_ATTACK);
-          }
-          body.push(MOVE);
-          for (let i = 0; i < selfHeal; i++) {
-            body.push(HEAL, MOVE);
-          }
+      const body = [];
+      for (let i = 0; i < numberOfParts; i++) {
+        body.push(TOUGH);
+      }
+      for (let i = 0; i < numberOfParts - 1; i++) {
+        body.push(MOVE);
+      }
+      for (let i = 0; i < numberOfParts; i++) {
+        body.push(RANGED_ATTACK);
+      }
+      body.push(MOVE);
+      for (let i = 0; i < selfHeal; i++) {
+        body.push(HEAL, MOVE);
+      }
 
 
-          // create creep with the created body and the given role
-          return this.spawnCreep(body,
-              `${getName(ATK_RANGE, target, home)}`, {
-                memory: {
-                  role: helper.ATK_RANGE,
-                  attack: true,
-                  working: true,
-                  target: target,
-                  home: home,
-                  heal: selfHeal > 0,
-                },
-              });
-        };
+      // create creep with the created body and the given role
+      return this.spawnCreep(body,
+          `${getName(ATK_RANGE, target, home)}`, {
+            memory: {
+              role: helper.ATK_RANGE,
+              attack: true,
+              working: true,
+              target: target,
+              home: home,
+              heal: selfHeal > 0,
+            },
+          });
+    };
 
   StructureSpawn.prototype.spawnAttackerCreep =
     /**
@@ -322,8 +322,8 @@ module.exports = function() {
             },
           });
     };
-  
-    StructureSpawn.prototype.spawnKeeperCreep = 
+
+  StructureSpawn.prototype.spawnKeeperCreep =
       function(target, home = this.room.name, dir = null, doubleCarry = false, move = false) {
         const body = [CARRY];
         if (doubleCarry) {
@@ -334,13 +334,13 @@ module.exports = function() {
         }
 
         return this.spawnCreep(body,
-          `${getName(KEEPER, target, home)}`, {
-            memory: {
-              role: KEEPER,
-              target: target,
-              home: home,
-            },
-            directions: [dir]
-          })
-      }
+            `${getName(KEEPER, target, home)}`, {
+              memory: {
+                role: KEEPER,
+                target: target,
+                home: home,
+              },
+              directions: [dir],
+            });
+      };
 };

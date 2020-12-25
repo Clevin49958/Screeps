@@ -61,13 +61,13 @@ module.exports = {
               return;
             }
             container = creep.pos.findClosestByPath(
-              FIND_CONSTRUCTION_SITES);
+                FIND_CONSTRUCTION_SITES);
           }
           creep.build(container);
         }
       } else {
         creep.harvest(source);
-        helper.updateContainer(container)
+        helper.updateContainer(container);
       }
     } else if (source && creep.pos.inRangeTo(source, 2)) {
       let container = creep.pos.findInRange(FIND_STRUCTURES,

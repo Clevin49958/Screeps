@@ -1,43 +1,42 @@
-const helper = require('./helper');
-const { Logger } = require('./Logger');
+const helper = require('./helper'); // eslint-disable-line no-unused-vars
+const {Logger} = require('./Logger');
 
 
 /**
  * find a list of structures of specific type near creep
  * @param {Creep} creep the creep to find
  * @param {number} structureType one of the STRUCTURE_* constants
+ * @returns {AnyStructure} the structure found
  */
 function findStructureNearCreep(creep, structureType) {
-  return creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: s => 
-    s.structureType == structureType
+  return creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) =>
+    s.structureType == structureType,
   });
 }
 
 module.exports = {
   /**
-   * 
+   *
    * @param {Creep} creep creep
    */
   run: function(creep) {
-    
     // if arrived
     if (creep.memory.arrived == true) {
-      
       let withdrawList = creep.memory.withdrawList;
-      withdrawList = withdrawList ? withdrawList.map(s => Game.getObjectById(s)) : [];
+      withdrawList = withdrawList ? withdrawList.map((s) => Game.getObjectById(s)) : [];
       let payList = creep.memory.payList;
-      payList = payList ? payList.map(s => Game.getObjectById(s)) : [];
+      payList = payList ? payList.map((s) => Game.getObjectById(s)) : [];
 
       if (withdrawList.length == 0) {
-        /* withdraw from: 
+        /* withdraw from:
          * link
          * storage
         */
         const links = findStructureNearCreep(creep, STRUCTURE_LINK);
         const storages = findStructureNearCreep(creep, STRUCTURE_STORAGE);
         // probs only one each
-        links.forEach(l => withdrawList.push(l));
-        storages.forEach(s => withdrawList.push(s));
+        links.forEach((l) => withdrawList.push(l));
+        storages.forEach((s) => withdrawList.push(s));
       }
 
       if (payList.length == 0) {
@@ -48,11 +47,11 @@ module.exports = {
         - A power spawn
         - The Storage
         */
-        findStructureNearCreep(creep, STRUCTURE_SPAWN).forEach(s => payList.push(s));
-        findStructureNearCreep(creep, STRUCTURE_EXTENSION).forEach(s => payList.push(s));
-        findStructureNearCreep(creep, STRUCTURE_TOWER).forEach(s => payList.push(s));
-        findStructureNearCreep(creep, STRUCTURE_POWER_SPAWN).forEach(s => payList.push(s));
-        findStructureNearCreep(creep, STRUCTURE_STORAGE).forEach(s => payList.push(s));
+        findStructureNearCreep(creep, STRUCTURE_SPAWN).forEach((s) => payList.push(s));
+        findStructureNearCreep(creep, STRUCTURE_EXTENSION).forEach((s) => payList.push(s));
+        findStructureNearCreep(creep, STRUCTURE_TOWER).forEach((s) => payList.push(s));
+        findStructureNearCreep(creep, STRUCTURE_POWER_SPAWN).forEach((s) => payList.push(s));
+        findStructureNearCreep(creep, STRUCTURE_STORAGE).forEach((s) => payList.push(s));
       }
 
       if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
@@ -89,5 +88,5 @@ module.exports = {
         Logger.error('no flag detected for ', creep.name);
       }
     }
-  }
+  },
 };

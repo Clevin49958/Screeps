@@ -1,4 +1,3 @@
-const helper = require('./helper');
 const {Logger} = require('./Logger');
 /* eslint-disable no-unused-vars */
 
@@ -34,7 +33,7 @@ function addControlledRoom(controlled, room, demands = null) {
   if (!Memory.myRooms[room].includes(controlled)) {
     Memory.myRooms[room].push(controlled);
   }
-  
+
   Memory.creepDemand[room][controlled] = demands;
   Memory.stats.creepTrack[room][controlled] = {};
 }
@@ -79,16 +78,26 @@ function addOwnerRoom(room) {
   };
 }
 
-function parseObjectProperties (obj, parse) {
-  for (var k in obj) {
+
+/**
+ * @callback parseObjectProperties.parse
+ * @param {*} obj
+ * @param {string} k
+ */
+/**
+ * parse the object recursively
+ * @param {*} obj the object
+ * @param {parseObjectProperties.parse} parser parser
+ */
+function parseObjectProperties(obj, parser) {
+  for (const k in obj) {
     if (typeof obj[k] === 'object' && obj[k] !== null) {
-      parseObjectProperties(obj[k], parse)
+      parseObjectProperties(obj[k], parser);
     } else if (Object.hasOwnProperty.call(obj, k)) {
-      parse(obj, k)
+      parser(obj, k);
     }
   }
 }
-
 module.exports = {
   /**
    * TODO: verify
@@ -155,7 +164,6 @@ module.exports = {
   alterOnce: () => {
     // Memory.init.exec = 0;s
     if (Memory.exec === true) {
-
       // creepDemand = Memory.creepDemand;
       // creepTrack = Memory.stats.creepTrack;
       // global.creepDemand = creepDemand;

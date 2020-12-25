@@ -1,6 +1,5 @@
-const { Logger } = require('./Logger');
+const {Logger} = require('./Logger'); // eslint-disable-line no-unused-vars
 
-require('Logger');
 const RICH_THRESHOLD = 1000;
 const POOR_THRESHOLD = 1600;
 const LOG_RATE = 5;
@@ -43,13 +42,11 @@ module.exports = {
   KEEPER,
 
   roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER
+    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER,
   ],
   logRate: LOG_RATE,
   RICH_THRESHOLD,
   POOR_THRESHOLD,
-
-  // logger: Log4js.getDefaultLogger(),
 
   harvest: function(creep) {
     const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE, {
@@ -127,8 +124,10 @@ module.exports = {
   },
 
   /**
-   * 
+   *
    * @param {Creep} creep creep to pay
+   * @param {boolean} [includeStorage=true] should the creep pay storage
+   * (prevent circular cpu wasteage)
    * @returns {boolean} whether creep found a target to pay
    */
   payAny: function(creep, includeStorage = true) {
@@ -136,7 +135,7 @@ module.exports = {
       src != RESOURCE_ENERGY && creep.store.getUsedCapacity(src) > 0);
     if (carriesMineral) {
       if (this.payTerminal(creep, true)) return true;
-      if (this.payStorage(creep,true)) return true;
+      if (this.payStorage(creep, true)) return true;
     }
     if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
       creep.say('tower');
@@ -162,9 +161,9 @@ module.exports = {
                 100),
     });
     if (!structure && creep.room.controller) {
-      structure = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2,{
-        filter: s => s.structureType == STRUCTURE_CONTAINER &&
-          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      structure = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
+          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
       });
       structure = structure.length == 0 ? null : structure[0];
     }
@@ -189,6 +188,7 @@ module.exports = {
   /**
    * withdraw energy from storage or the container in range 2 to the controller
    * @param {Creep} creep creep
+   * @returns {StructureStorage|null} source
    */
   withdrawStorage: function(creep) {
     let source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -196,11 +196,11 @@ module.exports = {
         s.structureType == STRUCTURE_STORAGE && s.store
             .getUsedCapacity(RESOURCE_ENERGY) > 0,
     });
-    
+
     if (!source && creep.room.controller) {
       source = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType == STRUCTURE_CONTAINER &&
-          s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
+          s.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
       });
       source = source.length == 0 ? null : source[0];
     }
@@ -308,9 +308,9 @@ module.exports = {
 
   /**
    * move the creep to target room and ensure it's not on the edge
-   * 
+   *
    * requires creep.memory.target
-   * @param {Creep} creep 
+   * @param {Creep} creep
    * @returns {boolean} whether the creep is on its way (true)/arrived
    */
   moveTargetRoom: function(creep) {
@@ -341,7 +341,6 @@ module.exports = {
       creep.myMoveTo(Game.rooms[creep.memory.home].controller);
       return true;
     }
-    
   },
 
   moveRand: function(creep) {
@@ -413,8 +412,8 @@ module.exports = {
   recycle: function(creep) {
     if (this.moveHome(creep)) return true;
 
-    const spawn = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: s =>
-      s.structureType == STRUCTURE_SPAWN
+    const spawn = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: (s) =>
+      s.structureType == STRUCTURE_SPAWN,
     });
     if (creep.pos.isNearTo(spawn)) {
       spawn.recycleCreep(creep);
@@ -441,17 +440,17 @@ module.exports = {
    * @returns {number} direction to move away from the edge, 0 if not
    */
   isOnTheEdge: function(creep) {
-    let pos = creep.pos;
-    if (pos.x == 0){
+    const pos = creep.pos;
+    if (pos.x == 0) {
       return 3;
     }
-    if (pos.y == 0){
+    if (pos.y == 0) {
       return 5;
     }
-    if (pos.x == 49){
+    if (pos.x == 49) {
       return 7;
     }
-    if (pos.y == 49){
+    if (pos.y == 49) {
       return 1;
     }
     return 0;
@@ -480,11 +479,11 @@ module.exports = {
    * @param {Creep} creep creep to move away from road
    */
   moveOffRoad: function(creep) {
-    let standingAt = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-      filter: s => s.structureType == STRUCTURE_ROAD
+    const standingAt = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+      filter: (s) => s.structureType == STRUCTURE_ROAD,
     });
     if (standingAt.length > 0 && Game.flags[creep.room.name]) {
       creep.myMoveTo(Game.flags[creep.room.name], {offRoad: true});
     }
-  }
+  },
 };

@@ -92,7 +92,7 @@ const main = () => {
   } else if (Game.time % 2) {
     Logger.info(`------------`);
   }
-}
+};
 
 if (false) {
   profiler.enable();

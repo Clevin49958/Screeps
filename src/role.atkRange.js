@@ -1,5 +1,5 @@
 const helper = require('./helper');
-const { Logger } = require('./Logger');
+const {Logger} = require('./Logger');
 
 module.exports = {
   // a function to run the logic for this role
@@ -70,15 +70,15 @@ module.exports = {
     Logger.info(`${creep.name} Attacking target: ${JSON.stringify(enermy.pos)}`);
 
     if (creep.pos.inRangeTo(enermy, 3)) {
-      const rampart = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: r =>
+      const rampart = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: (r) =>
         r.structureType == STRUCTURE_RAMPART &&
         r.pos.inRangeTo(creep, 3) &&
-        r.pos.inRangeTo(enermy, 3)
-      })
+        r.pos.inRangeTo(enermy, 3),
+      });
       if (rampart) {
         creep.myMoveTo(rampart);
       }
-      
+
       creep.rangedAttack(enermy);
     } else {
       // console.log(

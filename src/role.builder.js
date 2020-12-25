@@ -29,7 +29,7 @@ module.exports = {
     if (helper.moveTargetRoom(creep)) {
       return;
     }
-    
+
     // if creep is trying to complete a constructionSite but has no energy left
     if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
       // switch state
@@ -63,14 +63,14 @@ module.exports = {
       // if creep is supposed to harvest energy from source
       // creep.say('loot');
       // if (helper.harvestLoot(creep)) return;
-      creep.say('store')
+      creep.say('store');
       if (helper.withdrawStorage(creep)) return;
       if (creep.getActiveBodyparts(WORK) > creep.body.length / 3) {
         return;
       }
       creep.say('can');
       if (helper.withdrawEnergy(creep)) return;
-      creep.say('harv')
+      creep.say('harv');
       helper.harvest(creep);
     }
   },

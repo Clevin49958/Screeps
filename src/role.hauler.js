@@ -5,6 +5,7 @@ module.exports = {
   /**
    * hauler
    * @param {Creep} creep creep to work
+   * @returns {number} ERR_* / OK
    */
   run: function(creep) {
     // switch states
@@ -13,8 +14,8 @@ module.exports = {
       creep.store.getUsedCapacity(srcType)) == 0) {
       // switch state
       creep.memory.working = false;
-    } else if (creep.memory.working == false && 
-      (creep.store.getUsedCapacity(RESOURCE_ENERGY) >= 
+    } else if (creep.memory.working == false &&
+      (creep.store.getUsedCapacity(RESOURCE_ENERGY) >=
         creep.store.getCapacity(RESOURCE_ENERGY) * 0.5 ||
       creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0
       )) {
@@ -36,9 +37,9 @@ module.exports = {
         return;
       }
       const path = ['mine', 'links', creep.memory.home, 'sender'];
-      const links = _.filter(_.values(_.get(Memory, path)).map(id => Game.getObjectById(id)),
-        l => creep.pos.inRangeTo(l, 5) &&
-        l.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      const links = _.filter(_.values(_.get(Memory, path)).map((id) => Game.getObjectById(id)),
+          (l) => creep.pos.inRangeTo(l, 5) &&
+        l.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
       );
 
       const link = links.length == 0 ? null : links[0];
@@ -77,7 +78,7 @@ module.exports = {
         creep.memory.gotFromStorage = true;
         return;
       }
-      creep.say('edge')
+      creep.say('edge');
       if (helper.isOnTheEdge(creep)) {
         creep.move(helper.isOnTheEdge(creep));
         return;
