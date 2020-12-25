@@ -14,6 +14,7 @@ module.exports.stateScanner = function() {
 
   if (Game.cpu.bucket == 10000) {
     Game.cpu.generatePixel();
+    Memory.states.lastPixelTime = Game.time;
   }
 
   if (Game.time % logRate) return;
@@ -22,6 +23,10 @@ module.exports.stateScanner = function() {
   // 统计 GCL / GPL 的升级百分比和等级
   Memory.stats.gcl = (Game.gcl.progress / Game.gcl.progressTotal) * 100;
   Memory.stats.gclLevel = Game.gcl.level + Memory.stats.gcl / 100;
+  if (Memory.stats.lastGCL) {
+    Memory.stats.gclUpgradeTime = (Game.gcl.progressTotal - Game.gcl.progress) / (Game.gcl.progress - Memory.stats.lastGCL) * logRate;
+  }
+  Memory.stats.lastGCL = Game.gcl.progress;
   Memory.stats.gpl = (Game.gpl.progress / Game.gpl.progressTotal) * 100;
   Memory.stats.gplLevel = Game.gpl.level + Memory.stats.gpl / 100;
   // bucket 当前剩余量
@@ -64,11 +69,11 @@ module.exports.stateScanner = function() {
           if (energy - threshold > flunctuationRange &&
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 2) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] += 1;
-          }
-
-          if (energy - threshold < -flunctuationRange &&
+          } else if (energy - threshold < -flunctuationRange &&
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 0) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] -= 1;
+          } else {
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1;
           }
         }
       }
