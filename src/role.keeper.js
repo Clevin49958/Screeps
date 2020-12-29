@@ -56,7 +56,7 @@ module.exports = {
 
       if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
         for (const structure of payList) {
-          if (structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+          if (structure.store.getFreeCapacity(RESOURCE_ENERGY) >= 100) {
             creep.transfer(structure, RESOURCE_ENERGY);
             break;
           }

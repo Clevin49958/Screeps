@@ -27,7 +27,7 @@ module.exports = {
     // if creep is supposed to transfer energy to a structure
     if (creep.memory.working == true) {
       if (creep.room.name != creep.memory.home) {
-        let standingAt = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos);
+        let standingAt = creep.pos.findInRange(FIND_STRUCTURES, 3);
         // Logger.info(creep.name, standingAt);
         standingAt = _.find(standingAt, (s) => s.hits < s.hitsMax - 1600);
         if (standingAt) {

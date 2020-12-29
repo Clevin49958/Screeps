@@ -121,17 +121,19 @@ module.exports = function() {
     numberOfParts = numberOfParts > lim ? lim : numberOfParts;
     numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
-    const body = [];
-    for (let i = 0; i < numberOfParts * 4 + 2; i++) {
+    let body = [];
+    for (let i = 0; i < numberOfParts * 4 + 1; i++) {
       body.push(WORK);
     }
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       body.push(CARRY);
     }
     for (let i = 0; i < numberOfParts + 1; i++) {
       body.push(MOVE);
     }
-
+    if (energy == 300) {
+      body = [WORK, WORK, CARRY, MOVE]
+    }
     // create creep with the created body and the given role
     return this.spawnCreep(body,
         `${getName(roleName, target, home)}`, {

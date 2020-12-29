@@ -16,3 +16,7 @@ Color system will be used to indicate their type
    - grey
      - indicate the position for keeper to sit
        @name = ```keeper-${room}```
+ - blue
+   - blue
+     - structure planer
+     - @name = ```site-${room}-${structureType}-${[index]}```

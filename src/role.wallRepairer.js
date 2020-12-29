@@ -68,7 +68,7 @@ module.exports = {
         }
       } else {
         // if we can't fine one
-        if (creep.memory.target == creep.memory.home) {
+        if (creep.memory.target == creep.memory.home || Memory.myRooms[creep.memory.target]) {
           roleUpgrader.run(creep);
         } else {
           creep.memory.target = creep.memory.home;

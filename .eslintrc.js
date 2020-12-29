@@ -28,8 +28,11 @@ module.exports = {
           "return": "returns"
         },
         'requireReturn': false,
-        'requireParamDescription': false
+        'requireParamDescription': false,
+        "requireReturnDescription": false,
+        "requireParamDescription": false
       }
-    ]
+    ],
+    'linebreak-style': 'off'
   },
 };
