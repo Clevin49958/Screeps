@@ -191,11 +191,7 @@ module.exports = {
    * @returns {StructureStorage|null} source
    */
   withdrawStorage: function(creep) {
-    let source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (s) =>
-        s.structureType == STRUCTURE_STORAGE && s.store
-            .getUsedCapacity(RESOURCE_ENERGY) > 0,
-    });
+    let source = creep.room.storage;
 
     if (!source && creep.room.controller) {
       source = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2, {

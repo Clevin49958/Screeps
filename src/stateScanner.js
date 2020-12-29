@@ -49,11 +49,8 @@ module.exports.stateScanner = function() {
   const storages = {};
   for (const room in Memory.myRooms) {
     if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
-      let storage = Game.rooms[room].find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType == STRUCTURE_STORAGE,
-      });
-      if (storage.length > 0) {
-        storage = storage[0];
+      let storage = Game.rooms[room].storage;
+      if (storage) {
         storages[room] = storage;
         Memory.stats.Storages[room] = storage.store.getUsedCapacity(
             RESOURCE_ENERGY);
@@ -66,15 +63,23 @@ module.exports.stateScanner = function() {
           }%`);
         }
         // update upgrader
-        if (Game.time % 300 == 0 && Math.abs(energy - threshold) > flunctuationRange) {
+        if (Game.time % 300 == 0 &&
+          Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] >= 0) {
           if (energy - threshold > flunctuationRange &&
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 2) {
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 2
+            ) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] += 1;
-          } else if (energy - threshold < -flunctuationRange &&
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 0) {
+          }
+          if (energy - threshold < -flunctuationRange &&
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 0
+            ) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] -= 1;
-          } else {
+          }
+          if (Math.abs(energy - threshold) <= flunctuationRange) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1;
+          }
+          if (energy < threshold - flunctuationRange * 3 && Game.time % 3000 == 0)  {
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1
           }
         }
       }

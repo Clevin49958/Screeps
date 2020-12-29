@@ -47,7 +47,10 @@ module.exports = {
         if (link) {
           return helper.payStructure(creep, link);
         } else {
-          if (!helper.payAny(creep, !creep.memory.gotFromStorage)) {
+          if (!helper.payAny(creep, 
+              !creep.memory.gotFromStorage ||
+              Game.time - creep.memory.gotFromStorage > 30
+              )) {
             helper.moveOffRoad(creep);
           }
           return;
@@ -75,7 +78,9 @@ module.exports = {
       if (helper.withdrawContainerIfRich(creep)) return;
       creep.say('store');
       if (helper.withdrawStorage(creep)) {
-        creep.memory.gotFromStorage = true;
+        if (creep.memory.target == creep.memory.home) {
+          creep.memory.gotFromStorage = Game.time;
+        }
         return;
       }
       creep.say('edge');
