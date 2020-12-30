@@ -11,19 +11,41 @@ const init = require('./init');
 const myLink = require('./link');
 const myTerminal = require('./terminal');
 const {Logger} = require('./Logger');
-
 const profiler = require('screeps-profiler');
 
 // execute alterOnce for once
 Memory.exec = true;
 
-const main = () => {
-  // update code check
-  if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
-    Memory.SCRIPT_VERSION = SCRIPT_VERSION;
-    console.log('New code uploaded');
-  }
+// update code check
+if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
+  Memory.SCRIPT_VERSION = SCRIPT_VERSION;
+  console.log('New code uploaded');
+}
 
+const starter = () => {
+  // CPU bucket check
+  if (Game.cpu.bucket < 50 && true) {
+    // skip ticket
+    let timeSinceLastSkip = -1;
+    if (global.lastSkip) {
+      timeSinceLastSkip = Game.time - global.lastSkip;
+    }
+    global.lastSkip = Game.time;
+    if (timeSinceLastSkip > 1000 || timeSinceLastSkip == -1) {
+      Logger.info(`Skipping tick after upload ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
+    } else {
+      Logger.warn(`Skipping tick after upload, current bucket: <${Math.floor(Game.cpu.bucket/100) + 1}00, time since last skip: <${Math.floor(timeSinceLastSkip/10) + 1}0`);
+    }
+
+    return;
+  } else {
+    init.initMemoryTree();
+
+    module.exports.loop = main;
+  }
+};
+
+const main = () => {
   // terminal processing
   for (const room in Memory.myRooms) {
     const terminal = Game.rooms[room].terminal;
@@ -33,14 +55,20 @@ const main = () => {
   }
 
   // CPU bucket check
-  if (Game.cpu.bucket < 50 || false) {
+  if (Game.cpu.bucket < 15 || false) {
     // skip ticket
     let timeSinceLastSkip = -1;
     if (global.lastSkip) {
       timeSinceLastSkip = Game.time - global.lastSkip;
     }
     global.lastSkip = Game.time;
-    if (timeSinceLastSkip > 1000 || timeSinceLastSkip == -1) {
+    if (
+      timeSinceLastSkip > 1000 ||
+      timeSinceLastSkip == -1 ||
+      (
+        Memory.states.lastPixelTime &&
+        Game.time - Memory.states.lastPixelTime <= 1
+      )) {
       Logger.info(`Skipping tick ${Game.time}, current bucket: ${Game.cpu.bucket}, time since last skip: ${timeSinceLastSkip}`);
     } else {
       Logger.warn(`Skipping tick, current bucket: <${Math.floor(Game.cpu.bucket/100) + 1}00, time since last skip: <${Math.floor(timeSinceLastSkip/10) + 1}0`);
@@ -61,6 +89,8 @@ const main = () => {
   init.alter();
 
   init.alterOnce();
+
+  init.autoUpdateRoom();
 
   tower.defendMyRoom();
 
@@ -98,9 +128,9 @@ if (false) {
   profiler.enable();
   module.exports.loop = function() {
     profiler.wrap(function() {
-      main();
+      starter;
     });
   };
 } else {
-  module.exports.loop = main();
+  module.exports.loop = starter;
 }
