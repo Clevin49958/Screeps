@@ -34,10 +34,15 @@ module.exports.stateScanner = function() {
   Memory.stats.bucket = Game.cpu.bucket;
   // creep sum
   Memory.stats.creeps = _.sum(Memory.creeps, (c) => true);
+  Memory.stats.rcl = [];
+  Memory.stats.rclevel = [];
   // Room control level
   for (const [index, room] of Object.keys(Memory.myRooms).entries()) {
-    Memory.stats.rcl[index] = (Game.rooms[room].controller.progress) / (
-      Game.rooms[room].controller.progressTotal) * 100;
+    Memory.stats.rcl[index] = Game.rooms[room].controller.progress /
+      Game.rooms[room].controller.progressTotal * 100;
+    if (!Memory.stats.rcl[index]) {
+      Memory.stats.rcl[index] = 0;
+    }
     Memory.stats.rclevel[index] = Game.rooms[room].controller.level +
             Memory.stats.rcl[index] / 100;
   }
@@ -46,12 +51,11 @@ module.exports.stateScanner = function() {
   roleNames.forEach((r) => Memory.stats.roles[r] = _.sum(Game.creeps, (c) =>
     c.memory.role == r));
   // storage
-  const storages = {};
+  Memory.stats.Storages = {};
   for (const room in Memory.myRooms) {
     if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
       let storage = Game.rooms[room].storage;
       if (storage) {
-        storages[room] = storage;
         Memory.stats.Storages[room] = storage.store.getUsedCapacity(
             RESOURCE_ENERGY);
         const threshold = 500000;
