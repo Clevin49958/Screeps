@@ -22,16 +22,17 @@ module.exports = {
         Memory.states.defending[room.name] = true;
         const username = hostiles[0].owner.username;
         const hostileHealer = _.reduce(hostiles, ((acc, c) => acc ||
-            _.reduce(c.body, (acc, part) => acc || part.type == 'HEAL', undefined) ? c : acc),
+            c.getActiveBodyparts(HEAL) > 3 ? c : acc),
         null);
-        if (towers.length > 0 && (towers[0].pos.inRangeTo(hostiles[0], 16) || !hostileHealer)) {
+        // Logger.info(towers[0].pos.roomName, towers[0].pos.inRangeTo(hostiles[0], 16), !hostileHealer)
+        if (towers.length > 0 && (/*towers[0].pos.inRangeTo(hostiles[0], 16) ||*/ !hostileHealer)) {
           towers.forEach((tower) => tower.attack(
                             hostileHealer ? hostileHealer :
                             hostiles[0]));
           break;
         }
         if (username != 'Invader' || hostileHealer) {
-          Logger.warn(`${roomId} is under attack by ${username} with ${hostiles.length} creeps, healer: ${hostileHealer}`);
+          Logger.warn(`${roomName} is under attack by ${username} with ${hostiles.length} creeps, healer: ${hostileHealer}`);
         }
       }
 

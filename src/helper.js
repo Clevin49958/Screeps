@@ -137,10 +137,6 @@ module.exports = {
       if (this.payTerminal(creep, true)) return true;
       if (this.payStorage(creep, true)) return true;
     }
-    if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
-      creep.say('tower');
-      if (this.payTower(creep)) return true;
-    }
     creep.say('spawn');
     if (this.paySpawn(creep)) return true;
     creep.say('tower');

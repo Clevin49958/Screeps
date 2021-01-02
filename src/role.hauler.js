@@ -44,7 +44,7 @@ module.exports = {
 
       const link = links.length == 0 ? null : links[0];
       if (creep.memory.home == creep.room.name) {
-        if (link) {
+        if (link && creep.memory.home != creep.memory.target) {
           return helper.payStructure(creep, link);
         } else {
           if (!helper.payAny(creep, 
