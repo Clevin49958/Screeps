@@ -7,14 +7,14 @@ const roleRepairer = require('./role.repairer');
 
 /**
  *
- * @param {Game.Creep} creep creep to exec
+ * @param {Creep} creep creep to exec
  * @returns {number} -1: quest not found; -2: moving to target room
  */
 function findQuest(creep) {
   if (helper.moveTargetRoom(creep)) {
     return -2;
   } else {
-    const c = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+    const c = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES);
     creep.memory.quest = c ? c.id : -1;
     return c ? c : -1;
   }
@@ -56,7 +56,7 @@ module.exports = {
         roleRepairer.run(creep);
       } else {
         if (creep.build(quest) == ERR_NOT_IN_RANGE) {
-          creep.myMoveTo(quest);
+          creep.myMoveTo(quest, {range: 3});
         }
       }
     } else {
