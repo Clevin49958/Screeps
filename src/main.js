@@ -10,7 +10,9 @@ const tower = require('./tower');
 const init = require('./init');
 const myLink = require('./link');
 const myTerminal = require('./terminal');
-const {Logger} = require('./Logger');
+const { Logger } = require('./Logger');
+const memoryTree = require('./memoryTree');
+const globalTree = require('./globalTree');
 const profiler = require('screeps-profiler');
 
 // execute alterOnce for once
@@ -39,7 +41,8 @@ const starter = () => {
 
     return;
   } else {
-    init.initMemoryTree();
+    memoryTree.init();
+    globalTree.init();
 
     module.exports.loop = main;
   }
@@ -90,7 +93,7 @@ const main = () => {
 
   init.alterOnce();
 
-  init.autoUpdateRoom();
+  memoryTree.autoUpdateRoom();
 
   tower.defendMyRoom();
 
