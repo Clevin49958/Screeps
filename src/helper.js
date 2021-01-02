@@ -17,7 +17,7 @@ const MINER = 'miner';
 const KEEPER = 'keeper';
 
 Creep.prototype.myMoveTo = function(destination, options = {}) {
-  options = _.merge({ignoreCreeps: true}, options);
+  options = _.merge({}, options);
   if (/* this.memory.home != this.memory.target*/ true) {
     return this.travelTo(destination, options);
   } else {
@@ -210,6 +210,25 @@ module.exports = {
     return source;
   },
 
+  /**
+   * withdraw energy from terminal
+   * @param {Creep} creep creep
+   * @returns {StructureTerminal|null} source
+   */
+  withdrawTerminal: function(creep) {
+    let source = creep.room.terminal;
+    if (source && source.store.getUsedCapacity(RESOURCE_ENERGY) > 40000) {
+      if (creep.withdraw(source, RESOURCE_ENERGY) ==
+                ERR_NOT_IN_RANGE) {
+        // move towards the source
+        creep.myMoveTo(source);
+      }
+      return source;
+    } else {
+      return null;
+    }
+  },
+
   withdrawContainer: function(creep, source = null, mineral = false) {
     // var source = null;
     if (!source) {
@@ -294,6 +313,7 @@ module.exports = {
      */
   withdrawEnergy: function(creep) {
     if (this.withdrawLink(creep)) return true;
+    if (this.withdrawTerminal(creep)) return true;
     if (this.withdrawStorage(creep)) return true;
     if (this.withdrawContainer(creep)) return true;
     // if (Memory.states.defending[creep.memory.room] || Memory.states.restart[creep.memory.home]) {

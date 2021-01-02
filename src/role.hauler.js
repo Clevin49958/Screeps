@@ -76,6 +76,8 @@ module.exports = {
       if (helper.harvestLoot(creep, 300, true)) return;
       creep.say('container');
       if (helper.withdrawContainerIfRich(creep)) return;
+      creep.say('terminal');
+      if (helper.withdrawTerminal(creep)) return;
       creep.say('store');
       if (helper.withdrawStorage(creep)) {
         if (creep.memory.target == creep.memory.home) {
