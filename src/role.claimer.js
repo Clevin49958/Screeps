@@ -1,6 +1,8 @@
 const helper = require('./helper');
 
 module.exports = {
+  updateWorkingState: function(creep) {},
+
   // a function to run the logic for this role
   run: function(creep) {
     if (!creep.memory.quest && Game.rooms[creep.memory.target]) {

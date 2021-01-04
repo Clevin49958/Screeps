@@ -4,10 +4,8 @@ const {
 const helper = require('./helper');
 
 module.exports = {
-  // a function to run the logic for this role
-  run: function(creep) {
-    creep.say(HARVESTER.slice(0, 1));
-    // if creep is bringing energy to the spawn or an extension but has no energy left
+  updateWorkingState: function(creep) {
+    // if creep is trying to complete a constructionSite but has no energy left
     if (creep.memory.working == true && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
       // switch state
       creep.memory.working = false;
@@ -17,6 +15,11 @@ module.exports = {
       // switch state
       creep.memory.working = true;
     }
+  },
+
+  // a function to run the logic for this role
+  run: function(creep) {
+    creep.say(HARVESTER.slice(0, 1));
 
     if (creep.memory.working == true) {
       // if creep is supposed to transfer energy to the spawn or an extension

@@ -2,6 +2,7 @@ const helper = require('./helper');
 const {Logger} = require('./Logger');
 
 module.exports = {
+  updateWorkingState: function(creep) {},
   /**
    * Miner will harvest mineral from creep.memory.target (room), and store in a terminal if in reach
    * @param {Creep} creep creep to exec

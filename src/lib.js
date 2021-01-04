@@ -486,6 +486,7 @@ module.exports = {
             roles[role].run(creep);
           }
         } catch (e) {
+      // who r u?
           Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep);
         }
       }

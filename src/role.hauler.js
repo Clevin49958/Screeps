@@ -1,17 +1,11 @@
 const helper = require('./helper');
-
+const { Logger } = require('./Logger');
+const { PayTask, TakeTask } = require('./task')
 module.exports = {
-  // a function to run the logic for this role
-  /**
-   * hauler
-   * @param {Creep} creep creep to work
-   * @returns {number} ERR_* / OK
-   */
-  run: function(creep) {
-    // switch states
+
+  updateWorkingState: function(creep) {
     // if creep is bringing energy to a structure but has no energy left
-    if (creep.memory.working == true && _.sum(_.keys(creep.store), (srcType) =>
-      creep.store.getUsedCapacity(srcType)) == 0) {
+    if (creep.memory.working == true && _.keys(creep.store).length == 0) {
       // switch state
       creep.memory.working = false;
     } else if (creep.memory.working == false &&
@@ -23,6 +17,15 @@ module.exports = {
       // switch state
       creep.memory.working = true;
     }
+  },
+
+  // a function to run the logic for this role
+  /**
+   * hauler
+   * @param {Creep} creep creep to work
+   * @returns {number} ERR_* / OK
+   */
+  run: function(creep) {
 
     // if creep is supposed to transfer energy to a structure
     if (creep.memory.working == true) {
@@ -44,18 +47,18 @@ module.exports = {
 
       const link = links.length == 0 ? null : links[0];
       if (creep.memory.home == creep.room.name) {
-        if (link && creep.memory.home != creep.memory.target) {
-          return helper.payStructure(creep, link);
-        } else {
-          if (!helper.payAny(creep, 
-              !creep.memory.gotFromStorage ||
-              Game.time - creep.memory.gotFromStorage > 30
-              )) {
-            helper.moveOffRoad(creep);
-          }
-          return;
-        }
+      if (link && creep.memory.home != creep.memory.target) {
+        return helper.payStructure(creep, link);
       } else {
+        if (!helper.payAny(creep, 
+            !creep.memory.gotFromStorage ||
+            Game.time - creep.memory.gotFromStorage > 30
+            )) {
+          helper.moveOffRoad(creep);
+        }
+        return;
+      }
+    } else {
         return helper.moveHome(creep);
       }
     } else {

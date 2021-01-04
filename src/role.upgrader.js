@@ -32,6 +32,20 @@ function getDestinyFlag(creep) {
 }
 
 module.exports = {
+  updateWorkingState: function(creep) {
+    // switch working state
+    if (creep.memory.working == true &&
+      (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.getActiveBodyparts(WORK) &&
+        creep.getActiveBodyparts(WORK) > creep.body.length / 3 ||
+        creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0
+      )) {
+      creep.memory.working = false;
+    } else if (creep.memory.working == false && creep.store.getUsedCapacity(RESOURCE_ENERGY) ==
+      creep.store.getCapacity(RESOURCE_ENERGY)) {
+      creep.memory.working = true;
+    }
+  },
+  
   /**
    * upgrader role
    * @param {Creep} creep creep
@@ -42,17 +56,7 @@ module.exports = {
       return;
     }
 
-    // switch working state
-    if (creep.memory.working == true &&
-        (creep.store.getUsedCapacity(RESOURCE_ENERGY) < creep.getActiveBodyparts(WORK) &&
-          creep.getActiveBodyparts(WORK) > creep.body.length / 3 ||
-          creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0
-        )) {
-      creep.memory.working = false;
-    } else if (creep.memory.working == false && creep.store.getUsedCapacity(RESOURCE_ENERGY) ==
-      creep.store.getCapacity(RESOURCE_ENERGY)) {
-      creep.memory.working = true;
-    }
+    
 
     // if creep is supposed to transfer energy to the controller
     if (creep.memory.working == true) {

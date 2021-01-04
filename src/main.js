@@ -128,6 +128,8 @@ const main = () => {
 
   memoryTree.autoUpdateRoom();
 
+  lib.updateCreepWorkingState();
+
   try {
     globalTree.generateTasks()
   } catch (e) {
