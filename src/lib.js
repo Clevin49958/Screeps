@@ -44,10 +44,7 @@ module.exports = {
     /** @type {number} */
     const energyMax = spawn.room.energyCapacityAvailable;
 
-    if (!Memory.stats.creepTrack[room]) {
-      Memory.stats.creepTrack[
-          room] = {};
-    }
+    Memory.stats.creepTrack[room] = {};
     const creepTrack = Memory.stats.creepTrack[room];
     const creepDemand = Memory.creepDemand[room];
     let res = undefined;
@@ -98,10 +95,11 @@ module.exports = {
 
     // collect some stats of creeps
     for (const targetRoom of Memory.myRooms[room]) {
-      if (!Game.rooms[targetRoom]) {
-        continue;
-      } else {
-        if (!creepTrack[targetRoom]) creepTrack[targetRoom] = {};
+      if (!creepTrack[targetRoom]) {
+        creepTrack[targetRoom] = {};
+      }
+
+      if (Game.rooms[targetRoom]) {
         // update builder count
         if (Game.time % helper.logRate == 0) {
           totalProgress = _.sum(Game.rooms[targetRoom]
@@ -236,24 +234,27 @@ module.exports = {
         }
         let hostiles = Game.rooms[targetRoom].find(
             FIND_HOSTILE_CREEPS);
-        const hostileHealer = _.reduce(hostiles, ((acc, c) =>
-                    acc || _.reduce(c.body, (acc, part) => acc || part
-                        .type == HEAL, undefined) ? c : acc), null);
+        const hostileHealer = _.reduce(hostiles, ((acc, c) => acc ||
+          c.getActiveBodyparts(HEAL) > 3 ? c : acc), null);
 
         // Logger.info('a ',room,targetRoom, hostiles, _.sum(Game.creeps, c => c.memory.role == helper.ATK_RANGE && c.memory.target == targetRoom && c.memory.home == room), Game.rooms[targetRoom].find(FIND_HOSTILE_STRUCTURES));
         // energy exist without healer, and no tower in the room
-        if (hostiles.length > 0 && !hostileHealer && hostiles.length > _.sum(
-            Game.creeps, (c) => c.memory.role == helper.ATK_RANGE &&
-            c.memory.target == targetRoom && c.memory.home == room) &&
-            Game.rooms[targetRoom].find(FIND_MY_STRUCTURES, {filter: (s) =>
-              s.structureType == STRUCTURE_TOWER,
-            }).length == 0
+        if (hostiles.length > 0 &&
+          !hostileHealer &&
+          hostiles.length > 
+            _.sum(
+              Game.creeps, (c) => 
+              c.memory.role == helper.ATK_RANGE &&
+              c.memory.target == targetRoom
+              && c.memory.home == room
+            ) &&
+          Game.rooms[targetRoom].find(FIND_MY_STRUCTURES, {filter: (s) =>
+            s.structureType == STRUCTURE_TOWER,
+          }).length == 0
         ) {
-          spawn.sp;
           let res;
           if (hostiles.length == 1) {
-            spawn.spawat;
-            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room, 1, 5);
+            res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room, 1, 10);
           } else {
             res = spawn.spawnAtkRangeCreep(energyMax, targetRoom, room);
           }

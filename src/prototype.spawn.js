@@ -215,7 +215,6 @@ module.exports = function() {
           let numberOfParts = Math.floor((energy - (energy > 600 ? 150 : 0)) / 150);
           numberOfParts = numberOfParts > lim ? lim : numberOfParts;
           numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
-
           const body = [];
           for (let i = 0; i < numberOfParts; i++) {
             body.push(CARRY);

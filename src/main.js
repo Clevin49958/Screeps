@@ -41,14 +41,41 @@ const starter = () => {
 
     return;
   } else {
-    memoryTree.init();
-    globalTree.init();
-
-    module.exports.loop = main;
+    console.log(`Shard detected: ${Game.shard.name}`);
+    if (Game.shard.name == 'shard2') {
+      module.exports.loop = emptyShard;
+    } else {
+      memoryTree.init();
+      globalTree.init();
+      module.exports.loop = main;
+    }
   }
 };
 
+const emptyShard = () => {
+  if (Game.cpu.bucket == 10000) {
+    Game.cpu.generatePixel();
+    console.log(`${Game.shard.name} generated a pixel.`)
+  } else {
+    if (!(Game.time % 20)) {
+      console.log(`bucket: ${Game.cpu.bucket}`)
+    }
+  }
+}
+
 const main = () => {
+  // generate a creep to occupy an unused shard
+  if (!Memory.states.lastOccupier || Game.time - Memory.states.lastOccupier > 1300) {
+    if (Game.spawns.Spawn1.spawnCreep([MOVE], 'occupier') == 0) {
+      Memory.states.lastOccupier = Game.time;
+    }
+  }
+  if (Game.creeps.occupier) {
+    // move to portal
+    Game.creeps.occupier.myMoveTo(new RoomPosition(20, 40, 'W30N10'));
+  }
+
+
   // terminal processing
   for (const room in Memory.myRooms) {
     const terminal = Game.rooms[room].terminal;
@@ -94,6 +121,12 @@ const main = () => {
   init.alterOnce();
 
   memoryTree.autoUpdateRoom();
+
+  try {
+    globalTree.generateTasks()
+  } catch (e) {
+    Logger.warn(`Error running task generation`, e.name, e.message, e.fileName, e.lineNumber, e.stack);
+  }
 
   tower.defendMyRoom();
 

@@ -11,9 +11,10 @@ function sendTradeReport(tradeType) {
   let msg, trades;
 
   /**
-   * @type {Object.<string, Array.<{amount: number, price: number}>>} 
+   * obj<resourceType, <price, amount>>
+   * @type {Object.<string, Object.<string, number>>} 
    */
-  let details = {};
+  let rawDetails = {};
 
   // get orders
   if (tradeType == 'sell') {
@@ -30,16 +31,38 @@ function sendTradeReport(tradeType) {
 
   // extract amount and price info
   trades.forEach((sell => {
-    if (!details[sell.resourceType]) {
-      details[sell.resourceType] = [];
+    if (!rawDetails[sell.resourceType]) {
+      rawDetails[sell.resourceType] = {};
     }
 
-    details[sell.resourceType].push(({
-      amount: sell.amount,
-      price: sell.order.price
-    }))
+    if (!rawDetails[sell.resourceType][sell.order.price]) {
+      rawDetails[sell.resourceType][sell.order.price] = 0;
+    }
+    rawDetails[sell.resourceType][sell.order.price] += sell.amount;
   }));
 
+  /**
+   * obj<resourceType, <price, amount>>
+   * @type {Object.<string, {price: number, amount: number}>} 
+   */
+  let details = {};
+  for (const srcType in rawDetails) {
+    if (Object.hasOwnProperty.call(rawDetails, srcType)) {
+      const priceAmount = rawDetails[srcType];
+      details[srcType] = [];
+      for (const price in priceAmount) {
+        if (Object.hasOwnProperty.call(priceAmount, price)) {
+          const amount = priceAmount[price];
+          details[srcType].push({
+            price: parseFloat(price),
+            amount: amount
+          })
+        }
+      }
+      
+    }
+  }
+  
   // format message
   for (const resourceType in details) {
     if (Object.hasOwnProperty.call(details, resourceType)) {
@@ -76,8 +99,9 @@ function trackSellOrder() {
   } else {
     Memory.stats.stackedSellOrder += 1;
   }
-  if (!Memory.stats.stackedSellOrder % MAX_ORDERS_PER_REPORT) {
+  if (Memory.stats.stackedSellOrder >= MAX_ORDERS_PER_REPORT) {
     sendTradeReport('sell');
+    Memory.stats.stackedSellOrder = 0;
   }
 }
 
@@ -115,6 +139,10 @@ function autoDealExcess(terminal) {
 
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: resourceType})
       .sort((a, b) => b.price - a.price);
+  if (orders.length == 0) {
+    Logger.info(`Out of ${resourceType} orders`);
+    return ERR_INVALID_TARGET;
+  }
   const minPrice = _.max([
     orders[0].price * 0.7,
     _.sum(orders.map((o) => o.price)) / orders.length,
