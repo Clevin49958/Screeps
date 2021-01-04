@@ -79,7 +79,13 @@ const main = () => {
   // terminal processing
   for (const room in Memory.myRooms) {
     const terminal = Game.rooms[room].terminal;
-    if (!(Game.time % 500) && terminal) {
+    // TODO del
+    if (!(Game.time % 10) && terminal) {
+      if (room == 'W32N11' && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 30000) {
+        terminal.send(RESOURCE_ENERGY, 27000, 'W34N9','exit');
+      }
+    }
+    if (!(Game.time % 100) && terminal) {
       myTerminal.autoDealExcess(terminal);
     }
   }

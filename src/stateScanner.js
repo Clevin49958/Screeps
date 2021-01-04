@@ -59,19 +59,23 @@ module.exports.stateScanner = function() {
       if (storage) {
         Memory.stats.Storages[room] = storage.store.getUsedCapacity(
             RESOURCE_ENERGY);
-        const threshold = 500000;
+        const threshold = 100000;
         const flunctuationRange = 30000;
         const energy = storage.store.getUsedCapacity(RESOURCE_ENERGY);
         if (energy > threshold + 50000) {
-          Game.notify(`Storage is at ${
-            storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000
-          }%`);
+          // TODO uncomment
+          // Game.notify(`Storage is at ${
+          //   storage.store.getUsedCapacity(RESOURCE_ENERGY)/10000
+          // }%`);
+        }
+        if (Game.rooms[room].controller.level == 8) {
+          Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1
         }
         // update upgrader
-        if (Game.time % 300 == 0 &&
+        if (Game.time % 300 == 0 && Game.rooms[room].controller.level < 8 && 
           Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] >= 0) {
           if (energy - threshold > flunctuationRange &&
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 2
+            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] < 3
             ) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] += 1;
           }

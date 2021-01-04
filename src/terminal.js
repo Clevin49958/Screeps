@@ -111,7 +111,7 @@ function trackSellOrder() {
  * @returns {number} ERR_* / OK
  */
 function autoDealExcess(terminal) {
-  const THRESHOLD = 80000;
+  const THRESHOLD = 10000;
   const MAX_PER_SELL = 10000;
   const TRANSITION_COST_RATIO = 1;
 
@@ -132,10 +132,10 @@ function autoDealExcess(terminal) {
     return OK;
   }
 
-  // // if we intend to unclaim the room
-  // if (terminal.room.name == 'W36N9' && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 100000) {
-  //   terminal.send(RESOURCE_ENERGY, 95000, 'W35N12');
-  // }
+  // if we intend to unclaim the room
+  if (terminal.room.name == 'W36N9' && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 30000) {
+    terminal.send(RESOURCE_ENERGY, 28000, 'W35N12');
+  }
 
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: resourceType})
       .sort((a, b) => b.price - a.price);
