@@ -99,6 +99,10 @@ class PriorityQueue {
 
     return poppedNode;
   }
+
+  peak() {
+    return this.elements[0];
+  }
 }
 
 module.exports = {

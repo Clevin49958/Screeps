@@ -2,6 +2,7 @@ const {
   HARVESTER,
 } = require('./helper');
 const helper = require('./helper');
+const { Logger } = require('./Logger');
 
 module.exports = {
   updateWorkingState: function(creep) {
@@ -23,7 +24,14 @@ module.exports = {
 
     if (creep.memory.working == true) {
       // if creep is supposed to transfer energy to the spawn or an extension
-      helper.payAny(creep);
+      /** @type {PayTask} */
+      const task = global.creeps[creep.name].task;
+      if (task) {
+        Logger.trace(`Perform`, creep.name, task.constructor.name, task)
+        task.aciton(creep);
+      } else {
+        helper.moveOffRoad(creep);
+      }
     } else {
       // if creep is supposed to harvest energy from source
       if (Memory.states.restart[creep.memory.home]) {

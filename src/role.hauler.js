@@ -29,6 +29,19 @@ module.exports = {
 
     // if creep is supposed to transfer energy to a structure
     if (creep.memory.working == true) {
+      if (creep.memory.target == creep.memory.home) {
+        /** @type {PayTask} */
+        const task = global.creeps[creep.name].task;
+        if (task) {
+          Logger.trace(`Perform`, creep.name, task.constructor.name, task)
+          Logger.info(`hauler W32N11: ${task.priority}:${task.progress}`)
+          task.aciton(creep);
+        } else {
+          helper.moveOffRoad(creep);
+          Logger.warn(`Hauler from W32N11 is taking a break`)
+        }
+        return;
+      }
       if (creep.room.name != creep.memory.home) {
         let standingAt = creep.pos.findInRange(FIND_STRUCTURES, 3);
         // Logger.info(creep.name, standingAt);

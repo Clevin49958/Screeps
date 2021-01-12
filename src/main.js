@@ -14,6 +14,7 @@ const { Logger } = require('./Logger');
 const memoryTree = require('./memoryTree');
 const globalTree = require('./globalTree');
 const profiler = require('screeps-profiler');
+const { Task } = require('./task');
 
 // execute alterOnce for once
 Memory.exec = true;
@@ -117,8 +118,14 @@ const main = () => {
   for (const name in Memory.creeps) {
     // and checking if the creep is still alive
     if (!Game.creeps[name]) {
+      /** @type {Task} */
+      const task = _.get(global, ['creeps', name, 'task']);
+      if (task) {
+        task.onComplete(ERR_NO_BODYPART);
+      }
       // if not, delete the memory entry
       delete Memory.creeps[name];
+      delete global.creeps[name];
     }
   }
 
@@ -132,6 +139,7 @@ const main = () => {
 
   try {
     globalTree.generateTasks()
+    globalTree.marryTasks();
   } catch (e) {
     Logger.warn(`Error running task generation`, e.name, e.message, e.fileName, e.lineNumber, e.stack);
   }

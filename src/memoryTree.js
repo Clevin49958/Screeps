@@ -173,15 +173,15 @@ function initRoom(room) {
   const mem = room.memory;
 
   // sources
-  mem.sources = room.find(FIND_SOURCES).map((s) => basicInfo(s));
+  mem.sources = room.find(FIND_SOURCES).map((s) => basicInfo(s)) || [];
 
   // mineral
   const mineral = room.find(FIND_MINERALS)[0];
-  mem.mineral = {
+  mem.mineral = mineral ? {
     id: mineral.id,
     type: mineral.mineralType,
     density: mineral.density,
-  };
+  } : null;
 
   // owner
   updateOwner(room);
@@ -243,6 +243,16 @@ function init() {
     }
     _.set(Memory, 'states.init.initMemoryTree', true);
     Logger.info(`Memory initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
+  } else {
+    let startTime = Game.cpu.getUsed();
+    for (const roomName of _.keys(Game.rooms)) {
+      if (!Memory.rooms[roomName]) {
+        initRoom(Game.rooms[roomName]);
+        Logger.info(`Memory superaddition of ${roomName} using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
+        startTime = Game.cpu.getUsed();
+      }
+    }
+    _.set(Memory, 'states.init.initMemoryTree', true);
   }
 }
 
