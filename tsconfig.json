@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "src",
+    "allowJs": true,
+    "allowUnreachableCode": true,
+    "target": "es5",
+    "typeRoots": ["./node_modules/@types/**/*", "./src/globalClasses", "./src/index"],
+    "types": ["screeps", "lodash"],
+    "lib": ["es2016"]
+  },
+  "include": ["./src/**/*"]
+}

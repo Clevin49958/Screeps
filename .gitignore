@@ -1,11 +1,15 @@
 /.screeps.json
 /node_modules
+/.tscache
 /dist
+
 /screeps-multimeter.json
 /.screeps-multimeter.history
 /*.zip
+
 /src/temp.js
 /src/backup.js
+
 /docs/stuffInMemory.xlsx
 /docs/~$stuffInMemory.xlsx
 /docs/Screeps.xmind
