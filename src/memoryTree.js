@@ -233,6 +233,32 @@ function autoUpdateRoom() {
     updateRoom(Game.rooms[roomNames[index]]);
   }
 }
+
+function preInit() {
+  if (!_.get(Memory, 'states.init.preInitMemoryTree')) {
+    const startTime = Game.cpu.getUsed();
+    Memory.sources = {};
+    Memory.offence = {};
+    Memory.creepDemand = {};
+    Memory.stats = {
+      creepTrack: {}
+    };
+    Memory.states = {
+      restart: {},
+      defending: {}
+    };
+    Memory.myRooms = {};
+    for (const roomName in Game.rooms) {
+      if (Object.hasOwnProperty.call(Game.rooms, roomName)) {
+        const room = Game.rooms[roomName];
+        Memory.sources[roomName] = room.find(FIND_SOURCES).length;
+        addOwnerRoom(roomName);
+      }
+    }
+    _.set(Memory, 'states.init.preInitMemoryTree', true);
+  }
+}
+
 /**
  * Initialise Memory.rooms section base on ```initRoom```
  */
@@ -259,6 +285,7 @@ function init() {
 
 module.exports = {
     autoUpdateRoom,
+    preInit,
     init,
     initRoom,
     getControllerStatus,

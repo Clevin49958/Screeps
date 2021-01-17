@@ -10,11 +10,13 @@ const tower = require('./tower');
 const init = require('./init');
 const myLink = require('./link');
 const myTerminal = require('./terminal');
-const { Logger } = require('./Logger');
+const { Logger, JSONsafe } = require('./Logger');
 const memoryTree = require('./memoryTree');
 const globalTree = require('./globalTree');
 const profiler = require('screeps-profiler');
-const { Task } = require('./task');
+const { Task, TransferTask } = require('./task');
+const { alterOnce } = require('./init');
+const { BACKUP_MEMORY } = require('./config');
 
 // execute alterOnce for once
 Memory.exec = true;
@@ -46,9 +48,12 @@ const starter = () => {
     if (Game.shard.name == 'shard2') {
       module.exports.loop = emptyShard;
     } else {
+      alterOnce();
+      memoryTree.preInit();
       memoryTree.init();
       globalTree.init();
       module.exports.loop = main;
+      main();
     }
   }
 };
@@ -65,27 +70,12 @@ const emptyShard = () => {
 }
 
 const main = () => {
-  // generate a creep to occupy an unused shard
-  if (!Memory.states.lastOccupier || Game.time - Memory.states.lastOccupier > 1300) {
-    if (Game.spawns.Spawn1.spawnCreep([MOVE], 'occupier') == 0) {
-      Memory.states.lastOccupier = Game.time;
-    }
-  }
-  if (Game.creeps.occupier) {
-    // move to portal
-    Game.creeps.occupier.myMoveTo(new RoomPosition(20, 40, 'W30N10'));
-  }
+  init.preparePerTick();
 
 
   // terminal processing
   for (const room in Memory.myRooms) {
-    const terminal = Game.rooms[room].terminal;
-    // TODO del
-    if (!(Game.time % 10) && terminal) {
-      if (room == 'W32N11' && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 30000) {
-        terminal.send(RESOURCE_ENERGY, 27000, 'W34N9','exit');
-      }
-    }
+    const terminal = Game.rooms[room]?.terminal;
     if (!(Game.time % 100) && terminal) {
       myTerminal.autoDealExcess(terminal);
     }
@@ -121,10 +111,10 @@ const main = () => {
       /** @type {TransferTask<any>} */
       const task = global.creeps[name]?.task;
       try {
-      if (task) {
+        if (task) {
           Logger.info(`${name} died with task ${Logger.toMsg(task)}`);
-        task.onComplete(ERR_NO_BODYPART);
-      }
+          task.onComplete(ERR_NO_BODYPART);
+        }
         // delete the memory entry
         if (global.creeps[name]) {
           Logger.info(`Memory residual of ${name} after clean up: ${Logger.toMsg(global.creeps[name])}
@@ -133,16 +123,16 @@ const main = () => {
         } else {
           Logger.warn(`${name} died without global memory`)
         }
-      delete Memory.creeps[name];
+        delete Memory.creeps[name];
       } catch (/** @type {Error} */e) {
         Logger.warn(e.message, e.stack)
       }
     }
   }
+  
+// TODO temp
 
-  init.alter();
-
-  init.alterOnce();
+  // init.alterOnce();
 
   memoryTree.autoUpdateRoom();
 
@@ -151,6 +141,8 @@ const main = () => {
   try {
     globalTree.generateTasks()
     globalTree.marryTasks();
+    init.alter();
+    init.alterOnce();
   } catch (e) {
     Logger.warn(`Error running task generation`, e.name, e.message, e.fileName, e.lineNumber, e.stack);
   }
@@ -177,6 +169,17 @@ const main = () => {
   watcher();
 
   stateScanner.stateScanner();
+
+  if (BACKUP_MEMORY) {
+    const startingTime = Game.cpu.getUsed();
+    Memory.global = {
+      rooms: JSONsafe(global.rooms),
+      creeps: JSONsafe(global.creeps),
+    }
+    if (Game.cpu.getUsed() - startingTime > 3){
+      Logger.info(`Back up global took: ${(Game.cpu.getUsed() - startingTime).toFixed(3)}`);
+    }
+  }
 
   // console line break
   if (Game.time % helper.logRate == 0) {

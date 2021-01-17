@@ -132,11 +132,6 @@ function autoDealExcess(terminal) {
     return OK;
   }
 
-  // if we intend to unclaim the room
-  if (terminal.room.name == 'W36N9' && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 30000) {
-    terminal.send(RESOURCE_ENERGY, 28000, 'W35N12');
-  }
-
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: resourceType})
       .sort((a, b) => b.price - a.price);
   if (orders.length == 0) {

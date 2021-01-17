@@ -80,15 +80,13 @@ module.exports.stateScanner = function() {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] += 1;
           }
           if (energy - threshold < -flunctuationRange &&
+            energy - threshold > -2 * flunctuationRange &&
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] > 0
             ) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] -= 1;
           }
           if (Math.abs(energy - threshold) <= flunctuationRange) {
             Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1;
-          }
-          if (energy < threshold - flunctuationRange * 3 && Game.time % 3000 == 0)  {
-            Memory.creepDemand[storage.room.name][storage.room.name][UPGRADER] = 1
           }
         }
       }

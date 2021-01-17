@@ -17,8 +17,8 @@
     The manager will be surrounded by
     - A link to receive energy from sources
     - The Storage
-    - A spawn
+    - A Terminal
     - A power spawn
     - useually 2 tile of roads (enter and exit, at top and right e.g.)
     - A tower
-    - An extension / a second tower?
+    - A spawn

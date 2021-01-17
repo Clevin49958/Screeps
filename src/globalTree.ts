@@ -259,7 +259,7 @@ export function generateReceiveTask(roomName) {
 
 export function generateTasks() {
   for (const roomName of _.keys(Memory.myRooms)) {
-    this.generateReceiveTask(roomName);
+    generateReceiveTask(roomName);
   }
 }
 

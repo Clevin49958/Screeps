@@ -6,6 +6,8 @@ const {
   KEEPER,
 } = require('./helper');
 const helper = require('./helper');
+const { Logger } = require('./Logger');
+
 
 /**
  * Generate a random name for creep in the format of
@@ -16,7 +18,7 @@ const helper = require('./helper');
  * @returns {string} creep name
  */
 function getName(role, target, home) {
-  return `${role.slice(0, 5)}-${target}-${home}-${Math.floor(Math.random() * 1000)}`;
+  return `${role.slice(0, 5)}-${Math.floor(Math.random() * 10000)}`;
 }
 module.exports = function() {
   // create a new function for StructureSpawn
@@ -117,7 +119,7 @@ module.exports = function() {
   ) {
     // create a balanced body as big as possible with the given energy
     const maxSets = 9;
-    let numberOfParts = Math.floor((energy - 300) / 450);
+    let numberOfParts = Math.floor((energy - (energy > 1200 ? 300 : 200)) / 450);
     numberOfParts = numberOfParts > lim ? lim : numberOfParts;
     numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
 
@@ -125,7 +127,7 @@ module.exports = function() {
     for (let i = 0; i < numberOfParts * 4 + 1; i++) {
       body.push(WORK);
     }
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < (energy > 1200 ? 3 : 1); i++) {
       body.push(CARRY);
     }
     for (let i = 0; i < numberOfParts + 1; i++) {
@@ -212,7 +214,7 @@ module.exports = function() {
          */
         function(energy, target, home = this.room.name, sourceIndex = 0, lim = 8) {
           const maxSets = 16;
-          let numberOfParts = Math.floor((energy - (energy > 600 ? 150 : 0)) / 150);
+          let numberOfParts = Math.floor((energy - (energy > 600 && target != home ? 150 : 0)) / 150);
           numberOfParts = numberOfParts > lim ? lim : numberOfParts;
           numberOfParts = numberOfParts > maxSets ? maxSets : numberOfParts;
           const body = [];
@@ -223,7 +225,7 @@ module.exports = function() {
           for (let i = 0; i < numberOfParts; i++) {
             body.push(MOVE);
           }
-          if (energy > 600) {
+          if (energy > 600 && target != home) {
             body.push(WORK, MOVE);
           }
           // create creep with the created body and the given role

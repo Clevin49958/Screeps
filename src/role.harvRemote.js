@@ -72,14 +72,14 @@ module.exports = {
         helper.updateContainer(container);
       }
     } else if (source && creep.pos.inRangeTo(source, 2)) {
-      let container = creep.pos.findInRange(FIND_STRUCTURES,
-          4, {
+      let container = source.pos.findInRange(FIND_STRUCTURES,
+          1, {
             filter: (s) => s.structureType ==
                         STRUCTURE_CONTAINER,
           });
       if (container.length == 0) {
-        container = creep.pos.findInRange(
-            FIND_CONSTRUCTION_SITES, 4, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
+        container = source.pos.findInRange(
+            FIND_CONSTRUCTION_SITES, 1, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
       }
       if (container.length == 0) {
         if (!creep.pos.isNearTo(source)) {
@@ -90,8 +90,8 @@ module.exports = {
           Logger.error(`Creep failed to create construction site for container in ${creep.room} res: ${res}`, creep);
           return;
         }
-        container = creep.pos.findInRange(
-            FIND_CONSTRUCTION_SITES, 4, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
+        container = source.pos.findInRange(
+            FIND_CONSTRUCTION_SITES, 1, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
       }
       if (creep.pos.isEqualTo(container[0])) {
         creep.say(container[0].pos.x + ' ' + container[0].pos.y);

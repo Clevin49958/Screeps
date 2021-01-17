@@ -12,14 +12,28 @@ const ALL = 0;
 const LOG_LEVEL = INFO;
 const EMAIL_LEVEL = WARNING;
 
-const color = {
-  [TRACE]: 'LightSteelBlue',
-  [DEBUG]: 'SpringGreen',
-  [INFO]: 'White',
-  [WARNING]: 'Tomato',
-  [ERROR]: 'Red',
-  [FATAL]: 'Indigo'
+const myColor = {
+  blue: 'DodgerBlue',
+  green: 'SpringGreen',
+  white: 'White',
+  yellow: 'Yellow',
+  red: 'Tomato',
+  purple: 'Indigo'
 }
+
+const colorForLevel = {
+  [TRACE]: myColor.blue,
+  [DEBUG]: myColor.green,
+  [INFO]: myColor.white,
+  [WARNING]: myColor.yellow,
+  [ERROR]: myColor.red,
+  [FATAL]: myColor.purple
+},
+
+function wrapColor(color, msg) {
+  return `<span style="color: ${myColor[color] || color};">${msg}</span>`;
+}
+
 /**
  * Traverses a javascript object, and deletes all circular values
  * @param source object to remove circular references from
@@ -114,9 +128,9 @@ class Logger {
     }).join('; ');
 
     if (Game.time == Memory.stats.logTick) {
-      msg = `<span style="color: ${color[level]};">     \[${levelInfo}\]  ${combined}</span>`;
+      msg = wrapColor(colorForLevel[level], `     \[${levelInfo}\]  ${combined}`);
     } else {
-      msg = `<span style="color: ${color[level]};">${Game.time % 10000} \[${levelInfo}\]  ${combined}</span>`;
+      msg = wrapColor(colorForLevel[level], `${Game.time % 10000} \[${levelInfo}\]  ${combined}`);
       Memory.stats.logTick = Game.time;
     }
 
@@ -200,5 +214,6 @@ module.exports = {
   Logger,
   LOG_LEVEL,
   EMAIL_LEVEL,
-  JSONsafe
+  JSONsafe,
+  wrapColor
 };

@@ -9,7 +9,7 @@ module.exports = {
       // if ({}.hasOwnProperty.call(Memory.myRooms, roomName)) {
       // console.log(roomName)
       room = Game.rooms[roomName];
-
+      if (!room) continue;
       const towers = room.find(FIND_MY_STRUCTURES, {
         filter: {
           structureType: STRUCTURE_TOWER,

@@ -165,8 +165,7 @@ module.exports = {
       // addOwnerRoom('W36N9');
       // addControlledRoom('W34N13', 'W33N12')
       // transferControlledRoom('W34N13', 'W33N12', 'W34N12')
-      Memory.myRooms['E48S45'] = ['E48S45', 'E49S45'];
-      Memory.myRooms['E47S45'] = ['E47S45'];
+      
 
       Logger.info(`Executed once @${Game.time}`);
       Memory.exec = Game.time;

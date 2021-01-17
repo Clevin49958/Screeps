@@ -3,6 +3,7 @@ const {
 } = require('./helper');
 const helper = require('./helper');
 const { Logger } = require('./Logger');
+const { TESTROOMS } = require('./config');
 
 module.exports = {
   updateWorkingState: function(creep) {
