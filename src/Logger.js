@@ -12,6 +12,71 @@ const ALL = 0;
 const LOG_LEVEL = INFO;
 const EMAIL_LEVEL = WARNING;
 
+const color = {
+  [TRACE]: 'LightSteelBlue',
+  [DEBUG]: 'SpringGreen',
+  [INFO]: 'White',
+  [WARNING]: 'Tomato',
+  [ERROR]: 'Red',
+  [FATAL]: 'Indigo'
+}
+/**
+ * Traverses a javascript object, and deletes all circular values
+ * @param source object to remove circular references from
+ * @param censoredMessage optional: what to put instead of censored values
+ * @param censorTheseItems should be kept null, used in recursion
+ * @returns {undefined}
+ */
+function JSONsafe(source, censoredMessage, censorTheseItems) {
+  //init recursive value if this is the first call
+  censorTheseItems = censorTheseItems || [source];
+  //default if none is specified
+  censoredMessage = censoredMessage || "CIR";
+  //values that have allready apeared will be placed here:
+  var recursiveItems = {};
+  //initaite a censored clone to return back
+  var ret = {};
+  //traverse the object:
+  for (var key in source) {
+      var value = source[key]
+      if (typeof value == "object") {
+          //re-examine all complex children again later:
+          recursiveItems[key] = value;
+      } else {
+          //simple values copied as is
+          ret[key] = value;
+      }
+  }
+  //create list of values to censor:
+  var censorChildItems = [];
+  for (var key in recursiveItems) {
+      var value = source[key];
+      //all complex child objects should not apear again in children:
+      censorChildItems.push(value);
+  }
+  //censor all circular values
+  for (var key in recursiveItems) {
+      var value = source[key];
+      var censored = false;
+      censorTheseItems.forEach(function (item) {
+          if (item === value) {
+              censored = true;
+          }
+      });
+      if (censored) {
+          //change circular values to this
+          value = censoredMessage;
+      } else {
+          //recursion:
+          value = JSONsafe(value, censoredMessage, censorChildItems.concat(censorTheseItems));
+      }
+      ret[key] = value
+
+  }
+
+  return ret;
+}
+
 /**
  * Log messages with time info
  *
@@ -28,6 +93,10 @@ class Logger {
     this.logLevel = logLevel;
   }
 
+  static toMsg(obj) {
+    return typeof obj == 'object' ? JSON.stringify(JSONsafe(obj), null, 2) : obj;
+  }
+
   /**
    * base function of log
    * @param {number} level level constant
@@ -36,14 +105,18 @@ class Logger {
    */
   static log(level, levelInfo, ...message) {
     let msg;
+    let combined = message.map((m) => {
+      try {
+        return Logger.toMsg(m);
+      } catch (e) {
+        return typeof m == 'object' ? m.toString() : m
+      }
+    }).join('; ');
+
     if (Game.time == Memory.stats.logTick) {
-      msg = `     \[${levelInfo}\]  ${message.map((m) =>
-        typeof m == 'object' ? JSON.stringify(m) : m,
-      ).join(' ')}`;
+      msg = `<span style="color: ${color[level]};">     \[${levelInfo}\]  ${combined}</span>`;
     } else {
-      msg = `${Game.time % 10000} \[${levelInfo}\]  ${message.map((m) =>
-        typeof m == 'object' ? JSON.stringify(m) : m,
-      ).join(' ')}`;
+      msg = `<span style="color: ${color[level]};">${Game.time % 10000} \[${levelInfo}\]  ${combined}</span>`;
       Memory.stats.logTick = Game.time;
     }
 
@@ -51,9 +124,7 @@ class Logger {
       console.log(msg);
     }
     if (level >= EMAIL_LEVEL) {
-      msg = `${Math.floor(Game.time / 100)}xx} \[${levelInfo}\]  ${message.map((m) =>
-        typeof m == 'object' ? JSON.stringify(m) : m,
-      ).join(' ')}`;
+      msg = `${Math.floor(Game.time / 100)}xx} \[${levelInfo}\]  ${combined}`;
       Game.notify(msg);
     }
   }
@@ -129,4 +200,5 @@ module.exports = {
   Logger,
   LOG_LEVEL,
   EMAIL_LEVEL,
+  JSONsafe
 };
