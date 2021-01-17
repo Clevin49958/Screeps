@@ -3,7 +3,7 @@ import { PayTask } from "./payTask";
 import { Logger } from "./Logger";
 import { labInfo, LabType } from './lab';
 import { GlobalObjInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
-import { LAB_ENERGY_THRESHOLD, LAB_MINERAL_THRESHOLD, TERMINAL_ENERGY_THRESHOLD } from './config';
+import { LAB_ENERGY_THRESHOLD, LAB_MINERAL_THRESHOLD, TERMINAL_ENERGY_THRESHOLD, TESTROOMS } from './config';
 
 
 /**
@@ -293,7 +293,7 @@ export function marryTasks() {
         const freeCapacity = global.rooms[roomName].storage
           .store.getFreeCapacity(srcType) - getTotalScheduledAmount(storageInfo.resourceTasks, srcType)
         if (freeCapacity < 100) {
-          Logger.info(`Dispose spare energy failed: full storage`);
+          Logger.info(`Dispose spare energy failed: full storage in ${roomName}`);
         } else {
           task = new PayTask(10, srcType, 
             _.min([
@@ -321,25 +321,14 @@ export function marryTasks() {
          - task to room queue
          */
         receiverQueues[srcType].dequeue();
-        if (creep.store.getUsedCapacity(srcType) < task.progressTotal) {
+        if (creep.store.getUsedCapacity(srcType) < task.progressTotal && TESTROOMS.includes(roomName)) {
           // get a fresh copy task and push it back to the queue
-          const newTask = new PayTask(
-            task.priority,
-            task.srcType,
-            task.progressTotal - creep.store.getUsedCapacity(srcType),
-            task.target,
-            task.roomName,
-            task.handledByKeeper,
-            {
-              action: task.perform,
-              prerequisite: task.prerequisite,
-              callbacks: task.callbacks
-            }
-          );
+          const newTask = _.clone<PayTask<any>>(task);
+          newTask.progressTotal = task.progressTotal - creep.store.getUsedCapacity(srcType);
           // TODO del
           (newTask as any).generatedBy = "duplicated";
 
-          receiverQueues[srcType].enqueue(newTask);
+          receiverQueues[srcType].enqueue(newTask.bindTargetStructure());
 
           task.progressTotal = creep.store.getUsedCapacity(srcType);
         }

@@ -1,10 +1,10 @@
-class queueNode {
+export class QueueNode {
   constructor(priority) {
     this.priority = priority;
   }
 }
 
-class PriorityQueue {
+export class PriorityQueue {
   constructor() {
     this.elements = [];
   }
@@ -103,9 +103,4 @@ class PriorityQueue {
   peak() {
     return this.elements[0];
   }
-}
-
-module.exports = {
-  queueNode,
-  PriorityQueue
 }

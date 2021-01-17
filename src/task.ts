@@ -94,6 +94,9 @@ export abstract class CreepTask extends Task<Creep> {
       throw new Error("Creep memory not found");
     }
 
+    if (global.creeps[creepName].task) {
+      throw new Error(`Task existed for ${creepName}: ${Logger.toMsg(global.creeps[creepName].task)}`)
+    }
     global.creeps[creepName].task = this;
 
     return this;
@@ -103,6 +106,7 @@ export abstract class CreepTask extends Task<Creep> {
     if (global.creeps[creepName]?.task?.alternativeId == this.alternativeId) {
      global.creeps[creepName].task = null;
     } else {
+      Logger.warn(global.creeps[creepName]?.task, (this as unknown as TransferTask<any>).target);
       throw new Error(`Creep wasn't binded to this task. Creep ${global.creeps[creepName]?.task?.alternativeId}; this: ${this.alternativeId}`);
     }
     

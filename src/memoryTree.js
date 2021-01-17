@@ -1,6 +1,7 @@
 const { Logger } = require('./Logger');
-const { basicInfo, structureInfo, isAtBase } = require ('./globalTree');
-
+const { BasicInfo, StructureInfo } = require ('./globalClasses');
+const { isAtBase } = require('./globalTree');
+const { addOwnerRoom } = require('./init')
 /**
  * Get the ownership status of controller
  * @param {StructureController?} controller
@@ -82,10 +83,10 @@ function updateOwnedStructures(room, findConstant = FIND_MY_STRUCTURES) {
   }
 
   for (const structure of room.find(findConstant)) {
-    const info = structureInfo(structure);
+    const info = StructureInfo.fromStruc(structure);
     switch (structure.structureType) {
       case STRUCTURE_RAMPART:
-        mem.ramparts.push(basicInfo(structure));
+        mem.ramparts.push(BasicInfo.fromObj(structure));
         continue;
 
       case STRUCTURE_ROAD:
@@ -147,11 +148,11 @@ function updateInfrasctructures(room) {
   for (const structure of room.find(FIND_STRUCTURES)) {
     switch (structure.structureType) {
       case STRUCTURE_ROAD:
-        mem.roads.push(basicInfo(structure));
+        mem.roads.push(BasicInfo.fromObj(structure));
         break;
 
       case STRUCTURE_WALL:
-        mem.walls.push(basicInfo(structure));
+        mem.walls.push(BasicInfo.fromObj(structure));
         break;
 
       default:
@@ -173,7 +174,7 @@ function initRoom(room) {
   const mem = room.memory;
 
   // sources
-  mem.sources = room.find(FIND_SOURCES).map((s) => basicInfo(s)) || [];
+  mem.sources = room.find(FIND_SOURCES).map((s) => new BasicInfo(s.id, )) || [];
 
   // mineral
   const mineral = room.find(FIND_MINERALS)[0];
@@ -265,6 +266,4 @@ module.exports = {
     updateOwnedStructures,
     updateOwner,
     updateRoom,
-    basicInfo,
-    structureInfo
 }

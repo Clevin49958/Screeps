@@ -150,19 +150,7 @@ module.exports = {
   },
 
   payStorage: function(creep, mineral = false) {
-    structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (s) => (s.structureType ==
-                STRUCTURE_STORAGE &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) >
-                100),
-    });
-    if (!structure && creep.room.controller) {
-      structure = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-      });
-      structure = structure.length == 0 ? null : structure[0];
-    }
+    structure = global.rooms[creep.room.name].storage;
     if (structure) {
       this.payStructure(creep, structure, mineral);
     }

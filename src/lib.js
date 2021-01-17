@@ -13,6 +13,7 @@ const {
   ATTACKER,
   MINER,
   KEEPER,
+  HARVESTER,
 } = require('./helper');
 const helper = require('./helper');
 const {Logger, LOG_LEVEL} = require('./Logger');
@@ -20,7 +21,7 @@ const {Logger, LOG_LEVEL} = require('./Logger');
 const roles = {};
 // var creepTrack[targetRoom] = {};
 helper.roleNames.forEach((role) => {
-  roles[role] = require('role.' + role);
+  roles[role] = require('./role.' + role);
 });
 
 // const roleHarvester = require('role.harvester');
@@ -55,6 +56,7 @@ module.exports = {
       return;
     }
 
+    
     // update wall repairer
     const demand = Game.rooms[room].find(
         FIND_HOSTILE_CREEPS).length;
@@ -78,18 +80,9 @@ module.exports = {
       helper.addMemory(['creepDemand', room, targetRoom], {'claimer': demand});
     }
 
-    // count total harv creeps
-    const totalHarvs = _.sum(Game.creeps,
-        (c) => (c.memory.role == helper.HARVESTER || c.memory
-            .role == helper.HARV_REMOTE) &&
-            c.ticksToLive > 75 && c.memory.home == room,
-    );
-
     // prioritised one off ones
     if (false) {
-      if (room == 's3') {
-        Logger.info(spawn.spawnAtkRangeCreep(energyMax, target = 'W35N11', home = 'W34N12', selfHeal =2));
-      }
+
       return;
     }
 
@@ -106,16 +99,14 @@ module.exports = {
               .find(FIND_MY_CONSTRUCTION_SITES)
               .map((s) => s.progressTotal - s.progress),
           );
-          let totalRequired = Math.ceil(totalProgress / 4500 / Game.rooms[room].controller.level);
+          let totalRequired = Math.ceil(totalProgress / 4500 / Game.rooms[room]?.controller.level);
           totalRequired = totalRequired > 3 ? 3 : totalRequired;
           creepDemand[targetRoom][BUILDER] = totalRequired;
         }
       }
 
       // count each role
-      for (const role of [HAULER, HARV_REMOTE, BUILDER, REPAIRER,
-        WALL_REPAIRER, UPGRADER, CLAIMER,
-      ]) {
+      for (const role of roleNames) {
         creepTrack[targetRoom][role] = _.sum(Game.creeps, (c) =>
           c.memory.role == role &&
                     c.memory.target == targetRoom &&
@@ -182,35 +173,34 @@ module.exports = {
       return;
     }
 
+    // count total harv creeps
+    const totalHarvs = creepTrack[room][HARVESTER] + creepTrack[room][HARV_REMOTE];
+    const totalHauler = creepTrack[room][HAULER] + creepTrack[room][HARVESTER];
     // emergency off control
-    if (totalHarvs > 1) {
+    if (creepTrack.total > _.min([creepDemand.total * 0.2, 3])) {
       Memory.states.restart[room] = false;
     }
 
     // if colony is dying
-    const totalHauler = _.sum(
-        _.keys(creepTrack).map((r) => creepTrack[r][HAULER]),
-    );
-    Logger.debug(room, Memory.states.restart[room], totalHarvs < 1, _.get(Memory, ['stats', 'Storages', room]) > 10000, totalHauler < 1);
-    if (Memory.states.restart[room] || totalHarvs < 1 ||
-          (_.get(Memory, ['stats', 'Storages', room]) > 10000 &&
-           totalHauler < 1
-          )) {
+    Logger.debug(room, Memory.states.restart[room], totalHarvs, totalHauler, _.get(Memory, ['stats', 'Storages', room]) > 10000);
+    if (Memory.states.restart[room] || totalHarvs < 1 || totalHauler < 1) {
       if (creepDemand.tickSinceRestart === undefined) {
         creepDemand.tickSinceRestart = 0;
       }
       creepDemand.tickSinceRestart++;
-
-      if (creepDemand.tickSinceRestart > 100) {
+      const restartTimerThreshold = Game.rooms[room]?.controller.level * 15;
+      if (creepDemand.tickSinceRestart > restartTimerThreshold) {
         Memory.states.restart[room] = true;
 
-        if (creepDemand.tickSinceRestart > 200) {
+        if (creepDemand.tickSinceRestart > restartTimerThreshold) {
           Game.notify(`Something went wrong. only ${totalHarvs}` +
-                    ` harvesters & ${_.sum(Game.creeps, (c)=>1)} left` +
+                    ` harvesters & ${_.sum(Game.creeps, (c)=>c.memory.home == room)} left` +
                     `Room: ${room} ${JSON.stringify(creepTrack)}`);
         }
 
-        if (_.get(Memory, ['stats', 'Storages', room]) > 10000 && totalHauler < 1) {
+        if ((_.get(Memory, ['stats', 'Storages', room])  > 1000 ||
+          global.rooms[room].storage?.store?.getUsedCapacity(RESOURCE_ENERGY) > 1000) &&
+          totalHauler < 1) {
           res = spawn.spawnHaulerCreep(spawn.room.energyAvailable, room, room, 0, 16);
           Logger.warn(room, 'attempt to spawn', 'hauler for emergency', 'res', res);
           return res;
@@ -293,7 +283,7 @@ module.exports = {
     // spawn harv and hauler
     Logger.trace(`${room} trying to spawn basic workers`);
     for (const targetRoom of Memory.myRooms[room]) {
-      let home = Memory.myRooms[targetRoom] && Game.rooms[targetRoom].controller.level < 4 ? targetRoom : room;
+      let home = (Memory.myRooms[targetRoom] && Game.rooms[targetRoom]?.controller?.level < 4) ? targetRoom : room;
       // spawn hauler
       Logger.all(`${targetRoom} Hauler: ${creepTrack[targetRoom][HAULER]}/${creepDemand[targetRoom][HAULER]} ` +
                 `Harv: ${creepTrack[targetRoom][helper.HARV_REMOTE]}/${creepDemand[targetRoom][helper.HARV_REMOTE]}`);
@@ -420,7 +410,7 @@ module.exports = {
         // Logger.info(`In ${targetRoom} ` +
         // `${creepTrack[targetRoom][r]<creepDemand[room][r]?'need ':'got  '}`
         //     + ` ${r} have: ${creepTrack[targetRoom][r]} need: ${creepDemand[targetRoom][r]}`);
-        let home = Memory.myRooms[targetRoom] && Game.rooms[targetRoom].controller.level < 4 ? targetRoom : room;
+        let home = Memory.myRooms[targetRoom] && Game.rooms[targetRoom]?.controller.level < 4 ? targetRoom : room;
         if (creepTrack[targetRoom][r] < creepDemand[targetRoom][r]) {
           // spawn
           if (r == CLAIMER) {
@@ -428,7 +418,7 @@ module.exports = {
           } else if (
             r == UPGRADER && (
               _.get(Memory, ['stats', 'Storages', room]) ||
-                Game.rooms[targetRoom].controller.pos.findInRange(FIND_STRUCTURES, 2, {
+                Game.rooms[targetRoom]?.controller.pos.findInRange(FIND_STRUCTURES, 4, {
                   filter: (s) => s.structureType == STRUCTURE_CONTAINER,
                 }).length > 0)) {
             res = spawn.spawnSemiStationaryCreep(energyMax, r, targetRoom, home);
@@ -451,11 +441,10 @@ module.exports = {
       }
     };
 
-    if (Game.rooms[room].find(FIND_STRUCTURES, {filter: (s) =>
-      s.structureType == STRUCTURE_STORAGE}).length == 0 &&
-        creepTrack[room][UPGRADER] < 11 / Game.rooms[room].controller.level
+    if (!global.rooms[room].storage &&
+        creepTrack[room][UPGRADER] < 11 / Game.rooms[room]?.controller.level
     ) {
-      if (Game.rooms[room].controller.pos.findInRange(FIND_STRUCTURES, 2, {
+      if (Game.rooms[room]?.controller.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: (s) => s.structureType == STRUCTURE_CONTAINER,
       }).length > 0) {
         res = spawn.spawnSemiStationaryCreep(energyMax, UPGRADER, room, room, 4);
@@ -463,7 +452,7 @@ module.exports = {
         res = spawn.spawnBalCreep(energyMax, UPGRADER, room, room);
       }
 
-      Logger.debug(`Spawned extra upgraders for ${room}: RCL: ${Game.rooms[room].controller.level}`);
+      Logger.debug(`Spawned extra upgraders for ${room}: RCL: ${Game.rooms[room]?.controller.level}`);
     }
     Logger.debug(`${room} finished without spawn`);
     // if (Game.time % helper.logRate == 0) Logger.info();
@@ -486,7 +475,29 @@ module.exports = {
             roles[role].run(creep);
           }
         } catch (e) {
+          Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, e.stack, creep);
+        }
+      }
+      // }
+    }
+  },
+  updateCreepWorkingState: function() {
+    // for every creep name in Game.creeps
+    for (const name in Game.creeps) {
+      // if ({}.hasOwnProperty.call(Game.creeps, name)) {
+      // get the creep object
+      const creep = Game.creeps[name];
+
       // who r u?
+      // creep.say(creep.memory.role.slice(0,1));
+
+      for (const role of roleNames) {
+        try {
+          if (creep && creep.memory.role == role) {
+            // creep.say(role);
+            roles[role].updateWorkingState(creep);
+          }
+        } catch (e) {
           Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, creep);
         }
       }

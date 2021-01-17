@@ -1,3 +1,4 @@
+const { TESTROOMS } = require('./config');
 const helper = require('./helper');
 const { Logger } = require('./Logger');
 const { PayTask, TakeTask } = require('./task')
@@ -30,15 +31,25 @@ module.exports = {
     // if creep is supposed to transfer energy to a structure
     if (creep.memory.working == true) {
       if (creep.memory.target == creep.memory.home) {
-        /** @type {PayTask} */
+        if (false) {
+          if (!helper.payAny(
+              creep, 
+              !creep.memory.gotFromStorage ||
+              Game.time - creep.memory.gotFromStorage > 30
+            )) {
+            helper.moveOffRoad(creep);
+          }
+          return;
+        }
+        /** @type {CreepTask} */
         const task = global.creeps[creep.name].task;
         if (task) {
-          Logger.trace(`Perform`, creep.name, task.constructor.name, task)
-          Logger.info(`hauler W32N11: ${task.priority}:${task.progress}`)
-          task.aciton(creep);
+          Logger.debug(`Perform`, creep.name, task.constructor.name, task.alternativeId);
+          Logger.debug(`${creep.name}: ${task.priority}:${task.progress} for ${task.target.type}`)
+          task.perform(creep);
         } else {
           helper.moveOffRoad(creep);
-          Logger.warn(`Hauler from W32N11 is taking a break`)
+          Logger.info(`${creep.name} is taking a break`)
         }
         return;
       }
@@ -59,20 +70,13 @@ module.exports = {
       );
 
       const link = links.length == 0 ? null : links[0];
-      if (creep.memory.home == creep.room.name) {
       if (link && creep.memory.home != creep.memory.target) {
         return helper.payStructure(creep, link);
       } else {
-        if (!helper.payAny(creep, 
-            !creep.memory.gotFromStorage ||
-            Game.time - creep.memory.gotFromStorage > 30
-            )) {
+        if (!helper.payStorage(creep)) {
           helper.moveOffRoad(creep);
         }
         return;
-      }
-    } else {
-        return helper.moveHome(creep);
       }
     } else {
       // if creep is supposed to harvest energy from source

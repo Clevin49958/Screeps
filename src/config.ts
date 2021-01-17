@@ -4,5 +4,5 @@ export const THRESHOLD_RATIO = 0.75;
 export const LAB_ENERGY_THRESHOLD = LAB_ENERGY_CAPACITY * THRESHOLD_RATIO;
 export const LAB_MINERAL_THRESHOLD = LAB_MINERAL_CAPACITY * THRESHOLD_RATIO;
 
-export const BACKUP_MEMORY = true;
-export const TESTROOMS = ['E48S45'];
+export const BACKUP_MEMORY = false;
+export const TESTROOMS = ['E48S45', 'E47S45'];

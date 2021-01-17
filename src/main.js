@@ -118,14 +118,25 @@ const main = () => {
   for (const name in Memory.creeps) {
     // and checking if the creep is still alive
     if (!Game.creeps[name]) {
-      /** @type {Task} */
-      const task = _.get(global, ['creeps', name, 'task']);
+      /** @type {TransferTask<any>} */
+      const task = global.creeps[name]?.task;
+      try {
       if (task) {
+          Logger.info(`${name} died with task ${Logger.toMsg(task)}`);
         task.onComplete(ERR_NO_BODYPART);
       }
-      // if not, delete the memory entry
+        // delete the memory entry
+        if (global.creeps[name]) {
+          Logger.info(`Memory residual of ${name} after clean up: ${Logger.toMsg(global.creeps[name])}
+          ${Logger.toMsg(task?.target?.resourceTasks?.[task.srcType])}`)
+          delete global.creeps[name];
+        } else {
+          Logger.warn(`${name} died without global memory`)
+        }
       delete Memory.creeps[name];
-      delete global.creeps[name];
+      } catch (/** @type {Error} */e) {
+        Logger.warn(e.message, e.stack)
+      }
     }
   }
 

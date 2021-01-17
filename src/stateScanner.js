@@ -55,7 +55,7 @@ module.exports.stateScanner = function() {
   Memory.stats.Storages = {};
   for (const room in Memory.myRooms) {
     if ({}.hasOwnProperty.call(Memory.myRooms, room)) {
-      let storage = Game.rooms[room].storage;
+      let storage = global.rooms[room]?.storage;
       if (storage) {
         Memory.stats.Storages[room] = storage.store.getUsedCapacity(
             RESOURCE_ENERGY);

@@ -23,12 +23,22 @@ module.exports = {
     creep.say(HARVESTER.slice(0, 1));
 
     if (creep.memory.working == true) {
+      if (false) {
+        if (!helper.payAny(creep, 
+          !creep.memory.gotFromStorage ||
+          Game.time - creep.memory.gotFromStorage > 30
+        )) {
+          helper.moveOffRoad(creep);
+        }
+        return;
+      }
       // if creep is supposed to transfer energy to the spawn or an extension
       /** @type {PayTask} */
       const task = global.creeps[creep.name].task;
       if (task) {
-        Logger.trace(`Perform`, creep.name, task.constructor.name, task)
-        task.aciton(creep);
+        Logger.debug(`Perform`, creep.name, task.alternativeId);
+        Logger.debug(`${creep.name}: ${task.priority}:${task.progress} for ${task.target.type}`);
+        task.perform(creep);
       } else {
         helper.moveOffRoad(creep);
       }
@@ -37,6 +47,7 @@ module.exports = {
       if (Memory.states.restart[creep.memory.home]) {
         if (helper.withdrawEnergy(creep)) return;
       }
+      if (helper.withdrawContainer(creep)) return;
       helper.harvest(creep);
     }
   },

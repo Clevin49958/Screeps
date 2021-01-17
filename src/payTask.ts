@@ -4,7 +4,7 @@ import { CreepTask, taskOptions, TransferTask } from "./task";
 
 export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Target> {
   get alternativeId(): string {
-    return `pay-${this.roomName}-${this.target.type}-${this.generatedTime}-${this.target.id}`;
+    return `pay-${this.roomName}-${this.target.type}-${this.generatedTime}-${this.target.id.substr(0,5)}`;
   }
 
   private defaultPrerequisite(creep: Creep): boolean {
@@ -43,6 +43,10 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
   private defaultAction(creep: Creep): ScreepsReturnCode | 1 {
     if (this.status < 0) {
       throw new Error(`Task performed with status ${this.status}`);
+      
+    }
+    if (creep.name != this.creepName) {
+      throw new Error(`Task performed by wrong creep. Got ${creep.name} instead of ${this.creepName}`);
       
     }
     creep.say(`${this.priority}:${this.progress}`);
@@ -98,7 +102,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
    * @param {ScreepsReturnCode} status whether the task is completed (OK) or failed (ERR_*)
    */
   onComplete(status: ScreepsReturnCode): void {
-    Logger.info(`Task by ${this.creepName} complete ${status}`);
+    Logger.debug(`Task by ${this.creepName} complete ${status}`);
 
     this.callbacks.forEach(f => f(this, status));
     // log task completion
@@ -117,7 +121,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
         break;
     }
     
-    this.unbindTargetStructure().unbindCreep(this.creepName);
+    this.unbindCreep(this.creepName).unbindTargetStructure();
     
   }
 }

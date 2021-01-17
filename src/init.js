@@ -60,7 +60,7 @@ function addControlledRoom(controlled, room, demands = null) {
 function removeControlledRoom(controlled, room) {
   Memory.myRooms[room].splice(Memory.myRooms[room].findIndex((r) => r == controlled), 1);
   const demands = Memory.creepDemand[room][controlled];
-  Memory.creepDemand[room][controlled] = undefined;
+  delete Memory.creepDemand[room][controlled];
   return demands;
 }
 
@@ -112,60 +112,45 @@ function parseObjectProperties(obj, parser) {
 }
 
 module.exports = {
-  /**
-     * TODO: verify
-     * @deprecated
-     */
-  minCreeps: () => {
-    for (const spawnName in Game.spawns) {
-      // if ({}.hasOwnProperty.call(Game.spawns, spawnName)) {
-      const spawn = Game.spawns[spawnName];
-      if (!spawn.memory.init) {
-        spawn.memory.init = {};
-      }
-
-      // if (true){
-      if (!spawn.memory.init.minCreeps) {
-        // current room config
-        spawn.memory[spawn.room.name] = {
-          // harvester:0,
-          // hauler:0,
-          harvRemote: Memory.sources[Game.spawns[
-              spawnName].room.name],
-          hauler: Memory.sources[Game.spawns[spawnName]
-              .room.name],
-          upgrader: 1,
-          builder: 1,
-          repairer: 0,
-          wallRepairer: 0,
-        };
-
-        // remote harv room config
-        for (const id in Memory.myRooms[spawn.room.name]) {
-          // if ({}.hasOwnProperty.call(Memory.myRooms[spawn.room.name], id)) {
-          const roomName = Memory.myRooms[spawn.room.name][id];
-          spawn.memory[roomName] = {
-            // harvester:0,
-            // hauler:0,
-            harvRemote: Memory.sources[roomName],
-            hauler: Memory.sources[roomName],
-            upgrader: 0,
-            builder: 1,
-            repairer: 0,
-            wallRepairer: 0,
-          };
-          // }
+  addControlledRoom,
+  addOwnerRoom,
+  removeControlledRoom,
+  preparePerTick: () => {
+    // detect storage, replace with container if present
+    for (const roomName of _.keys(Memory.myRooms)) {
+      const room = Game.rooms[roomName];
+      if(!room) continue;
+      const alternativeStorage = room.memory.alternativeStorage;
+      const globalMem = global.rooms[room.name];
+      globalMem.storage = room.storage;
+      if (_.isEmpty(room.storage)) {
+        if (alternativeStorage) {
+          globalMem.storage = Game.getObjectById(alternativeStorage);
+          if (!globalMem.storage) {
+            room.memory.alternativeStorage = undefined;
+          }
         }
-        spawn.memory.init.minCreeps = true;
+        if (alternativeStorage ===  undefined) {
+          const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 4, {filter: 
+            s => s.structureType == STRUCTURE_CONTAINER
+          });
+          if (containers.length > 0) {
+            room.memory.alternativeStorage = containers[0].id;
+            globalMem.storage = containers[0];
+          }
+        } 
+      } else if (alternativeStorage !== undefined) {
+        delete room.memory.alternativeStorage;
       }
-      // }
     }
+    
   },
 
   /**
      * manual control
      */
-  alter: () => {},
+  alter: () => {
+  },
 
   /**
      * manual control,
@@ -176,10 +161,13 @@ module.exports = {
   alterOnce: () => {
     // Memory.init.exec = 0;s
     if (Memory.exec === true) {
+
       // addOwnerRoom('W36N9');
       // addControlledRoom('W34N13', 'W33N12')
       // transferControlledRoom('W34N13', 'W33N12', 'W34N12')
-      // removeControlledRoom('W34N13','W34N12')
+      Memory.myRooms['E48S45'] = ['E48S45', 'E49S45'];
+      Memory.myRooms['E47S45'] = ['E47S45'];
+
       Logger.info(`Executed once @${Game.time}`);
       Memory.exec = Game.time;
     }
