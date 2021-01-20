@@ -1,13 +1,13 @@
 import { HARVESTER, HAULER, KEEPER, MINER } from "./helper";
 import { Logger } from "./Logger";
-import { CreepTask, taskOptions, TransferTask } from "./task";
+import { actionFunc, callbackFunc, CreepTask, prerequisiteFunc, TransferTask } from "./task";
 
 export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Target> {
   get alternativeId(): string {
     return `pay-${this.roomName}-${this.target.type}-${this.generatedTime}-${this.target.id.substr(0,5)}`;
   }
 
-  private defaultPrerequisite(creep: Creep): boolean {
+  prerequisite(creep: Creep): boolean {
     return (
       creep.store.getUsedCapacity(this.srcType) > 0 &&
       creep.memory.target == this.roomName &&
@@ -40,7 +40,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
     * 0: OK
     * <0: one of the ERR_*
     */
-  private defaultAction(creep: Creep): ScreepsReturnCode | 1 {
+  perform(creep: Creep): ScreepsReturnCode | 1 {
     if (this.status < 0) {
       throw new Error(`Task performed with status ${this.status}`);
       
@@ -84,11 +84,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
       this.target,
       this.roomName,
       this.handledByKeeper,
-      {
-        action: this.perform,
-        prerequisite: this.prerequisite,
-        callbacks: this.callbacks
-      }
+      this.callbacks
     );
     return task;
   }
@@ -100,7 +96,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
     target: GlobalObjInfo<Target>,
     roomName: string,
     handledByKeeper: boolean,
-    options: Partial<taskOptions<Creep>> = {}
+    callbacks: callbackFunc<Creep>[] = []
   ) {
     super(
       priority,
@@ -109,9 +105,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
       target,
       handledByKeeper,
       roomName,
-      options.action || ((creep: Creep) => this.defaultAction(creep)),
-      options.prerequisite || ((creep: Creep) => this.defaultPrerequisite(creep)),
-      options.callbacks || []
+      callbacks
       );
   }
 

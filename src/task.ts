@@ -24,13 +24,6 @@ export interface prerequisiteFunc<Performer> {
 export interface callbackFunc<Performer> {
   (task: Task<Performer>, status: number): void;
 }
-
-export interface taskOptions<Performer> {
-  action: actionFunc<Performer>,
-  prerequisite: prerequisiteFunc<Performer>,
-  callbacks: callbackFunc<Performer>[]
-}
-
 export interface clone<T> {
   clone(): T
 }
@@ -52,23 +45,19 @@ export abstract class Task<Performer> implements QueueNode{
   readonly generatedTime: number;
   abstract get alternativeId(): string;
 
-  perform: actionFunc<Performer>;
-  prerequisite: prerequisiteFunc<Performer>;
+  abstract perform(performer: Performer): ScreepsReturnCode | 1;
+  abstract prerequisite(performer: Performer): boolean;
   callbacks: callbackFunc<Performer>[];
   abstract onComplete(status: number): void;
 
   constructor(
     priority: number,
-    action: actionFunc<Performer>,
-    prerequisite: prerequisiteFunc<Performer>,
     callbacks: callbackFunc<Performer>[]
   ) {
     this.priority = priority;
     
     this.status = -2;
     this.generatedTime = Game.time;
-    this.perform = action;
-    this.prerequisite = prerequisite;
     this.callbacks = callbacks;
   }
 }
@@ -123,11 +112,9 @@ export abstract class CreepTask extends Task<Creep> implements clone<CreepTask> 
   constructor(
     priority: number,
     roomName: string,
-    action: actionFunc<Creep>,
-    prerequisite: prerequisiteFunc<Creep>,
     callbacks: callbackFunc<Creep>[]
   ) {
-    super(priority, action, prerequisite, callbacks);
+    super(priority, callbacks);
     this.roomName = roomName;
   }
 }
@@ -192,11 +179,9 @@ export abstract class TransferTask<Target extends AnyStoreStructure> extends Cre
     target: GlobalObjInfo<Target>,
     handledByKeeper: boolean,
     roomName: string,
-    action: actionFunc<Creep>,
-    prerequisite: prerequisiteFunc<Creep>,
     callbacks: callbackFunc<Creep>[]
   ) {
-    super(priority, roomName, action, prerequisite, callbacks);
+    super(priority, roomName,callbacks);
     this.srcType = srcType;
     this.progressTotal = amount;
     this.progress = 0;
