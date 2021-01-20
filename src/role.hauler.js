@@ -44,6 +44,9 @@ module.exports = {
         /** @type {CreepTask} */
         const task = global.creeps[creep.name].task;
         if (task) {
+          if (task.creepName != creep.name) {
+            Logger.warn(`name doesn't match`, global.creeps[creep.name], global.creeps[task.creepName])
+          }
           Logger.debug(`Perform`, creep.name, task.constructor.name, task.alternativeId);
           Logger.debug(`${creep.name}: ${task.priority}:${task.progress} for ${task.target.type}`)
           task.perform(creep);

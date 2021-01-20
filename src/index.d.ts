@@ -68,6 +68,7 @@ declare interface Memory extends excessProperty {
     [name: string]: boolean
   },
   config: {
+    pause: boolean,
     [name: string]: boolean
   }
 }

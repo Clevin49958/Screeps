@@ -1,4 +1,5 @@
-const {Logger} = require('./Logger');
+const {Logger, wrapColor} = require('./Logger');
+const { PayTask } = require('./payTask');
 /* eslint-disable no-unused-vars */
 
 /**
@@ -165,7 +166,46 @@ module.exports = {
       // addOwnerRoom('W36N9');
       // addControlledRoom('W34N13', 'W33N12')
       // transferControlledRoom('W34N13', 'W33N12', 'W34N12')
+
+      // const tick = 31877900;
+      // if (Game.time == tick) {
+      //   const roomName = 'E48S45';
+
+      //   const mem = global.rooms[roomName];
+      //   const objs = mem.objs;
+      //   const id = '60019146d84fa7cdf98cd8ea';
+      //   const elem = objs[id];
+      //   const task = new PayTask(
+      //     5,
+      //     RESOURCE_ENERGY,
+      //     50000,
+      //     elem,
+      //     roomName,
+      //     elem.isAtBase
+      //   ); 
+      //   /** @type {PayTask} */
+      //   global.a = task;
+      // }
+
+      // if (Game.time == tick + 5) {
+
+      //   /** @type {PayTask} */
+      //   const newTask = global.a.clone();
+      //   global.b = newTask;
+        
+      //   /** @type {PayTask} */
+      //   global.a;
+      //   Logger.info(wrapColor('green', `alter once: `))
+      //   Logger.info(global.a.alternativeId, global.a);
+      //   Logger.info(global.b.alternativeId, global.b);
+      //   Memory.config.pause - true;
+      // Logger.info(`Executed once @${Game.time}`);
+      // Memory.exec = Game.time;
+      // }
       
+
+      /* Logger.info(Object.getOwnPropertyNames(task).length, Object.getOwnPropertyNames(task), '\n',
+        Object.getOwnPropertyNames(clonedTask).length, Object.getOwnPropertyNames(clonedTask)); */
 
       Logger.info(`Executed once @${Game.time}`);
       Memory.exec = Game.time;

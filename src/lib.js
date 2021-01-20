@@ -475,7 +475,8 @@ module.exports = {
             roles[role].run(creep);
           }
         } catch (e) {
-          Logger.warn(`Error running ${role}`, e.name, e.message, e.fileName, e.lineNumber, e.stack, creep);
+          Logger.warn(`Error running ${creep.name}`, e.name, e.stack, global.creeps[creep.name], creep.memory);
+          Memory.config.pause = true;
         }
       }
       // }

@@ -46,6 +46,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
       
     }
     if (creep.name != this.creepName) {
+      Logger.warn(creep.name, global.creeps[creep.name], this.creepName, global.creeps[this.creepName])
       throw new Error(`Task performed by wrong creep. Got ${creep.name} instead of ${this.creepName}`);
       
     }
@@ -75,6 +76,23 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
     }
   }
 
+  clone(): PayTask<Target>{
+    const task = new PayTask<Target>(
+      this.priority,
+      this.srcType,
+      this.progressTotal,
+      this.target,
+      this.roomName,
+      this.handledByKeeper,
+      {
+        action: this.perform,
+        prerequisite: this.prerequisite,
+        callbacks: this.callbacks
+      }
+    );
+    return task;
+  }
+
   constructor(
     priority: number,
     srcType: ResourceConstant,
@@ -82,7 +100,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
     target: GlobalObjInfo<Target>,
     roomName: string,
     handledByKeeper: boolean,
-    options: taskOptions<Creep> = {}
+    options: Partial<taskOptions<Creep>> = {}
   ) {
     super(
       priority,
@@ -102,11 +120,11 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
    * @param {ScreepsReturnCode} status whether the task is completed (OK) or failed (ERR_*)
    */
   onComplete(status: ScreepsReturnCode): void {
-    Logger.debug(`Task by ${this.creepName} complete ${status}`);
+    Logger.trace(`Task by ${this.creepName} complete ${status}`);
 
     this.callbacks.forEach(f => f(this, status));
     // log task completion
-    const msg = [`Pay Task finished with `, status, this];
+    const msg = [`Pay Task finished with `, status, this.alternativeId];
     switch (status) {
       case OK:
         Logger.trace(...msg);

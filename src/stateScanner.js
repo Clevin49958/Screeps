@@ -4,6 +4,7 @@ const {
   logRate,
 } = require('./helper');
 const helper = require('./helper');
+const { Logger } = require('./Logger');
 
 /**
  * 全局统计信息扫描器
@@ -98,7 +99,7 @@ module.exports.stateScanner = function() {
   // }
 
   if (Game.time % helper.logRate == 0) {
-    console.log(Memory.watch.values.status);
+    Logger.info(Memory.watch.values.status);
   }
 
   // CPU 的当前使用量

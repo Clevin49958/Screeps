@@ -7,7 +7,7 @@
     "target": "es5",
     "typeRoots": ["./node_modules/@types/**/*", "./src/globalClasses", "./src/index"],
     "types": ["screeps", "lodash"],
-    "lib": ["es2016"]
+    "lib": ["es2016", "DOM"]
   },
   "include": ["./src/**/*"]
 }

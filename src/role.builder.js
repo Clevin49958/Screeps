@@ -70,9 +70,11 @@ module.exports = {
         return;
       }
       creep.say('can');
-      if (helper.withdrawEnergy(creep)) return;
+      if (helper.withdrawContainerIfRich(creep)) return;
       creep.say('harv');
-      helper.harvest(creep);
+      if (creep.memory.target != creep.memory.home) {
+        helper.harvest(creep);
+      }
     }
   },
 };

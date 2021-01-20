@@ -26,9 +26,13 @@ export interface callbackFunc<Performer> {
 }
 
 export interface taskOptions<Performer> {
-  action?: actionFunc<Performer>,
-  prerequisite?: prerequisiteFunc<Performer>,
-  callbacks?: callbackFunc<Performer>[]
+  action: actionFunc<Performer>,
+  prerequisite: prerequisiteFunc<Performer>,
+  callbacks: callbackFunc<Performer>[]
+}
+
+export interface clone<T> {
+  clone(): T
 }
 
 export abstract class Task<Performer> implements QueueNode{
@@ -69,9 +73,10 @@ export abstract class Task<Performer> implements QueueNode{
   }
 }
 
-export abstract class CreepTask extends Task<Creep> {
+export abstract class CreepTask extends Task<Creep> implements clone<CreepTask> {
   private _creepName: string;
   roomName: string;
+  abstract clone(): CreepTask;
   
   public get creepName() : string {
     return this._creepName;
@@ -86,8 +91,6 @@ export abstract class CreepTask extends Task<Creep> {
   }
 
   bindCreep(creepName: string): this {
-    this.creepName = creepName;
-
     if (!global.creeps[creepName]) {
       // TODO del
       Logger.warn(creepName, this);
@@ -98,15 +101,19 @@ export abstract class CreepTask extends Task<Creep> {
       throw new Error(`Task existed for ${creepName}: ${Logger.toMsg(global.creeps[creepName].task)}`)
     }
     global.creeps[creepName].task = this;
-
+    this.creepName = creepName;
+    Logger.trace(`bind: ${this.alternativeId} from ${creepName}`)
     return this;
   }
 
   unbindCreep(creepName: string): this {
-    if (global.creeps[creepName]?.task?.alternativeId == this.alternativeId) {
+    if (!global.creeps[creepName]?.task) {
+      throw new Error(`No task was found on creep ${creepName}`);
+    } else if (global.creeps[creepName]?.task?.alternativeId == this.alternativeId) {
+      Logger.trace(`unbind: ${this.alternativeId} from ${creepName}`);
      global.creeps[creepName].task = null;
     } else {
-      Logger.warn(global.creeps[creepName]?.task, (this as unknown as TransferTask<any>).target);
+      Logger.warn(creepName, global.creeps[creepName].task.alternativeId, global.creeps[creepName], this.creepName, this.alternativeId, global.creeps[this.creepName])
       throw new Error(`Creep wasn't binded to this task. Creep ${global.creeps[creepName]?.task?.alternativeId}; this: ${this.alternativeId}`);
     }
     
@@ -149,13 +156,22 @@ export abstract class TransferTask<Target extends AnyStoreStructure> extends Cre
     // bind to target structure
     if (bindingKey) {
       // remove premature binding and rebind
+      if (srcTypedCreepTaskDict[srcType][bindingKey]){
+        throw new Error(`Got a task for ${bindingKey} already. 
+          Trying to replace ${srcTypedCreepTaskDict[srcType][bindingKey].alternativeId} with ${this.alternativeId}`);
+        
+      }
       this.unbindTargetStructure();
       srcTypedCreepTaskDict[srcType][bindingKey] = this;
     } else {
       // initial bind, rebind expected
+      if (srcTypedCreepTaskDict[srcType][this.alternativeId]) {
+        throw new Error(`Task exist before binding: ${srcType} ${this.alternativeId}`);
+      }
       srcTypedCreepTaskDict[srcType][this.alternativeId] = this;
     }
 
+    Logger.trace(`bind target: ${this.alternativeId} ${bindingKey} ${Logger.toMsg(this)}`)
     return this;
   }
 
@@ -165,6 +181,7 @@ export abstract class TransferTask<Target extends AnyStoreStructure> extends Cre
     } else {
       delete this.target.resourceTasks[this.srcType][this.alternativeId];
     }
+    Logger.trace(`unbind target: ${this.alternativeId} ${this.creepName} ${Logger.toMsg(this)}`)
     return this;
   }
 

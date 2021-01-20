@@ -1,6 +1,6 @@
 import { Task, TaskQueue, TransferTask } from './task';
 import { PayTask } from "./payTask";
-import { Logger } from "./Logger";
+import { Logger, wrapColor } from "./Logger";
 import { labInfo, LabType } from './lab';
 import { GlobalObjInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
 import { LAB_ENERGY_THRESHOLD, LAB_MINERAL_THRESHOLD, TERMINAL_ENERGY_THRESHOLD, TESTROOMS } from './config';
@@ -321,21 +321,32 @@ export function marryTasks() {
          - task to room queue
          */
         receiverQueues[srcType].dequeue();
-        if (creep.store.getUsedCapacity(srcType) < task.progressTotal && TESTROOMS.includes(roomName)) {
+        if (creep.store.getUsedCapacity(srcType) < task.progressTotal && TESTROOMS.includes(roomName) && true) {
+          Logger.debug(`Dulp task detected: ${Logger.toMsg(task)}`);
+
           // get a fresh copy task and push it back to the queue
-          const newTask = _.clone<PayTask<any>>(task);
+          const newTask = task.clone();
+
+          // update progress for each task
           newTask.progressTotal = task.progressTotal - creep.store.getUsedCapacity(srcType);
+          task.progressTotal = creep.store.getUsedCapacity(srcType);
           // TODO del
           (newTask as any).generatedBy = "duplicated";
 
-          receiverQueues[srcType].enqueue(newTask.bindTargetStructure());
+          // old task needs to be married first because they share the same alternative id
+          task.bindTargetStructure(creep.name).bindCreep(creep.name);
+          newTask.bindTargetStructure();
+          enqueueSrctypedTaskWithPriority(receiverQueues, newTask);
 
-          task.progressTotal = creep.store.getUsedCapacity(srcType);
+          Logger.trace(`old`, creep.name, task);
+          Logger.trace(`new`, newTask.alternativeId, newTask);
+          Logger.trace(`quque`, receiverQueues);
+        } else {
+          task.bindTargetStructure(creep.name).bindCreep(creep.name);
         }
         
-        task.bindTargetStructure(creep.name).bindCreep(creep.name);
         task.status = 0;
-        Logger.debug(`Marry`, global.creeps[creep.name]);
+        Logger.trace(`Marry`, global.creeps[creep.name]);
       }
     }
   }

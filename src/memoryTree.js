@@ -224,7 +224,7 @@ function updateRoom(room) {
  * cycle through all visible rooms and update next room every PERIOD ticks
  */
 function autoUpdateRoom() {
-  const PERIOD = 100;
+  const PERIOD = 50;
   // prevent too much expensive execution on the same tick remainder
   const REMAINDER = 1;
   if (Game.time % PERIOD == REMAINDER) {

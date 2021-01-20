@@ -118,6 +118,9 @@ class Logger {
    * @param  {...any} message message to log, will stringify any object
    */
   static log(level, levelInfo, ...message) {
+    if (Memory.config.pause) {
+      return;
+    }
     let msg;
     let combined = message.map((m) => {
       try {

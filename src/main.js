@@ -20,6 +20,7 @@ const { BACKUP_MEMORY } = require('./config');
 
 // execute alterOnce for once
 Memory.exec = true;
+Memory.config.pause = false;
 
 // update code check
 if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
@@ -48,10 +49,10 @@ const starter = () => {
     if (Game.shard.name == 'shard2') {
       module.exports.loop = emptyShard;
     } else {
-      alterOnce();
       memoryTree.preInit();
       memoryTree.init();
       globalTree.init();
+      alterOnce();
       module.exports.loop = main;
       main();
     }
