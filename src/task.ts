@@ -45,7 +45,7 @@ export abstract class Task<Performer> implements QueueNode{
   readonly generatedTime: number;
   abstract get alternativeId(): string;
 
-  abstract perform(performer: Performer): ScreepsReturnCode | 1;
+  abstract perform(performer: Performer): ScreepsReturnCode;
   abstract prerequisite(performer: Performer): boolean;
   callbacks: callbackFunc<Performer>[];
   abstract onComplete(status: number): void;

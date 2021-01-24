@@ -35,7 +35,7 @@ module.exports.stateScanner = function() {
   // bucket 当前剩余量
   Memory.stats.bucket = Game.cpu.bucket;
   // creep sum
-  Memory.stats.creeps = _.sum(Memory.creeps, (c) => true);
+  Memory.stats.creepsTotal = _.sum(Memory.creeps, (c) => true);
   Memory.stats.rcl = [];
   Memory.stats.rclevel = [];
   // Room control level

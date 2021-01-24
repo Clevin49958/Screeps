@@ -12,7 +12,7 @@ export type srcTypedCreepTaskDict = {
 }
 
 export interface excessProperty {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface RoomObjectWithId extends RoomObject {
@@ -22,8 +22,9 @@ export class BasicInfo<T extends RoomObjectWithId> implements excessProperty{
   id: Id<T>;
   x: number;
   y: number;
+  [key: string]: unknown;
 
-  static fromObj<T extends RoomObjectWithId>(obj: T): BasicInfo<RoomObjectWithId>{
+  static fromObj<T extends RoomObjectWithId>(obj: T): BasicInfo<T>{
     return new BasicInfo(obj.id as Id<T>, obj.pos.x, obj.pos.y);
   }
 
@@ -43,13 +44,13 @@ export class StructureInfo<T extends AnyStructure> extends BasicInfo<T> {
     return info;
   }
 
-  constructor(structure: AnyStructure) {
-    super(structure.id as Id<T>, structure.pos.x, structure.pos.y);
-    this.structureType = structure.structureType;
+  constructor(id: Id<T>, x: number, y: number, structureType: StructureConstant) {
+    super(id, x, y);
+    this.structureType = structureType;
   }
 }
 
-export class GlobalObjInfo<T extends Source|AnyStoreStructure> extends BasicInfo<T> {
+export class GlobalObjInfo<T extends Source|AnyStructure> extends BasicInfo<T> {
   type: StructureConstant|LOOK_SOURCES;
   isAtBase: boolean;
   resourceTasks: srcTypedCreepTaskDict;
@@ -75,7 +76,7 @@ export class MineralInfo extends BasicInfo<Mineral> {
   }
 }
 
-export class spawnInfo extends GlobalObjInfo<StructureSpawn> {
+export class SpawnInfo extends GlobalObjInfo<StructureSpawn> {
   // TODO
   // spawnTasks: 
 }

@@ -11,8 +11,8 @@ const init = require('./init');
 const myLink = require('./link');
 const myTerminal = require('./terminal');
 const { Logger, JSONsafe } = require('./Logger');
-const memoryTree = require('./memoryTree');
-const globalTree = require('./globalTree');
+const { MemoryTree } = require('./memoryTree');
+const { GlobalTree } = require('./globalTree');
 const profiler = require('screeps-profiler');
 const { Task, TransferTask } = require('./task');
 const { alterOnce } = require('./init');
@@ -49,9 +49,9 @@ const starter = () => {
     if (Game.shard.name == 'shard2') {
       module.exports.loop = emptyShard;
     } else {
-      memoryTree.preInit();
-      memoryTree.init();
-      globalTree.init();
+      MemoryTree.preInit();
+      MemoryTree.init();
+      GlobalTree.init();
       alterOnce();
       module.exports.loop = main;
       main();
@@ -135,13 +135,13 @@ const main = () => {
 
   // init.alterOnce();
 
-  memoryTree.autoUpdateRoom();
+  MemoryTree.autoUpdateRoom();
 
   lib.updateCreepWorkingState();
 
   try {
-    globalTree.generateTasks()
-    globalTree.marryTasks();
+    GlobalTree.generateTasks()
+    GlobalTree.marryTasks();
     init.alter();
     init.alterOnce();
   } catch (e) {

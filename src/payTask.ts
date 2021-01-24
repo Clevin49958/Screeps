@@ -40,7 +40,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
     * 0: OK
     * <0: one of the ERR_*
     */
-  perform(creep: Creep): ScreepsReturnCode | 1 {
+  perform(creep: Creep): ScreepsReturnCode {
     if (this.status < 0) {
       throw new Error(`Task performed with status ${this.status}`);
       
@@ -65,7 +65,7 @@ export class PayTask<Target extends AnyStoreStructure> extends TransferTask<Targ
       this.status = this.progress / this.progressTotal;
       if (this.status >= 1) {
         this.onComplete(OK);
-        return 1;
+        return OK;
       } else {
         return res;
       }

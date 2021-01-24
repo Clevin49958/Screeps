@@ -2,7 +2,7 @@ const {Logger} = require('./Logger'); // eslint-disable-line no-unused-vars
 
 const RICH_THRESHOLD = 1000;
 const POOR_THRESHOLD = 1600;
-const LOG_RATE = 5;
+const LOG_RATE = 10;
 const HARVESTER = 'harvester';
 const UPGRADER = 'upgrader';
 const BUILDER = 'builder';

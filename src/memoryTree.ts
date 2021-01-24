@@ -233,7 +233,7 @@ export class MemoryTree {
     if (Game.time % PERIOD == REMAINDER) {
       const roomNames = _.keys(Game.rooms);
       const index = (Game.time - REMAINDER) % (PERIOD * roomNames.length) / PERIOD;
-      Logger.info(`Update room ${roomNames[index]}`);
+      Logger.info(wrapColor('yellow', `Update room ${roomNames[index]}`));
       const res: ScreepsReturnCode = MemoryTree.updateRoom(Game.rooms[roomNames[index]]);
       if (res < OK) {
         Logger.warn(`Auto update room ${roomNames[index]} failed with ${res}`);

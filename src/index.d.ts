@@ -4,15 +4,21 @@ declare type excessProperty = import('./globalClasses').excessProperty;
 declare type MineralInfo = import('./globalClasses').MineralInfo;
 declare type GlobalObjInfo<T> = import('./globalClasses').GlobalObjInfo<T>;
 declare type CreepTask = import('./task').CreepTask;
+declare type SpawnTask = import('./spawnTask').SpawnTask;
+declare type ControllerStatus = import('./memoryTree').ControllerStatus;
 declare type SrcTypedTaskQueue = import('./globalClasses').SrcTypedTaskQueue;
 declare type Task<T> = import('./task').Task<T>;
 declare type TaskQueue<T> = import('./task').TaskQueue<T>;
 
-declare interface TravelToReturnData {
-  nextPos?: RoomPosition;
-  pathfinderReturn?: unknown; // originally PathfinderReturn
-  state?: unknown; // originally TravelState
-  path?: string;
+// declare interface TravelToReturnData {
+//   nextPos?: RoomPosition;
+//   pathfinderReturn?: unknown; // originally PathfinderReturn
+//   state?: unknown; // originally TravelState
+//   path?: string;
+// }
+
+declare type CreepCount = {
+  [roleName: string]: number;
 }
 
 declare var global: Global;
@@ -25,6 +31,7 @@ declare interface Creep {
 declare interface CreepMemory {
   working: boolean,
   role: string,
+  bodyType: string,
   home: string,
   target: string
   [key: string]: unknown
@@ -44,16 +51,23 @@ declare interface RoomMemory {
  *
  * array: my reserved room, array lists nearby claimed rooms
  */
-  owner: boolean|string|string[];
+  owner: ControllerStatus;
   sources: BasicInfo<Source>[];
-  structures: StructureInfo<AnyStoreStructure>[];
+  structures: StructureInfo<AnyStructure>[];
   walls: BasicInfo<StructureWall>[];
   roads: BasicInfo<StructureRoad>[];
   ramparts: BasicInfo<StructureRampart>[];
   mineral: MineralInfo;
+  lastUpdate: number;
 
-  
+  // the followings are not init by `MemoryTree.initRoom`
   alternativeStorage?: Id<StructureContainer> | false;
+
+  creepTrack:{
+    home: CreepCount,
+    visitor: CreepCount
+  };
+
 }
 
 declare interface Memory extends excessProperty {
@@ -63,13 +77,32 @@ declare interface Memory extends excessProperty {
   myRooms: {
     [ownerRoom: string]: string[];
   },
+  states: {
   init: {
-    initMemoryTree: boolean,
+      initMemoryTree?: boolean,
+      preInitMemoryTree?: boolean,
     [name: string]: boolean
+  },
+    restart: {
+      [roomName: string]: boolean
+    },
+    defending: {
+      [roomName: string]: boolean
+    }
   },
   config: {
     pause: boolean,
     [name: string]: boolean
+  },
+  stats: {
+    /**
+     * @deprecated
+     */
+    creepTrack: {
+      [homeRoomName: string]: {
+        [targetRoomName: string]: CreepCount
+      }
+    }
   }
 }
 
@@ -78,7 +111,8 @@ interface Global extends excessProperty{
     init: {
       globalTree: number,
       creeps: number,
-      // [name: string]: boolean
+      spawns: number,
+      [name: string]: number
     },
   },  
   rooms: {

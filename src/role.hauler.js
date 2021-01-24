@@ -52,7 +52,7 @@ module.exports = {
           task.perform(creep);
         } else {
           helper.moveOffRoad(creep);
-          Logger.info(`${creep.name} is taking a break`)
+          Logger.debug(`${creep.name} is taking a break`)
         }
         return;
       }
