@@ -56,6 +56,7 @@ export class GlobalTree {
   static initSpawn(spawnName: string) {
     global.spawns[spawnName] = {};
   }
+
   /**
    *
    * @param {Room} room
@@ -71,11 +72,13 @@ export class GlobalTree {
     const mem = room.memory;
     globalMem.objs = {};
     // sources
-    for (const info of mem.sources) {
+    for (const info of mem.source) {
       globalMem.objs[info.id] = new GlobalObjInfo(info.id, info.x, info.y, LOOK_SOURCES, false);
     }
     // structures
-    for (const info of mem.structures) {
+    for (const structureType of _.keys(mem.structure)) {
+      for (const id of _.keys(mem.structure[structureType])) {
+        const info = mem.structure[structureType][id];
       globalMem.objs[info.id] = new GlobalObjInfo(
         info.id,
         info.x,
@@ -83,6 +86,7 @@ export class GlobalTree {
         info.structureType,
         isAtBase(new RoomPosition(info.x, info.y, room.name))
       )
+    }
     }
 
     globalMem.queues = {
@@ -240,9 +244,8 @@ export class GlobalTree {
               task.bindTargetStructure();
               GlobalTree.enqueueSrctypedTaskWithPriority(queue, task);
             }
-            const memoryInfo = _.find(Memory.rooms[roomName].structures, (v) =>
-              v.id == id
-            ) as LabInfo;
+
+            const memoryInfo: LabInfo = Memory.rooms[roomName].structure.lab[id];
             // reactor needs ingredient
             if (memoryInfo.state > 0 && memoryInfo.srcType) {
               adjustedAmount = store.getUsedCapacity(memoryInfo.srcType) +

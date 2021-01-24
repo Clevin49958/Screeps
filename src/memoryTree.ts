@@ -1,6 +1,5 @@
 import { Logger, wrapColor } from './Logger';
-import { BasicInfo, StructureInfo, SpawnInfo, LinkInfo, MineralInfo } from './globalClasses';
-import { isAtBase } from './globalClasses';
+import { BasicInfo, StructureInfo, SpawnGlobalInfo, LinkInfo, MineralInfo, LabInfo } from './globalClasses';
 import { addOwnerRoom } from './init';
 import { MEMORY_UPDATE_PERIOD } from './config';
 
@@ -81,74 +80,35 @@ export class MemoryTree {
    * the find constant used for room.find,
    * replace by FIND_STRUCTURES to reuse results for finding walls/roads
    */
-  static updateOwnedStructures(room: Room, findConstant: FindConstant = FIND_MY_STRUCTURES): ScreepsReturnCode {
-    const mem = Memory.rooms[room.name];
-    mem.structures = [];
-    mem.ramparts = [];
-    if (findConstant != FIND_MY_STRUCTURES && findConstant != FIND_STRUCTURES) {
-      findConstant = FIND_STRUCTURES;
-    }
+  static updateStructures(room: Room): ScreepsReturnCode {
+    const mem = Memory.rooms[room.name].structure;
 
-    for (const structure of room.find(findConstant)) {
+    for (const structure of room.find(FIND_STRUCTURES)) {
       const info = StructureInfo.fromStruc(structure);
       switch (structure.structureType) {
-        case STRUCTURE_RAMPART:
-          mem.ramparts.push(BasicInfo.fromObj<StructureRampart>(structure));
-          continue;
-
-        case STRUCTURE_ROAD:
-        case STRUCTURE_WALL:
-          continue;
-
         case STRUCTURE_LINK:
-          (info as LinkInfo).type = LinkInfo.getType(structure);
+          mem.link[structure.id] = LinkInfo.fromLink(structure);
           break;
 
         case STRUCTURE_LAB:
-          _.assign(info, {
-            type: 'off',
-            srcType: null,
-            react: 0,
-            rectors: null,
-          });
+          mem.lab[structure.id] = LabInfo.fromLab(structure);
           break;
 
         case STRUCTURE_SPAWN:
-
+        case STRUCTURE_EXTENSION:
         case STRUCTURE_STORAGE:
-
         case STRUCTURE_TOWER:
-
+        case STRUCTURE_OBSERVER:
         case STRUCTURE_POWER_SPAWN:
-
-        default:
-          break;
-      }
-
-      mem.structures.push(info);
-    }
-    return OK;
-  }
-
-  /**
-   * Update section
-   *  - walls
-   *  - roads
-   * in Memory.rooms
-   * @param {Room} room
-   */
-  static updateInfrasctructures(room: Room): ScreepsReturnCode {
-    const mem = Memory.rooms[room.name];
-    mem.walls = [];
-    mem.roads = [];
-    for (const structure of room.find(FIND_STRUCTURES)) {
-      switch (structure.structureType) {
+        case STRUCTURE_EXTRACTOR:
+        case STRUCTURE_TERMINAL:
+        case STRUCTURE_CONTAINER:
+        case STRUCTURE_NUKER:
+        case STRUCTURE_FACTORY:
         case STRUCTURE_ROAD:
-          mem.roads.push(BasicInfo.fromObj(structure));
-          break;
-
         case STRUCTURE_WALL:
-          mem.walls.push(BasicInfo.fromObj(structure));
+        case STRUCTURE_RAMPART:
+          mem[structure.structureType][structure.id] = StructureInfo.fromStruc(structure) as StructureInfo<any>;
           break;
 
         default:
@@ -179,18 +139,35 @@ export class MemoryTree {
     const mem = room.memory;
 
     // sources
-    mem.sources = room.find(FIND_SOURCES).map((s) => new BasicInfo(s.id, s.pos.x, s.pos.y)) || [];
+    mem.source = room.find(FIND_SOURCES).map((s) => new BasicInfo(s.id, s.pos.x, s.pos.y)) || [];
 
     // mineral
     const mineral:Mineral = room.find(FIND_MINERALS)[0];
     mem.mineral = mineral ? MineralInfo.fromMineral(mineral) : null;
 
+    mem.structure = {
+      spawn: {},
+      extension: {},
+      link: {},
+      storage: {},
+      tower: {},
+      observer: {},
+      powerSpawn: {},
+      extractor: {},
+      lab: {},
+      terminal: {},
+      container: {},
+      nuker: {},
+      factory: {},
+      road: {},
+      constructedWall: {},
+      rampart: {},
+    }
     // owner
     MemoryTree.updateOwner(room);
 
     // structures
-    MemoryTree.updateOwnedStructures(room, FIND_STRUCTURES);
-    MemoryTree.updateInfrasctructures(room);
+    MemoryTree.updateStructures(room);
 
     // set update timer
     mem.lastUpdate = Game.time;
@@ -216,8 +193,7 @@ export class MemoryTree {
     }
     let res: ScreepsReturnCode = OK;
     res = MemoryTree.updateOwner(room) || res;
-    res = MemoryTree.updateOwnedStructures(room, FIND_STRUCTURES) || res;
-    res = MemoryTree.updateInfrasctructures(room) || res;
+    res = MemoryTree.updateStructures(room) || res;
     // set update timer
     room.memory.lastUpdate = Game.time;
     return res;
@@ -244,11 +220,11 @@ export class MemoryTree {
   static preInit() {
     if (!Memory.states?.init?.preInitMemoryTree) {
       const startTime = Game.cpu.getUsed();
-      Memory.sources = {};
-      Memory.offence = {};
-      Memory.creepDemand = {};
+      Memory.sources = Memory.sources || {};
+      Memory.offence = Memory.offence || {};
+      Memory.creepDemand = Memory.creepDemand || {};
       Memory.stats = {
-        creepTrack: {}
+        creepTrack: {},
       };
       Memory.states = {
         restart: {},

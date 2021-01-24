@@ -2,6 +2,8 @@ declare type BasicInfo<T> = import('./globalClasses').BasicInfo<T>;
 declare type StructureInfo<T> = import('./globalClasses').StructureInfo<T>;
 declare type excessProperty = import('./globalClasses').excessProperty;
 declare type MineralInfo = import('./globalClasses').MineralInfo;
+declare type LabInfo = import('./globalClasses').LabInfo;
+declare type LinkInfo = import('./globalClasses').LinkInfo;
 declare type GlobalObjInfo<T> = import('./globalClasses').GlobalObjInfo<T>;
 declare type CreepTask = import('./task').CreepTask;
 declare type SpawnTask = import('./spawnTask').SpawnTask;
@@ -52,10 +54,43 @@ declare interface RoomMemory {
  * array: my reserved room, array lists nearby claimed rooms
  */
   owner: ControllerStatus;
-  sources: BasicInfo<Source>[];
+  source: BasicInfo<Source>[];
+  structure: {
+    link: {[id: string]: LinkInfo};
+    lab: {[id: string]: LabInfo};
+    spawn: {[id: string]: StructureInfo<StructureSpawn>};
+    extension: {[id: string]: StructureInfo<StructureExtension>};
+    storage: {[id: string]: StructureInfo<StructureStorage>};
+    tower: {[id: string]: StructureInfo<StructureTower>};
+    observer: {[id: string]: StructureInfo<StructureObserver>};
+    powerSpawn: {[id: string]: StructureInfo<StructurePowerSpawn>};
+    extractor: {[id: string]: StructureInfo<StructureExtractor>};
+    terminal: {[id: string]: StructureInfo<StructureTerminal>};
+    container: {[id: string]: StructureInfo<StructureContainer>};
+    nuker: {[id: string]: StructureInfo<StructureNuker>};
+    factory: {[id: string]: StructureInfo<StructureFactory>};
+
+    road: {[id: string]: StructureInfo<StructureRoad>};
+    constructedWall: {[id: string]: StructureInfo<StructureWall>};
+    rampart: {[id: string]: StructureInfo<StructureRampart>};
+    
+    [structureTypePlaceholder: string]: {[id: string]: StructureInfo<any>};
+  }
+  /**
+   * @deprecated
+   */
   structures: StructureInfo<AnyStructure>[];
+  /**
+   * @deprecated
+   */
   walls: BasicInfo<StructureWall>[];
+  /**
+   * @deprecated
+   */
   roads: BasicInfo<StructureRoad>[];
+  /**
+   * @deprecated
+   */
   ramparts: BasicInfo<StructureRampart>[];
   mineral: MineralInfo;
   lastUpdate: number;
@@ -103,6 +138,11 @@ declare interface Memory extends excessProperty {
         [targetRoomName: string]: CreepCount
       }
     }
+  /**
+   * @deprecated
+   */
+  sources: {
+    [roomName: string]: number
   }
 }
 

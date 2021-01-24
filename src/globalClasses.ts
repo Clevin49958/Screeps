@@ -76,9 +76,56 @@ export class MineralInfo extends BasicInfo<Mineral> {
   }
 }
 
-export class SpawnInfo extends GlobalObjInfo<StructureSpawn> {
-  // TODO
-  // spawnTasks: 
+
+
+export class LinkInfo extends StructureInfo<StructureLink> {
+  type: string
+
+  static getType(structure: StructureLink): string {
+    if (structure.pos.findInRange(FIND_FLAGS, 1, {
+      filter: (f) => f.name == `keeper-${structure.room.name}`,
+    }).length > 0) {
+      return 'receiver';
+    } else {
+      return 'sender';
+    }
+  }
+
+  static fromLink(link: StructureLink): LinkInfo {
+    const info: LinkInfo = StructureInfo.fromStruc(link) as LinkInfo;
+    info.type = LinkInfo.getType(link);
+    return info;
+  }
+  
+  constructor(structure: StructureLink) {
+    super(structure.id as Id<StructureLink>, structure.pos.x, structure.pos.y, STRUCTURE_LINK);
+    this.type = LinkInfo.getType(structure);
+  }
+}
+
+export class LabInfo extends StructureInfo<StructureLab> {
+  srcType?: ResourceConstant;
+  type: LabType;
+  state: LabState;
+  reactor?: unknown[];
+
+  static setDefaultState(labInfo: LabInfo): void {
+    labInfo.srcType = undefined;
+    labInfo.state = LabState.OFF;
+    labInfo.type = LabType.OFF;
+    labInfo.reactor = [];
+  }
+
+  static fromLab(lab: StructureLab): LabInfo {
+    const info: LabInfo = StructureInfo.fromStruc(lab) as LabInfo;
+    LabInfo.setDefaultState(info);
+    return info;
+  }
+
+  constructor(lab: StructureLab) {
+    super(lab.id, lab.pos.x, lab.pos.y, STRUCTURE_LAB);
+    LabInfo.setDefaultState(this);
+  }
 }
 
 /**
