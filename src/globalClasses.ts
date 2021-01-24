@@ -1,3 +1,5 @@
+import { LabType, LabState } from "./lab";
+import { SpawnTask } from "./spawnTask";
 import { TaskQueue, Task, TransferTask } from "./task";
 
 export type SrcTypedTaskQueue = {
@@ -77,3 +79,15 @@ export class spawnInfo extends GlobalObjInfo<StructureSpawn> {
   // TODO
   // spawnTasks: 
 }
+
+/**
+ * check if the position is at base and handled by a keeper
+ * by checking the presence of a flag named keeper-${roomName} nearby
+ * @param {RoomPosition} pos the position to check
+ * @returns {boolean}
+ */
+export const isAtBase = (pos: RoomPosition) => {
+  return pos.findInRange(FIND_FLAGS, 1, {
+    filter: (f) => f.name == `keeper-${pos.roomName}`,
+  }).length > 0;
+};

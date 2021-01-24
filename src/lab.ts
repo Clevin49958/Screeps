@@ -12,16 +12,3 @@ export enum LabType {
   INTERMIDIATE,
   PRODUCT
 }
-
-export class labInfo extends StructureInfo<StructureLab> {
-  srcType?: ResourceConstant;
-  type: LabType;
-  state: LabState;
-  reactor?: unknown[];
-  constructor(structure: AnyStructure) {
-    super(structure);
-    this.state = LabState.OFF;
-    this.type = LabType.OFF;
-    this.reactor = [];
-  }
-}

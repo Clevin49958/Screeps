@@ -1,6 +1,6 @@
-import { Logger } from './Logger';
+import { Logger, wrapColor } from './Logger';
 import { BasicInfo, StructureInfo, SpawnInfo, LinkInfo, MineralInfo } from './globalClasses';
-import { isAtBase } from './globalTree';
+import { isAtBase } from './globalClasses';
 import { addOwnerRoom } from './init';
 import { MEMORY_UPDATE_PERIOD } from './config';
 

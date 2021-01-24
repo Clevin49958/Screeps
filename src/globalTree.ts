@@ -1,8 +1,8 @@
 import { Task, TaskQueue, TransferTask } from './task';
 import { PayTask } from "./payTask";
 import { Logger } from "./Logger";
-import { labInfo, LabType } from './lab';
-import { GlobalObjInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
+import { LabType } from './lab';
+import { GlobalObjInfo, isAtBase, LabInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
 import { LAB_ENERGY_THRESHOLD, LAB_MINERAL_THRESHOLD, TERMINAL_ENERGY_THRESHOLD, TESTROOMS } from './config';
 
 export class GlobalTree {
@@ -242,7 +242,7 @@ export class GlobalTree {
             }
             const memoryInfo = _.find(Memory.rooms[roomName].structures, (v) =>
               v.id == id
-            ) as labInfo;
+            ) as LabInfo;
             // reactor needs ingredient
             if (memoryInfo.state > 0 && memoryInfo.srcType) {
               adjustedAmount = store.getUsedCapacity(memoryInfo.srcType) +
@@ -368,14 +368,3 @@ export class GlobalTree {
   }
   
 }
-/**
- * check if the position is at base and handled by a keeper
- * by checking the presence of a flag named keeper-${roomName} nearby
- * @param {RoomPosition} pos the position to check
- * @returns {boolean}
- */
-export const isAtBase = (pos: RoomPosition) => {
-  return pos.findInRange(FIND_FLAGS, 1, {
-    filter: (f) => f.name == `keeper-${pos.roomName}`,
-  }).length > 0;
-};
