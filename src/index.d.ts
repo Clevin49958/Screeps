@@ -2,6 +2,7 @@ declare type BasicInfo<T> = import('./globalClasses').BasicInfo<T>;
 declare type StructureInfo<T> = import('./globalClasses').StructureInfo<T>;
 declare type excessProperty = import('./globalClasses').excessProperty;
 declare type MineralInfo = import('./globalClasses').MineralInfo;
+declare type SpawnInfo = import('./globalClasses').SpawnGlobalInfo;
 declare type LabInfo = import('./globalClasses').LabInfo;
 declare type LinkInfo = import('./globalClasses').LinkInfo;
 declare type GlobalObjInfo<T> = import('./globalClasses').GlobalObjInfo<T>;
@@ -42,8 +43,6 @@ declare interface CreepMemory {
 declare interface FlagMemory { [name: string]: any }
 declare interface SpawnMemory { [name: string]: any }
 declare interface RoomMemory {
-  /** 
-/** 
   /** 
    * * true: my claimed room
    *
@@ -180,6 +179,11 @@ interface Global extends excessProperty{
   creeps: {
     [creepName: string]: {
       task?: CreepTask
+    }
+  },
+  spawns: {
+    [spawnName: string]: {
+      task?: SpawnTask
     }
   }
 }

@@ -76,6 +76,27 @@ export class MineralInfo extends BasicInfo<Mineral> {
   }
 }
 
+export class SpawnGlobalInfo extends GlobalObjInfo<StructureSpawn> {
+  spawnTasks: TaskQueue<SpawnTask>;
+  name: string;
+
+  static fromSpawn(spawn: StructureSpawn): SpawnGlobalInfo {
+    const info: SpawnGlobalInfo = new SpawnGlobalInfo(
+      spawn.id,
+      spawn.pos.x,
+      spawn.pos.y,
+      isAtBase(spawn.pos),
+      spawn.name
+    );
+    return info;
+  }
+
+  constructor(id: Id<StructureSpawn>, x: number, y: number, isAtBase: boolean, name: string) {
+    super(id, x, y, STRUCTURE_SPAWN, isAtBase);
+    this.spawnTasks = new TaskQueue<SpawnTask>();
+    this.name = name;
+  }
+}
 
 
 export class LinkInfo extends StructureInfo<StructureLink> {
@@ -139,3 +160,38 @@ export const isAtBase = (pos: RoomPosition) => {
     filter: (f) => f.name == `keeper-${pos.roomName}`,
   }).length > 0;
 };
+
+// role names
+export const HARVESTER = 'harvester';
+export const UPGRADER = 'upgrader';
+export const BUILDER = 'builder';
+export const REPAIRER = 'repairer';
+export const HARV_REMOTE = 'harvRemote';
+export const WALL_REPAIRER = 'wallRepairer';
+export const CLAIMER = 'claimer';
+export const ATK_RANGE = 'atkRange';
+export const HAULER = 'hauler';
+export const ATTACKER = 'attacker';
+export const MINER = 'miner';
+export const KEEPER = 'keeper';
+export const HEALER = 'healer';
+
+// body type names
+export const BALANCED = 'bal';
+export const HEAVY_WORKER = 'heavy';
+
+// export const BodyType = HARV_REMOTE | BALANCED | HAULER | KEEPER | HEAVY_WORKER | CLAIMER | ATTACKER | ATK_RANGE | HEALER
+export const BODY_TYPES = [HARV_REMOTE, BALANCED, HAULER, KEEPER, HEAVY_WORKER, CLAIMER, ATTACKER, ATK_RANGE, HEALER];
+export const ROLE_NAMES = [HARVESTER, UPGRADER, BUILDER, REPAIRER,
+  HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER, HEALER];
+
+export function getNewCreepCountMap(): CreepCount{
+  return zeroCreepCountDict({});
+}
+
+export function zeroCreepCountDict(obj: CreepCount): CreepCount{
+  for (const key of ROLE_NAMES) {
+    obj[key] = 0;
+  }
+  return obj;
+}
