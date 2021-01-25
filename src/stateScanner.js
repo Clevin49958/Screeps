@@ -40,8 +40,9 @@ module.exports.stateScanner = function() {
   Memory.stats.rclevel = [];
   // Room control level
   for (const [index, room] of Object.keys(Memory.myRooms).entries()) {
-    Memory.stats.rcl[index] = Game.rooms[room].controller.progress /
-      Game.rooms[room].controller.progressTotal * 100;
+    if (!Game.rooms[room]) continue;
+    Memory.stats.rcl[index] = Game.rooms[room]?.controller?.progress /
+      Game.rooms[room]?.controller?.progressTotal * 100;
     if (!Memory.stats.rcl[index]) {
       Memory.stats.rcl[index] = 0;
     }

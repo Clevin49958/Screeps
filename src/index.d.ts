@@ -21,7 +21,7 @@ declare type TaskQueue<T> = import('./task').TaskQueue<T>;
 
 declare type CreepCount = {
   [roleName: string]: number;
-}
+};
 
 declare var global: Global;
 declare var Memory: Memory;
@@ -93,15 +93,16 @@ declare interface RoomMemory {
    */
   ramparts: BasicInfo<StructureRampart>[];
   mineral: MineralInfo;
+  creepTrack:{
+    home: CreepCount,
+    visitor: CreepCount
+  };
   lastUpdate: number;
 
   // the followings are not init by `MemoryTree.initRoom`
   alternativeStorage?: Id<StructureContainer> | false;
 
-  creepTrack:{
-    home: CreepCount,
-    visitor: CreepCount
-  };
+
 
 }
 
@@ -137,6 +138,12 @@ declare interface Memory extends excessProperty {
       [homeRoomName: string]: {
         [targetRoomName: string]: CreepCount
       }
+    },
+    /** 
+     * creep id accumulator
+     * such that each creep is given a unique id number
+     */
+    creepAcc: CreepCount
     }
   /**
    * @deprecated

@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
+    "module": "CommonJS",
+    "lib": ["ES2017"],
+    "target": "es2017",
     "outDir": "./dist",
     "rootDir": "src",
     "allowJs": true,
+    "sourceMap": true,
     "allowUnreachableCode": true,
-    "target": "es5",
-    "typeRoots": ["./node_modules/@types/**/*", "./src/globalClasses", "./src/index"],
-    "types": ["screeps", "lodash"],
-    "lib": ["es2016", "DOM"]
+    "noImplicitAny": true
   },
   "include": ["./src/**/*"]
 }

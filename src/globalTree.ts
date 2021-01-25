@@ -27,6 +27,7 @@ export class GlobalTree {
       global.states.init.globalTree = Game.time;
       Logger.info(`global var initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
     }
+
     // creeps
     if (!global.states.init.creeps) {
       const startTime = Game.cpu.getUsed();
@@ -37,7 +38,8 @@ export class GlobalTree {
       global.states.init.creeps = Game.time;
       Logger.info(`global creep initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
     }
-    // creeps
+
+    // spawns
     if (!global.states.init.spawns) {
       const startTime = Game.cpu.getUsed();
       global.spawns = {};
@@ -45,7 +47,7 @@ export class GlobalTree {
         GlobalTree.initSpawn(spawnName);
       }
       global.states.init.spawns = Game.time;
-      Logger.info(`global creep initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
+      Logger.info(`global spawn initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);
     }
   }
 
@@ -79,14 +81,14 @@ export class GlobalTree {
     for (const structureType of _.keys(mem.structure)) {
       for (const id of _.keys(mem.structure[structureType])) {
         const info = mem.structure[structureType][id];
-      globalMem.objs[info.id] = new GlobalObjInfo(
-        info.id,
-        info.x,
-        info.y,
-        info.structureType,
-        isAtBase(new RoomPosition(info.x, info.y, room.name))
-      )
-    }
+        globalMem.objs[info.id] = new GlobalObjInfo(
+          info.id,
+          info.x,
+          info.y,
+          info.structureType,
+          isAtBase(new RoomPosition(info.x, info.y, room.name))
+        )
+      }
     }
 
     globalMem.queues = {
@@ -130,7 +132,7 @@ export class GlobalTree {
    * @param {string} roomName the name of room
    */
   // TODO
-  static generateSendingTask(roomName) {
+  static generateSendingTask(roomName: string) {
     const mem = global.rooms[roomName];
     const objs = mem.objs;
 
@@ -145,7 +147,7 @@ export class GlobalTree {
    * Generate a list of tasks to receive demanding resources for the object
    * @param {string} roomName the name of room
    */
-  static generateReceiveTask(roomName) {
+  static generateReceiveTask(roomName: string) {
     if (!Game.rooms[roomName]) return;
     
     // ignore: link, container, storage
@@ -232,6 +234,7 @@ export class GlobalTree {
           case STRUCTURE_LAB:
             adjustedAmount = store.getUsedCapacity(RESOURCE_ENERGY) +
               GlobalTree.getTotalScheduledAmount(elem.resourceTasks, RESOURCE_ENERGY);
+            // energy
             if (adjustedAmount < LAB_ENERGY_THRESHOLD) {
               const task = new PayTask(
                 priority[elem.type],

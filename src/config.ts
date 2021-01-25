@@ -7,4 +7,4 @@ export const CREEP_LIFE_THRESHOLD = 300;
 export const MEMORY_UPDATE_PERIOD = 50;
 
 export const BACKUP_MEMORY = false;
-export const TESTROOMS = [/* 'E48S45' */];
+export const TESTROOMS: string[] = [/* 'E48S45' */];

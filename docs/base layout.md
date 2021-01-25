@@ -15,10 +15,10 @@
      - there is a spot for upgrader
 2. A plot for Base Manager, which is a small creep, with body == [CARRY] (maybe also a move)
     The manager will be surrounded by
-    - A link to receive energy from sources
+    - A link to receive energy from sources (edge)
+    - A power spawn (edge)
     - The Storage
     - A Terminal
-    - A power spawn
-    - useually 2 tile of roads (enter and exit, at top and right e.g.)
     - A tower
     - A spawn
+    - useually 2 tile of roads (enter and exit, at top and right e.g.)
