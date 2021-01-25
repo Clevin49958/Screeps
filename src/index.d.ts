@@ -42,17 +42,19 @@ declare interface CreepMemory {
 declare interface FlagMemory { [name: string]: any }
 declare interface SpawnMemory { [name: string]: any }
 declare interface RoomMemory {
+  /** 
 /** 
- * * true: my claimed room
- *
- * 0: neutral without controller
- *
- * 1: neutral with controller
- *
- * string: hostile owner/reserver's username
- *
- * array: my reserved room, array lists nearby claimed rooms
- */
+  /** 
+   * * true: my claimed room
+   *
+   * 0: neutral without controller
+   *
+   * 1: neutral with controller
+   *
+   * string: hostile owner/reserver's username
+   *
+   * array: my reserved room, array lists nearby claimed rooms
+   */
   owner: ControllerStatus;
   source: BasicInfo<Source>[];
   structure: {
@@ -114,11 +116,11 @@ declare interface Memory extends excessProperty {
     [ownerRoom: string]: string[];
   },
   states: {
-  init: {
+    init: {
       initMemoryTree?: boolean,
       preInitMemoryTree?: boolean,
-    [name: string]: boolean
-  },
+      [name: string]: boolean
+    },
     restart: {
       [roomName: string]: boolean
     },
@@ -144,7 +146,7 @@ declare interface Memory extends excessProperty {
      * such that each creep is given a unique id number
      */
     creepAcc: CreepCount
-    }
+  }
   /**
    * @deprecated
    */

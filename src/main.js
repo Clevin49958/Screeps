@@ -71,17 +71,6 @@ const emptyShard = () => {
 }
 
 const main = () => {
-  init.preparePerTick();
-
-
-  // terminal processing
-  for (const room in Memory.myRooms) {
-    const terminal = Game.rooms[room]?.terminal;
-    if (!(Game.time % 100) && terminal) {
-      myTerminal.autoDealExcess(terminal);
-    }
-  }
-
   // CPU bucket check
   if (Game.cpu.bucket < 15 || false) {
     // skip ticket
@@ -138,6 +127,14 @@ const main = () => {
   MemoryTree.autoUpdateRoom();
 
   lib.updateCreepWorkingState();
+
+  // terminal processing
+  for (const room in Memory.myRooms) {
+    const terminal = Game.rooms[room]?.terminal;
+    if (!(Game.time % 100) && terminal) {
+      myTerminal.autoDealExcess(terminal);
+    }
+  }
 
   try {
     GlobalTree.generateTasks()

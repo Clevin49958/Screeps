@@ -18,7 +18,7 @@ const { Logger } = require('./Logger');
  * @returns {string} creep name
  */
 function getName(role, target, home) {
-  return `${role.slice(0, 5)}-${Math.floor(Math.random() * 10000)}`;
+  return `${role}-${home}-${target}-${Math.floor(Math.random() * 10000) *100}`;
 }
 module.exports = function() {
   // create a new function for StructureSpawn

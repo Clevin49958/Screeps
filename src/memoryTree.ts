@@ -89,7 +89,7 @@ export class MemoryTree {
         case STRUCTURE_LINK:
           mem.link[structure.id] = LinkInfo.fromLink(structure);
           break;
-
+        
         case STRUCTURE_LAB:
           mem.lab[structure.id] = LabInfo.fromLab(structure);
           break;
