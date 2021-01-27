@@ -185,7 +185,7 @@ export const BODY_TYPES = [HARV_REMOTE, BALANCED, HAULER, KEEPER, HEAVY_WORKER, 
 export const ROLE_NAMES = [HARVESTER, UPGRADER, BUILDER, REPAIRER,
   HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER, HEALER];
 
-export function getNewCreepCountMap(): CreepCount{
+export function getNewCreepCountDict(): CreepCount{
   return zeroCreepCountDict({});
 }
 

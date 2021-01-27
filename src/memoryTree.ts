@@ -1,5 +1,5 @@
 import { Logger, wrapColor } from './Logger';
-import { BasicInfo, StructureInfo, SpawnGlobalInfo, LinkInfo, MineralInfo, LabInfo, getNewCreepCountMap } from './globalClasses';
+import { BasicInfo, StructureInfo, SpawnGlobalInfo, LinkInfo, MineralInfo, LabInfo, getNewCreepCountDict } from './globalClasses';
 import { addOwnerRoom } from './init';
 import { MEMORY_UPDATE_PERIOD } from './config';
 
@@ -171,10 +171,16 @@ export class MemoryTree {
 
     // creep count
     mem.creepTrack = {
-      home: getNewCreepCountMap(),
-      visitor: getNewCreepCountMap()
+      home: getNewCreepCountDict(),
+      traveller: getNewCreepCountDict()
     }
 
+    if (!mem.creepDemand) {
+      mem.creepDemand = {
+        [room.name]: getNewCreepCountDict(),
+      }  
+    }
+    
     // set update timer
     mem.lastUpdate = Game.time;
     return OK;
@@ -231,7 +237,7 @@ export class MemoryTree {
       Memory.creepDemand = Memory.creepDemand || {};
       Memory.stats = {
         creepTrack: {},
-        creepAcc: getNewCreepCountMap(),
+        creepAcc: getNewCreepCountDict(),
       };
       Memory.states = {
         restart: {},

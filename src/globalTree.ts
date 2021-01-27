@@ -2,7 +2,7 @@ import { Task, TaskQueue, TransferTask } from './task';
 import { PayTask } from "./payTask";
 import { Logger } from "./Logger";
 import { LabType } from './lab';
-import { GlobalObjInfo, isAtBase, LabInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
+import { getNewCreepCountDict, GlobalObjInfo, isAtBase, LabInfo, srcTypedCreepTaskDict, SrcTypedTaskQueue } from './globalClasses';
 import { LAB_ENERGY_THRESHOLD, LAB_MINERAL_THRESHOLD, TERMINAL_ENERGY_THRESHOLD, TESTROOMS } from './config';
 
 export class GlobalTree {
@@ -96,6 +96,7 @@ export class GlobalTree {
       receiver: {},
       spawn: new TaskQueue<Task<any>>(),
     };
+    globalMem.creepDemand = _.cloneDeep(Memory.rooms[room.name].creepDemand)
   }
 
   /**

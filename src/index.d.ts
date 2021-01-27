@@ -77,6 +77,7 @@ declare interface RoomMemory {
     
     [structureTypePlaceholder: string]: {[id: string]: StructureInfo<any>};
   }
+
   /**
    * @deprecated
    */
@@ -95,9 +96,16 @@ declare interface RoomMemory {
   ramparts: BasicInfo<StructureRampart>[];
   mineral: MineralInfo;
   creepTrack:{
-    home: CreepCount,
-    visitor: CreepCount
+    [roomName: string]: CreepCount,
   };
+  /**
+   * static creep demand, altered when there is a room status change/global goal change
+   * 
+   * refer to global.room[roomName].creepDemand for live demand.
+   */
+  creepDemand: {
+    [roomName: string]: CreepCount,
+  }
   lastUpdate: number;
 
   // the followings are not init by `MemoryTree.initRoom`
@@ -171,9 +179,19 @@ interface Global extends excessProperty{
       queues: {
         sender: SrcTypedTaskQueue,
         receiver: SrcTypedTaskQueue,
-        spawn: TaskQueue<Task<unknown>>
+        spawn: TaskQueue<Task<unknown>>,
       },
-      storage: StructureStorage|StructureContainer|null
+      // TODO have a single counter for each role rather than per role per room
+      creepDemand: {
+        [roomName: string]: CreepCount,
+      },
+      creepDemandAdjustment: {
+        [roomName: string]: CreepCount,
+      },
+      creepLiveDemand: {
+        [roomName: string]: CreepCount,
+      }
+      storage: StructureStorage|StructureContainer|null,
     }
   },
   creeps: {
