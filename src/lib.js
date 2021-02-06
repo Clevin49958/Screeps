@@ -14,6 +14,7 @@ const {
   MINER,
   KEEPER,
   HARVESTER,
+  SCOUT,
 } = require('./helper');
 const helper = require('./helper');
 const {Logger, LOG_LEVEL} = require('./Logger');
@@ -373,6 +374,19 @@ module.exports = {
           }
         }
       }
+    }
+
+    // spawn scout
+    Logger.trace(`${room} trying to spawn scout`);
+    const scoutNum = 0;
+    for (const targetRoomName of _.keys(creepTrack)) {
+      scoutNum += creepTrack[targetRoomName][SCOUT];
+    }
+    if (scoutNum == 0 && Memory.scout[room]?.length > 0) {
+      res = spawn.spawnScoutCreep(Memory.scout[room][0]);
+      Logger.debug(
+          room, 'attempt to spawn', SCOUT, 'res', res,
+      );
     }
 
     // spawn mineral miners

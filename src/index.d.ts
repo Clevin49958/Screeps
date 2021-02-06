@@ -1,3 +1,4 @@
+declare type MyRooms = import('./util.myRooms').MyRooms;
 declare type BasicInfo<T> = import('./globalClasses').BasicInfo<T>;
 declare type StructureInfo<T> = import('./globalClasses').StructureInfo<T>;
 declare type excessProperty = import('./globalClasses').excessProperty;
@@ -24,7 +25,7 @@ declare type CreepCount = {
   [roleName: string]: number;
 };
 
-declare var global: Global;
+declare var global: Global & NodeJS.Global & typeof globalThis;
 declare var Memory: Memory;
 
 declare interface Creep {
@@ -151,10 +152,13 @@ declare interface Memory extends excessProperty {
    */
   sources: {
     [roomName: string]: number
+  },
+  scout: {
+    [homeRoom: string]: string[],
   }
 }
 
-interface Global extends excessProperty{
+interface Global extends excessProperty, NodeJS.Global{
   states: {
     init: {
       globalTree: number,
@@ -176,6 +180,7 @@ interface Global extends excessProperty{
       storage: StructureStorage|StructureContainer|null
     }
   },
+  myRooms: MyRooms,
   creeps: {
     [creepName: string]: {
       task?: CreepTask

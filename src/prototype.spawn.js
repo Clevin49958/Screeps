@@ -4,6 +4,7 @@ const {
   ATK_RANGE,
   ATTACKER,
   KEEPER,
+  SCOUT,
 } = require('./helper');
 const helper = require('./helper');
 const { Logger } = require('./Logger');
@@ -344,6 +345,19 @@ module.exports = function() {
                 home: home,
               },
               directions: [dir],
+            });
+      };
+  StructureSpawn.prototype.spawnScoutCreep =
+      function(target, home = this.room.name) {
+        const body = [MOVE];
+
+        return this.spawnCreep(body,
+            `${getName(SCOUT, target, home)}`, {
+              memory: {
+                role: SCOUT,
+                target: target,
+                home: home,
+              },
             });
       };
 };
