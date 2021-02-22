@@ -15,6 +15,7 @@ const HAULER = 'hauler';
 const ATTACKER = 'attacker';
 const MINER = 'miner';
 const KEEPER = 'keeper';
+const SCOUT = 'scout';
 
 Creep.prototype.myMoveTo = function(destination, options = {}) {
   options = _.merge({}, options);
@@ -40,9 +41,10 @@ module.exports = {
   ATTACKER,
   MINER,
   KEEPER,
+  SCOUT,
 
   roleNames: [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER,
+    HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER, SCOUT,
   ],
   logRate: LOG_RATE,
   RICH_THRESHOLD,
