@@ -25,5 +25,8 @@ module.exports = function() {
     }
   });
 
-  Memory.stats.summary = Memory.watch.values;
+  if (Memory.stats) {
+    Memory.stats.summary = Memory.watch.values;
+  }
+  
 };

@@ -24,7 +24,7 @@ declare type CreepCount = {
   [roleName: string]: number;
 };
 
-declare var global: Global;
+declare var global: NodeJS.Global & typeof globalThis & Global;
 declare var Memory: Memory;
 
 declare interface Creep {
@@ -55,6 +55,7 @@ declare interface RoomMemory {
    * array: my reserved room, array lists nearby claimed rooms
    */
   owner: ControllerStatus;
+  ownerRoomName?: string;
   source: BasicInfo<Source>[];
   structure: {
     link: {[id: string]: LinkInfo};
@@ -94,18 +95,19 @@ declare interface RoomMemory {
    * @deprecated
    */
   ramparts: BasicInfo<StructureRampart>[];
+
+
   mineral: MineralInfo;
-  creepTrack:{
-    [roomName: string]: CreepCount,
-  };
+
+  creepTrack?: CreepCount;
+
   /**
    * static creep demand, altered when there is a room status change/global goal change
    * 
    * refer to global.room[roomName].creepDemand for live demand.
    */
-  creepDemand: {
-    [roomName: string]: CreepCount,
-  }
+  creepDemand?: CreepCount;
+
   lastUpdate: number;
 
   // the followings are not init by `MemoryTree.initRoom`
@@ -115,7 +117,8 @@ declare interface RoomMemory {
 
 }
 
-declare interface Memory extends excessProperty {
+declare interface Memory {
+  userName: string,
   rooms: {
     [roomName: string]: RoomMemory
   },
@@ -137,7 +140,7 @@ declare interface Memory extends excessProperty {
   },
   config: {
     pause: boolean,
-    [name: string]: boolean
+    [name: string]: any,
   },
   stats: {
     /**
@@ -145,24 +148,35 @@ declare interface Memory extends excessProperty {
      */
     creepTrack: {
       [homeRoomName: string]: {
-        [targetRoomName: string]: CreepCount
+        [targetRoomName: string]: CreepCount,
       }
     },
     /** 
      * creep id accumulator
      * such that each creep is given a unique id number
      */
-    creepAcc: CreepCount
+    creepAcc: CreepCount,
   }
   /**
    * @deprecated
    */
   sources: {
     [roomName: string]: number
-  }
+  },
+  /**
+   * @deprecated
+   */
+  offence: any,
+  /**
+   * @deprecated
+   */
+  creepDemand: any,
 }
 
 interface Global extends excessProperty{
+  config: {
+    [item: string]: any,
+  }
   states: {
     init: {
       globalTree: number,
@@ -182,15 +196,9 @@ interface Global extends excessProperty{
         spawn: TaskQueue<Task<unknown>>,
       },
       // TODO have a single counter for each role rather than per role per room
-      creepDemand: {
-        [roomName: string]: CreepCount,
-      },
-      creepDemandAdjustment: {
-        [roomName: string]: CreepCount,
-      },
-      creepLiveDemand: {
-        [roomName: string]: CreepCount,
-      }
+      creepDemand: CreepCount,
+      creepDemandAdjustment: CreepCount,
+      creepLiveDemand: CreepCount,
       storage: StructureStorage|StructureContainer|null,
     }
   },

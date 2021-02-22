@@ -13,7 +13,7 @@ const { Logger } = require('./Logger');
 module.exports.stateScanner = function() {
   // 每 20 tick 运行一次
 
-  if (Game.cpu.bucket == 10000) {
+  if (Game.cpu.bucket == 10000 && global.config.pixel) {
     Game.cpu.generatePixel();
     Memory.states.lastPixelTime = Game.time;
   }

@@ -8,3 +8,7 @@ export const MEMORY_UPDATE_PERIOD = 50;
 
 export const BACKUP_MEMORY = false;
 export const TESTROOMS: string[] = [/* 'E48S45' */];
+
+global.config = {
+  pixel: false,
+}

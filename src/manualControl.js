@@ -2,7 +2,8 @@ const {Logger, wrapColor} = require('./Logger');
 const { PayTask } = require('./payTask');
 /* eslint-disable no-unused-vars */
 
-/**
+/** 
+ * @deprecated
  * @typedef defaultRoomCreepConfig.config
  * @type {object.<string,number>}
  * @property {number} harvester=0
@@ -16,7 +17,8 @@ const { PayTask } = require('./payTask');
  * @property {number} claimer
  */
 
-/**
+/** 
+ * @deprecated
  * default room configuration
  * @param {string} room room name
  * @param {boolean} owner whether the room will be claimed/reserved
@@ -35,7 +37,8 @@ function defaultRoomCreepConfig(room, owner = false) {
   };
 }
 
-/**
+/** 
+ * @deprecated
  * add controlled room to room (for remote harvesting and defending purposes)
  * @param {string} controlled room name
  * @param {string} room room name
@@ -52,7 +55,8 @@ function addControlledRoom(controlled, room, demands = null) {
   Memory.stats.creepTrack[room][controlled] = {};
 }
 
-/**
+/** 
+ * @deprecated
  * remove controlled room from room
  * @param {string} controlled room name
  * @param {string} room room name
@@ -65,7 +69,8 @@ function removeControlledRoom(controlled, room) {
   return demands;
 }
 
-/**
+/** 
+ * @deprecated
  * transfer control of room from old owner to new owner
  * @param {string} room transfered room
  * @param {string} oldOwner original owner room name
@@ -77,7 +82,8 @@ function transferControlledRoom(room, oldOwner, newOwner) {
 }
 
 
-/**
+/** 
+ * @deprecated
  * add freshly claimed room
  * @param {string} room name
  */
@@ -92,12 +98,14 @@ function addOwnerRoom(room) {
   };
 }
 
-/**
+/** 
+ * @deprecated
  * @callback parseObjectProperties.parse
  * @param {*} obj
  * @param {string} k
  */
-/**
+/** 
+ * @deprecated
  * parse the object recursively
  * @param {*} obj the object
  * @param {parseObjectProperties.parse} parser parser
@@ -147,13 +155,27 @@ module.exports = {
     
   },
 
-  /**
+  preInit: () => {
+    if (Memory.exec === true) {
+      Memory.exec = ERR_TIRED;
+    }
+  },
+
+  postInit: () => {
+    if (Memory.exec === ERR_TIRED) {
+      Memory.exec = Game.time;
+    }
+  },
+
+  /** 
+   * @deprecated
      * manual control
      */
   alter: () => {
   },
 
-  /**
+  /** 
+   * @deprecated
      * manual control,
      * trigger by setting Memory.exec = true
      *
@@ -183,17 +205,17 @@ module.exports = {
       //     roomName,
       //     elem.isAtBase
       //   ); 
-      //   /** @type {PayTask} */
+      //   /** @deprecated @type {PayTask} */
       //   global.a = task;
       // }
 
       // if (Game.time == tick + 5) {
 
-      //   /** @type {PayTask} */
+      //   /** @deprecated @type {PayTask} */
       //   const newTask = global.a.clone();
       //   global.b = newTask;
         
-      //   /** @type {PayTask} */
+      //   /** @deprecated @type {PayTask} */
       //   global.a;
       //   Logger.info(wrapColor('green', `alter once: `))
       //   Logger.info(global.a.alternativeId, global.a);

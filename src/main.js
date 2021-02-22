@@ -2,12 +2,14 @@
 require('prototype.spawn')();
 require('Traveler');
 require('version');
+require('config');
+require('./util.myRooms');
 const watcher = require('watch-client');
 const stateScanner = require('stateScanner');
 const helper = require('./helper');
 const lib = require('./lib');
 const tower = require('./tower');
-const init = require('./init');
+const manual = require('./manualControl');
 const myLink = require('./link');
 const myTerminal = require('./terminal');
 const { Logger, JSONsafe } = require('./Logger');
@@ -15,12 +17,11 @@ const { MemoryTree } = require('./memoryTree');
 const { GlobalTree } = require('./globalTree');
 const profiler = require('screeps-profiler');
 const { Task, TransferTask } = require('./task');
-const { alterOnce } = require('./init');
 const { BACKUP_MEMORY } = require('./config');
 
 // execute alterOnce for once
 Memory.exec = true;
-Memory.config.pause = false;
+_.set(Memory, 'config.pause', false);
 
 // update code check
 if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
@@ -46,13 +47,15 @@ const starter = () => {
     return;
   } else {
     console.log(`Shard detected: ${Game.shard.name}`);
-    if (Game.shard.name == 'shard2') {
+    if (Game.shard.name == 'shardx' && false) {
       module.exports.loop = emptyShard;
     } else {
+      manual.preInit();
       MemoryTree.preInit();
       MemoryTree.init();
       GlobalTree.init();
-      alterOnce();
+      manual.postInit();
+
       module.exports.loop = main;
       main();
     }
@@ -60,7 +63,7 @@ const starter = () => {
 };
 
 const emptyShard = () => {
-  if (Game.cpu.bucket == 10000) {
+  if (Game.cpu.bucket == 10000 && global.config?.pixel) {
     Game.cpu.generatePixel();
     console.log(`${Game.shard.name} generated a pixel.`)
   } else {
@@ -139,11 +142,11 @@ const main = () => {
   try {
     GlobalTree.generateTasks()
     GlobalTree.marryTasks();
-    init.alter();
-    init.alterOnce();
   } catch (e) {
     Logger.warn(`Error running task generation`, e.name, e.message, e.fileName, e.lineNumber, e.stack);
   }
+  
+  manual.postSetup();
 
   tower.defendMyRoom();
 
