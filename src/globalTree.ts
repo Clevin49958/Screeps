@@ -22,7 +22,9 @@ export class GlobalTree {
       const startTime = Game.cpu.getUsed();
       global.rooms = {} as any;
       for (const roomName of _.keys(Memory.rooms)) {
-        GlobalTree.initRoom(Game.rooms[roomName]);
+        if (Memory.rooms[roomName].owner >= 2) {
+          GlobalTree.initRoom(Game.rooms[roomName]);
+        }
       }
       global.states.init.globalTree = Game.time;
       Logger.info(`global var initiation completed using ${(Game.cpu.getUsed() - startTime).toFixed(3)} ms`);

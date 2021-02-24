@@ -1,20 +1,20 @@
 import { Logger, wrapColor } from './Logger';
 import { BasicInfo, StructureInfo, SpawnGlobalInfo, LinkInfo, MineralInfo, LabInfo, getNewCreepCountDict } from './globalClasses';
-import { addOwnerRoom } from './init';
+import { myRoom } from './util.myRooms';
 import { MEMORY_UPDATE_PERIOD } from './config';
 
 /**
- * true: my claimed room
- *
  * 0: neutral without controller
  *
  * 1: neutral with controller
+ * 
+ * 2: my reserved room
+ * 
+ * 3: my claimed room
  *
  * string: hostile owner/reserver's username
- *
- * array: my reserved room, array lists nearby claimed rooms
  */
-export type ControllerStatus = true | 0 | 1 | string | string[]; 
+export type ControllerStatus = 0 | 1 | 2 | 3 | string; 
 
 /**
  * Get the ownership status of controller
@@ -24,21 +24,13 @@ export type ControllerStatus = true | 0 | 1 | string | string[];
 export function getControllerStatus(controller: StructureController): ControllerStatus {
   if (controller) {
     if (controller.my) {
-      return true;
+      return 3;
     } else if (controller.owner) {
       return controller.owner.username;
     } else {
       if (controller.reservation) {
         if (controller.reservation.username === Memory.userName) {
-          // my reserved room
-          const nearbyRooms = _.values<string>(Game.map.describeExits(controller.room.name));
-          const res: string[] = [];
-          nearbyRooms.forEach((roomName) => {
-            if (Game.rooms[roomName]?.controller?.my) {
-              res.push(roomName);
-            }
-          });
-          return res;
+          return 2;
         } else {
           return controller.reservation.username;
         }
@@ -65,6 +57,9 @@ export class MemoryTree {
       return ERR_NOT_FOUND;
     } else {
       mem.owner = getControllerStatus(room.controller);
+      if (mem.ownerRoomName && mem.owner != 2) {
+        delete mem.ownerRoomName;
+      }
       return OK;
     }
   }
@@ -83,6 +78,16 @@ export class MemoryTree {
   static updateStructures(room: Room): ScreepsReturnCode {
     const mem = Memory.rooms[room.name].structure;
 
+    // remove destroyed structures
+    for (const structureType of _.keys(mem)) {
+      for (const id of _.keys(mem[structureType])) {
+        if (!Game.getObjectById(id as Id<any>)) {
+          delete mem[structureType][id];
+        }
+      }
+    }
+
+    // add new structure
     for (const structure of room.find(FIND_STRUCTURES)) {
       const info = StructureInfo.fromStruc(structure);
       switch (structure.structureType) {
@@ -108,7 +113,9 @@ export class MemoryTree {
         case STRUCTURE_ROAD:
         case STRUCTURE_WALL:
         case STRUCTURE_RAMPART:
-          mem[structure.structureType][structure.id] = StructureInfo.fromStruc(structure) as StructureInfo<any>;
+          if (!mem[structure.structureType][structure.id]) {
+            mem[structure.structureType][structure.id] = StructureInfo.fromStruc(structure) as StructureInfo<any>;
+          }
           break;
 
         default:
@@ -168,19 +175,16 @@ export class MemoryTree {
 
     // structures
     MemoryTree.updateStructures(room);
-
-    // creep count
-    mem.creepTrack = {
-      home: getNewCreepCountDict(),
-      traveller: getNewCreepCountDict()
-    }
-
-    if (!mem.creepDemand) {
-      mem.creepDemand = {
-        [room.name]: getNewCreepCountDict(),
-      }  
-    }
     
+    // creep count
+    if (mem.owner >= 2){
+      mem.creepTrack = getNewCreepCountDict();
+
+      if (!mem.creepDemand) {
+        mem.creepDemand = getNewCreepCountDict();
+      }
+    }
+
     // set update timer
     mem.lastUpdate = Game.time;
     return OK;
@@ -200,7 +204,7 @@ export class MemoryTree {
    * @returns {ScreepsReturnCode} result
    */
   static updateRoom(room: Room): ScreepsReturnCode {
-    if (!_.get(room, 'memory.lastUpdate')) {
+    if (!room?.memory.lastUpdate) {
       return MemoryTree.initRoom(room);
     }
     let res: ScreepsReturnCode = OK;
@@ -232,9 +236,8 @@ export class MemoryTree {
   static preInit() {
     if (!Memory.states?.init?.preInitMemoryTree) {
       const startTime = Game.cpu.getUsed();
+      // back support purposes
       Memory.sources = Memory.sources || {};
-      Memory.offence = Memory.offence || {};
-      Memory.creepDemand = Memory.creepDemand || {};
       Memory.stats = {
         creepTrack: {},
         creepAcc: getNewCreepCountDict(),
@@ -249,7 +252,7 @@ export class MemoryTree {
         if (Object.hasOwnProperty.call(Game.rooms, roomName)) {
           const room = Game.rooms[roomName];
           Memory.sources[roomName] = room.find(FIND_SOURCES).length;
-          addOwnerRoom(roomName);
+          myRoom.addClaimedRoom(roomName);
         }
       }
       _.set(Memory, 'states.init.preInitMemoryTree', true);

@@ -1,4 +1,7 @@
-
+import { SpawnGlobalInfo } from "./globalClasses";
+import { Logger } from "./Logger";
+import { callbackFunc, Task } from "./task";
+ 
 export class SpawnTask extends Task<StructureSpawn> {
   spawn: SpawnGlobalInfo;
   target: string;

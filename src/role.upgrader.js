@@ -51,25 +51,21 @@ module.exports = {
    * @param {Creep} creep creep
    */
   run: function(creep) {
-    // creep.say(UPGRADER.slice(0, 1))
-    if (helper.moveTargetRoom(creep)) {
-      return;
-    }
 
-    
+    const controller = Game.rooms[creep.memory.home]?.controller;
 
     // if creep is supposed to transfer energy to the controller
     if (creep.memory.working == true) {
-      if (creep.upgradeController(creep.room.controller) ==
+      if (creep.upgradeController(controller) ==
                 ERR_NOT_IN_RANGE) {
         // if not in range, move towards the controller
-        creep.myMoveTo(creep.room.controller);
+        creep.myMoveTo(controller);
       }
 
-      if (creep.room.controller.my) {
+      if (controller && controller.my) {
         // try to upgrade the controller
-        if (creep.pos.inRangeTo(creep.room.controller, 3)) {
-          creep.upgradeController(creep.room.controller);
+        if (creep.pos.inRangeTo(controller, 3)) {
+          creep.upgradeController(controller);
         }
         // move to position
         const destination = getDestinyFlag(creep);
@@ -78,7 +74,7 @@ module.exports = {
             creep.myMoveTo(destination);
           }
         } else {
-          creep.myMoveTo(creep.room.controller, {range: 3});
+          creep.myMoveTo(controller, {range: 3});
         }
       } else {
         // probs in a hostile room? dismantle spawn and extensions

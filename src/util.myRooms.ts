@@ -101,3 +101,5 @@ export class MyRooms {
 }
 
 global.myRooms = MyRooms.getInstance();
+
+export const myRoom = MyRooms.getInstance();

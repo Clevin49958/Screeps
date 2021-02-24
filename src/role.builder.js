@@ -14,7 +14,12 @@ function findQuest(creep) {
   if (helper.moveTargetRoom(creep)) {
     return -2;
   } else {
-    const c = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES);
+    const c = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES, {
+      filter: s => (
+        Game.rooms[creep.memory.home]?.controller?.level > 2 ||
+        s.structureType == STRUCTURE_EXTENSION
+      )
+    });
     creep.memory.quest = c ? c.id : -1;
     return c ? c : -1;
   }
@@ -63,7 +68,7 @@ module.exports = {
     } else {
       // if creep is supposed to harvest energy from source
       // creep.say('loot');
-      // if (helper.harvestLoot(creep)) return;
+      if (helper.harvestLoot(creep)) return;
       creep.say('store');
       if (helper.withdrawStorage(creep)) return;
       if (creep.getActiveBodyparts(WORK) > creep.body.length / 3) {

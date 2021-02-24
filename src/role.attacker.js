@@ -44,7 +44,7 @@ module.exports = {
     }
     if (!enermy) {
       enermy = creep.pos.findClosestByPath(
-          FIND_HOSTILE_STRUCTURES/* , {filter: s => s.structureType != STRUCTURE_STORAGE}*/);
+          FIND_HOSTILE_STRUCTURES, {filter: s => ![STRUCTURE_STORAGE, STRUCTURE_CONTROLLER].includes(s.structureType)});
     }
 
     if (!enermy) {
