@@ -1,4 +1,5 @@
 import { CLAIMER, getNewCreepCountDict, HARV_REMOTE, HAULER, UPGRADER } from "./globalClasses";
+import { GlobalTree } from "./globalTree";
 import { Logger } from "./Logger";
 
 
@@ -18,6 +19,19 @@ export class MyRooms {
     return Memory.rooms[roomName]?.source?.length;
   }
 
+  /**
+   * This function will check if the room has a record in Memory.rooms
+   * and display warning if not
+   * @param roomName the room to check
+   */
+  private roomExistanceCheck(roomName: string): boolean {
+    const res = Boolean(Memory.rooms[roomName]?.lastUpdate);
+    if (!res) {
+      Logger.warn(`${roomName} not found in Memory`);
+    }
+    return res;
+  }
+
   getDefaultCreepConfig(owner: boolean = false, sources: number): CreepCount {
     const creepCount = getNewCreepCountDict();
     creepCount[HARV_REMOTE] = sources;
@@ -28,6 +42,10 @@ export class MyRooms {
   }
 
   addReservedRoom(reservedRoom: string, claimedRoom: string, sources?: number, demands: CreepCount = {}): ScreepsReturnCode {
+    if (!this.roomExistanceCheck(reservedRoom)) {
+      return ERR_INVALID_TARGET;
+    }
+
     sources = this.getNumOfSources(reservedRoom) || sources;
     if (sources === undefined) {
       return ERR_INVALID_ARGS;
@@ -39,20 +57,19 @@ export class MyRooms {
       Memory.myRooms[claimedRoom].push(reservedRoom);
     }
 
-    if (Memory.rooms[reservedRoom]) {
-      const mem = Memory.rooms[reservedRoom];
-      mem.owner = 2;
-      mem.ownerRoomName = claimedRoom;
-    } else {
-      Logger.warn(`Room ${reservedRoom} doesn't exist in memory`);
-      return ERR_INVALID_TARGET;
-    }
+    const mem = Memory.rooms[reservedRoom];
+    mem.owner = 2;
+    mem.ownerRoomName = claimedRoom;
 
     // TODO: load room into global
+    GlobalTree.initRoom(Game.rooms[reservedRoom]);
     return OK;
   }
 
   addClaimedRoom(claimedRoom: string, sources?: number, demands: CreepCount = {}): ScreepsReturnCode{
+    if (!this.roomExistanceCheck(claimedRoom)) {
+      return ERR_INVALID_ARGS;
+    }
     sources = this.getNumOfSources(claimedRoom) || sources;
     if (sources === undefined) {
       return ERR_INVALID_ARGS;
@@ -67,6 +84,7 @@ export class MyRooms {
     if (Memory.rooms[claimedRoom]) {
       const mem = Memory.rooms[claimedRoom];
       mem.owner = 3;
+      mem.ownerRoomName = claimedRoom;
     } else {
       Logger.warn(`Room ${claimedRoom} doesn't exist in memory`);
       return ERR_INVALID_TARGET;
@@ -98,6 +116,7 @@ export class MyRooms {
   transferReservedRoom(reservedRoom: string, oldOwner: string, newOwner: string): ScreepsReturnCode {
     return this.addReservedRoom(reservedRoom, newOwner, undefined, this.removeReservedRoom(reservedRoom, oldOwner));
   }
+
 }
 
 global.myRooms = MyRooms.getInstance();

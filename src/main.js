@@ -18,10 +18,12 @@ const { GlobalTree } = require('./globalTree');
 const profiler = require('screeps-profiler');
 const { Task, TransferTask } = require('./task');
 const { BACKUP_MEMORY } = require('./config');
+const { SpawnTask, SpawnTaskBuilder } = require('./spawnTask');
 
 // execute alterOnce for once
 Memory.exec = true;
-_.set(Memory, 'config.pause', false);
+Memory.config = Memory.config || {};
+Memory.config.pause = false;
 
 // update code check
 if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
@@ -128,6 +130,11 @@ const main = () => {
   // init.alterOnce();
 
   MemoryTree.autoUpdateRoom();
+
+  
+  init.preparePerTick();
+
+  SpawnTaskBuilder.collectCreepCount();
 
   lib.updateCreepWorkingState();
 

@@ -175,15 +175,16 @@ export const ATTACKER = 'attacker';
 export const MINER = 'miner';
 export const KEEPER = 'keeper';
 export const HEALER = 'healer';
+export const SCOUT = 'scout';
 
 // body type names
 export const BALANCED = 'bal';
 export const HEAVY_WORKER = 'heavy';
 
 // export const BodyType = HARV_REMOTE | BALANCED | HAULER | KEEPER | HEAVY_WORKER | CLAIMER | ATTACKER | ATK_RANGE | HEALER
-export const BODY_TYPES = [HARV_REMOTE, BALANCED, HAULER, KEEPER, HEAVY_WORKER, CLAIMER, ATTACKER, ATK_RANGE, HEALER];
+export const BODY_TYPES = [HARV_REMOTE, BALANCED, HAULER, KEEPER, HEAVY_WORKER, CLAIMER, ATTACKER, ATK_RANGE, HEALER, SCOUT];
 export const ROLE_NAMES = [HARVESTER, UPGRADER, BUILDER, REPAIRER,
-  HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER, HEALER];
+  HARV_REMOTE, WALL_REPAIRER, CLAIMER, ATK_RANGE, HAULER, ATTACKER, MINER, KEEPER, HEALER, SCOUT];
 
 export function getNewCreepCountDict(): CreepCount{
   return zeroCreepCountDict({});

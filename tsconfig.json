@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
+    "moduleResolution": "node",
     "lib": ["ES2017"],
     "target": "es2017",
     "outDir": "./dist",

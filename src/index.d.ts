@@ -35,7 +35,7 @@ declare interface Creep {
 declare interface CreepMemory {
   working: boolean,
   role: string,
-  bodyType: string,
+  // bodyType: string,
   home: string,
   target: string
   [key: string]: unknown
@@ -119,6 +119,9 @@ declare interface RoomMemory {
 }
 
 declare interface Memory {
+  scout: {
+    [ownerRoom: string]: string[]
+  };
   userName: string,
   rooms: {
     [roomName: string]: RoomMemory
@@ -193,8 +196,6 @@ interface Global extends excessProperty, NodeJS.Global{
         receiver: SrcTypedTaskQueue,
         spawn: TaskQueue<Task<unknown>>,
       },
-      // TODO have a single counter for each role rather than per role per room
-      creepDemand: CreepCount,
       creepDemandAdjustment: CreepCount,
       creepLiveDemand: CreepCount,
       storage: StructureStorage|StructureContainer|null,
